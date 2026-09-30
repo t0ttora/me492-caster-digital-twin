@@ -19,9 +19,11 @@ with sync_playwright() as p:
     page.goto('http://127.0.0.1:8766/tasks.html', wait_until='networkidle')
     assert page.locator('.task:visible').count() == 22
     page.locator('#task-1 > summary').click()
-    page.locator('#task-2 > summary').click()
-    assert page.locator('.task[open]').count() == 1
-    assert page.locator('#task-2').evaluate('(el) => el.getBoundingClientRect().top >= document.querySelector(".header").getBoundingClientRect().bottom')
+    assert page.locator('#task-inspector').is_visible()
+    page.get_by_role('button', name='Next task →', exact=True).click()
+    assert 'Arche technical visit' in page.locator('#inspector-title').inner_text()
+    page.keyboard.press('Escape')
+    assert not page.locator('#task-inspector').is_visible()
     page.get_by_role('button', name='In progress', exact=True).click()
     assert page.locator('.task:visible').count() == 1
     page.get_by_role('button', name='Verified', exact=True).click()
@@ -32,8 +34,9 @@ with sync_playwright() as p:
     assert page.locator('.task:visible').count() == 3
     page.goto('http://127.0.0.1:8766/roadmap.html')
     page.locator('.roadmap-task').first.click()
-    assert page.locator('#task-1').get_attribute('open') is not None
-    assert page.locator('#task-1').is_visible()
+    assert page.locator('#task-inspector').is_visible()
+    assert 'Scope and preparation' in page.locator('#inspector-title').inner_text()
+    page.get_by_role('button', name='Close task details', exact=True).click()
     page.goto('http://127.0.0.1:8766/progress.html')
     page.get_by_role('button', name='Refresh GitHub status').click()
     page.wait_for_function("!document.querySelector('#refresh').disabled")

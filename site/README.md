@@ -49,7 +49,7 @@ Each primary tab has a real HTML URL and a distinct content layout. Legacy homep
 
 All interface copy is English. Use the reports’ technical terminology and plain, descriptive headings. Introductions can use first person and an occasional dry aside; evidence, permissions, deadlines and status messages stay precise. Keep source documents, issue text and reports faithful to their authors. Distinguish planned, executed and verified work, and avoid claims that the records cannot support.
 
-Tasks use explicit open/close actions, one expanded record at a time, stable task links and filter reset. Report links resolve to dedicated site pages with PDF continuous scrolling, page navigation, fit-width/fit-page sizing, selectable text, zoom and a focus mode. Original downloads remain available. PDF.js provenance and licenses are in `assets/pdfjs/`; update the engine and worker together when upgrading.
+Tasks show planned periods/budgets in the list, independent type/status filters with counts, search and reset. A native dialog presents one task at a time with previous/next navigation and focus restoration; without JavaScript, inline details remain readable. Report links resolve to dedicated site pages with PDF continuous scrolling, page navigation, fit-width/fit-page sizing, selectable text, zoom and a focus mode. Original downloads remain available. PDF.js provenance and licenses are in `assets/pdfjs/`; update the engine and worker together when upgrading.
 
 The reader fills the available viewport with one document scroll area. Pages render near the viewport, and old canvas buffers are released on scale changes. The source PDFs remain unchanged.
 

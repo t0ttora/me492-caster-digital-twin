@@ -41,6 +41,15 @@ class DashboardTests(unittest.TestCase):
         self.assertFalse(any('.git' in p.parts or p.suffix in {'.py', '.md', '.env'} for p in files))
         self.assertTrue((ROOT / '_site/.nojekyll').exists())
 
+    def test_task_reading_and_report_links(self):
+        page = self.pages['tasks']
+        self.assertIn('<dialog id="task-inspector"', page)
+        self.assertIn('data-kind-filter="weekly"', page)
+        self.assertIn('10 person-hours planned', page)
+        self.assertIn('Decision due 2026-10-16', page)
+        url = build_site.GH + '/blob/main/reports/ME492_Timetable_EN.pdf'
+        self.assertEqual(build_site.safe_link(url), 'report-ME492_Timetable_EN.html')
+
     def test_progress_percentages_require_verification(self):
         records = [
             {'state':'closed', 'labels':['type:weekly', 'status:verified']},

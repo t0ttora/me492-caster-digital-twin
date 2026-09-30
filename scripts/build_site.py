@@ -46,6 +46,9 @@ def document_url(path):
 def safe_link(url, source=None):
     parts = urlsplit(url)
     if parts.scheme:
+        for name, _ in REPORTS:
+            if url.split('#')[0] == f'{GH}/blob/main/reports/{name}.pdf':
+                return f'report-{name}.html'
         return url if parts.scheme in ('https', 'http', 'mailto') else '#'
     if parts.netloc:
         return '#'
@@ -211,11 +214,15 @@ def build(issues, comments):
         if not re.fullmatch(r'[WG]\d+', code):
             code = f'#{issue["number"]}'
         title = issue['title'].split('|')[-1].strip()
+        body_text = (issue.get('body') or '').replace('**', '')
+        period = re.search(r'^Period: (.+?) · Budget: ([^·\n]+)', body_text, re.M)
+        deadline = re.search(r'^## Decision required by (\d{4}-\d{2}-\d{2})', body_text, re.M)
+        meta = f'{period[1]} · {period[2].strip()} planned' if period else f'Decision due {deadline[1]}' if deadline else 'See deliverable and acceptance evidence'
         history = []
         for comment in comments:
             if comment['issue_url'].endswith(f'/{issue["number"]}'):
                 history.append(f'<div class="issue-comment"><p>{escape(comment["user"]["login"])} · {short_date(comment["created_at"])} · <a href="{escape(comment["html_url"])}">Source ↗</a></p><div class="prose">{markdown(comment.get("body") or "", embedded=True)}</div></div>')
-        tasks.append(f'<details class="task" name="research-task" data-status="{status}" data-kind="{kind}" data-issue="{issue["number"]}" id="task-{issue["number"]}"><summary><span class="task-code">{escape(code)}</span><span>{escape(title)}</span>{badge(status)}<span class="task-open-label">View details ↓</span><span class="task-close-label">Close details ↑</span></summary><div class="task-body"><p class="task-context">{kind.title()} task · GitHub issue #{issue["number"]} · Published record</p><div class="prose">{markdown(issue.get("body") or "", embedded=True)}</div>{"".join(history)}<div class="task-actions"><button type="button" data-close-task hidden>Close details ↑</button><a href="#task-{issue["number"]}">Link to this task</a><a href="{escape(issue_url(issue))}">Issue and updates on GitHub ↗</a></div></div></details>')
+        tasks.append(f'<details class="task" name="research-task" data-status="{status}" data-kind="{kind}" data-issue="{issue["number"]}" id="task-{issue["number"]}"><summary><span class="task-code">{escape(code)}</span><span class="task-main"><span class="task-title">{escape(title)}</span><span class="task-meta">{escape(meta)}</span></span>{badge(status)}<span class="task-open-label">Read task →</span><span class="task-close-label">Close details ↑</span></summary><div class="task-body"><p class="task-context">{kind.title()} task · GitHub issue #{issue["number"]} · Published record</p><div class="prose">{markdown(issue.get("body") or "", embedded=True)}</div>{"".join(history)}<div class="task-actions"><button type="button" data-close-task hidden>Close details ↑</button><a href="#task-{issue["number"]}">Link to this task</a><a href="{escape(issue_url(issue))}">Issue and updates on GitHub ↗</a></div></div></details>')
     for path in sorted((ROOT / 'docs/progress').glob('????-??-??*.md'), reverse=True):
         source = path.relative_to(ROOT)
         title = path.read_text().splitlines()[0].lstrip('# ')

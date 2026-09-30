@@ -2,63 +2,80 @@ import {issueStatus, validIssue} from './assets/status.mjs';
 const tasks = [...document.querySelectorAll('.task')];
 const search = document.querySelector('#task-search');
 const filters = [...document.querySelectorAll('[data-filter]')];
-let filter = 'all';
+let filter = 'all', kind = 'all', selectedTask;
+const kindFilters = [...document.querySelectorAll('[data-kind-filter]')];
+const inspector = document.querySelector('#task-inspector');
 function updateTasks() {
   if (!search) return;
   const query = search.value.toLocaleLowerCase('en').trim();
+  const matchesSearch = task => task.textContent.toLocaleLowerCase('en').includes(query);
   let visible = 0;
   for (const task of tasks) {
-    const match = (filter === 'all' || task.dataset.status === filter || (filter === 'gate' && task.dataset.kind === 'gate')) && task.textContent.toLocaleLowerCase('en').includes(query);
+    const match = (filter === 'all' || task.dataset.status === filter) && (kind === 'all' || task.dataset.kind === kind) && matchesSearch(task);
     task.hidden = !match;
     if (!match) task.open = false;
     if (match) visible++;
   }
-  document.querySelector('#task-count').textContent = `${visible} / ${tasks.length} tasks shown · ${filter === 'all' ? 'All statuses' : document.querySelector(`[data-filter="${filter}"]`).textContent}${query ? ` · Search: ${search.value.trim()}` : ''}`;
-  document.querySelector('#reset-tasks').hidden = filter === 'all' && !query;
+  for (const button of filters) {
+    button.setAttribute('aria-pressed', String(button.dataset.filter === filter));
+    button.querySelector('.filter-count').textContent = tasks.filter(task => (kind === 'all' || task.dataset.kind === kind) && matchesSearch(task) && (button.dataset.filter === 'all' || task.dataset.status === button.dataset.filter)).length;
+  }
+  for (const button of kindFilters) {
+    button.setAttribute('aria-pressed', String(button.dataset.kindFilter === kind));
+    button.querySelector('.filter-count').textContent = tasks.filter(task => task.dataset.kind === button.dataset.kindFilter || button.dataset.kindFilter === 'all').length;
+  }
+  const statusName = filter === 'all' ? 'All statuses' : document.querySelector(`[data-filter="${filter}"]`).getAttribute('aria-label');
+  document.querySelector('#task-count').textContent = `${visible} of ${tasks.length} records · ${statusName}${query ? ` · “${search.value.trim()}”` : ''}`;
+  document.querySelector('#reset-tasks').hidden = filter === 'all' && kind === 'all' && !query;
   document.querySelector('#empty-tasks').hidden = visible > 0;
 }
-if (search) {
-  search.addEventListener('input', updateTasks);
-  for (const button of filters) button.addEventListener('click', () => {
-    filter = button.dataset.filter;
-    for (const item of filters) item.setAttribute('aria-pressed', String(item === button));
-    updateTasks();
-  });
-  updateTasks();
+function showTask(task) {
+  selectedTask = task;
+  tasks.forEach(item => item.classList.toggle('is-selected', item === task));
+  document.querySelector('#inspector-title').textContent = task.querySelector('.task-title').textContent;
+  document.querySelector('#inspector-code').textContent = `${task.querySelector('.task-code').textContent} / ${task.querySelector('.task-meta').textContent}`;
+  document.querySelector('#inspector-status').replaceChildren(task.querySelector('.badge').cloneNode(true));
+  const body = task.querySelector('.task-body').cloneNode(true);
+  body.querySelector('[data-close-task]').remove();
+  body.querySelector('.task-actions a').href = `${location.origin}${location.pathname}#${task.id}`;
+  document.querySelector('#inspector-content').replaceChildren(body);
+  const visible = tasks.filter(item => !item.hidden), index = visible.indexOf(task);
+  document.querySelector('#inspector-position').textContent = `${index + 1} of ${visible.length}`;
+  document.querySelector('#task-prev').disabled = index <= 0;
+  document.querySelector('#task-next').disabled = index >= visible.length - 1;
+  history.replaceState(null, '', `${location.pathname}${location.search}#${task.id}`);
+  if (!inspector.open) {document.body.classList.add('task-detail-open'); inspector.showModal();}
+  document.querySelector('#inspector-content').scrollTop = 0;
 }
 function openLinkedTask() {
   const id = location.hash.slice(1);
   if (!/^task-\d+$/.test(id)) return;
   const task = document.getElementById(id);
   if (!task) return;
-  filter = 'all';
-  if (search) search.value = '';
-  for (const button of filters) button.setAttribute('aria-pressed', String(button.dataset.filter === 'all'));
-  updateTasks();
-  task.open = true;
-  task.scrollIntoView({block:'start', behavior:'instant'});
+  filter = 'all'; kind = 'all'; search.value = ''; updateTasks(); showTask(task);
 }
 if (search) {
-  document.querySelector('#reset-tasks').addEventListener('click', () => {
-    filter = 'all'; search.value = '';
-    for (const button of filters) button.setAttribute('aria-pressed', String(button.dataset.filter === 'all'));
-    updateTasks(); search.focus();
-  });
+  search.addEventListener('input', updateTasks);
+  filters.forEach(button => button.addEventListener('click', () => {filter = button.dataset.filter; updateTasks();}));
+  kindFilters.forEach(button => button.addEventListener('click', () => {kind = button.dataset.kindFilter; updateTasks();}));
+  document.querySelector('#reset-tasks').addEventListener('click', () => {filter = 'all'; kind = 'all'; search.value = ''; updateTasks(); search.focus();});
   for (const task of tasks) {
-    const close = task.querySelector('[data-close-task]');
-    close.hidden = false;
-    close.addEventListener('click', () => {task.open = false; task.querySelector('summary').focus();});
-    task.addEventListener('toggle', () => {
-      if (task.open) {
-        for (const other of tasks) if (other !== task) other.open = false;
-        history.replaceState(null, '', `#${task.id}`);
-        const top = task.getBoundingClientRect().top;
-        const headerBottom = document.querySelector('.header').getBoundingClientRect().bottom;
-        if (top < headerBottom || top > innerHeight - 100) task.scrollIntoView({block:'start', behavior:'instant'});
-      } else if (location.hash === `#${task.id}`) history.replaceState(null, '', location.pathname + location.search);
-    });
+    const summary = task.querySelector('summary');
+    summary.setAttribute('aria-haspopup', 'dialog');
+    summary.addEventListener('click', event => {event.preventDefault(); showTask(task);});
   }
-  openLinkedTask();
+  inspector.addEventListener('close', () => {
+    document.body.classList.remove('task-detail-open');
+    tasks.forEach(task => task.classList.remove('is-selected'));
+    history.replaceState(null, '', location.pathname + location.search);
+    selectedTask?.querySelector('summary').focus({preventScroll:true});
+  });
+  inspector.addEventListener('click', event => {if (event.target === inspector) {const rect = inspector.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) inspector.close();}});
+  for (const [id, step] of [['task-prev', -1], ['task-next', 1]]) document.querySelector(`#${id}`).addEventListener('click', () => {
+    const visible = tasks.filter(task => !task.hidden), index = visible.indexOf(selectedTask);
+    if (visible[index + step]) showTask(visible[index + step]);
+  });
+  updateTasks(); openLinkedTask();
   window.addEventListener('hashchange', openLinkedTask);
 }
 // Preserve old shared section URLs while all navigation uses real pages.
@@ -123,6 +140,7 @@ if (refresh) {
       const checked = new Intl.DateTimeFormat('en-GB',{dateStyle:'short',timeStyle:'short',timeZone:'Europe/Istanbul'}).format(new Date());
       syncStatus.textContent = `Task statuses refreshed from GitHub · ${checked} (Istanbul). Research entries and comments reflect the last published snapshot.`;
       updateTasks();
+      if (inspector?.open && selectedTask) showTask(selectedTask);
     } catch {
       syncStatus.textContent = 'GitHub refresh is unavailable. The displayed snapshot is retained. Open GitHub for the current status.';
     } finally {
