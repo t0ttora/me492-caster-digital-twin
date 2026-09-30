@@ -256,6 +256,12 @@ def build(issues, comments):
         run_count = len(list(csv.DictReader(source)))
     (OUT / 'project.json').write_text(json.dumps({'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(), 'weeks': weeks, 'gates': [i for i in issues if 'type:gate' in label_names(i)], 'published_runs': run_count}, ensure_ascii=False))
     (OUT / 'snapshot.json').write_text(json.dumps({'published_at': built.isoformat(), 'source': GH, 'issues': issues, 'comments': comments}, ensure_ascii=False, indent=2))
+    version = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'], cwd=ROOT, text=True).strip()
+    for path in OUT.rglob('*.html'):
+        page = path.read_text()
+        for asset in ('style.css', 'app.js', 'assets/pdf-reader.mjs', 'assets/pdfjs/text-layer.css'):
+            page = page.replace(f'"{asset}"', f'"{asset}?v={version}"')
+        path.write_text(page)
     validate_links()
     print(f'Built {len(tasks)} tasks, {len(roadmap)} weeks, {len(documents)} documents and {len(journal)} journal entries.')
 
