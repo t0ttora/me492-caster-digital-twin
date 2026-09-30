@@ -62,7 +62,7 @@ with sync_playwright() as p:
     nojs=browser.new_context(java_script_enabled=False,viewport={'width':390,'height':844})
     static=nojs.new_page();static.goto('http://127.0.0.1:8765')
     assert static.locator('.week-row:visible').count()==16
-    assert static.get_by_role('link',name='Execution baseline').is_visible()
+    assert static.locator('.reports').get_by_role('link',name='Execution baseline').is_visible()
     print('PASS no-JavaScript: all 16 rows and report links remain available')
     assert not errors, errors
     print('PASS no uncaught browser errors')
