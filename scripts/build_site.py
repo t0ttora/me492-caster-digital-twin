@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / '_site'
 REPO = 't0ttora/me492-caster-digital-twin'
 GH = f'https://github.com/{REPO}'
+PAGES = [('index', 'Genel bakış'), ('progress', 'İlerleme'), ('vision', 'Vizyon'), ('manifesto', 'Manifesto'), ('tasks', 'Görevler'), ('roadmap', 'Yol haritası'), ('decisions', 'Kararlar'), ('library', 'Kütüphane'), ('about', 'Hakkımda')]
 STATUS = {'planned': 'Planlanan', 'in-progress': 'Devam ediyor', 'blocked': 'Engelli', 'verified': 'Doğrulandı', 'closed': 'Kapalı · doğrulanmadı', 'unclassified': 'Durum belirtilmedi', 'conflicting': 'Etiketler çelişkili'}
 
 
@@ -81,7 +82,7 @@ def markdown(text, source=None, embedded=False):
             bullets.clear()
         if table:
             rows = [row for row in table if not all(re.fullmatch(r':?-+:?', cell.strip()) for cell in row)]
-            result.append('<div class="table-scroll"><table>' + ''.join('<tr>' + ''.join(f'<{"th" if i == 0 else "td"}>{inline(cell, source)}</{"th" if i == 0 else "td"}>' for cell in row) + '</tr>' for i, row in enumerate(rows)) + '</table></div>')
+            result.append('<div class="table-scroll" role="region" aria-label="Document table" tabindex="0"><table>' + ''.join('<tr>' + ''.join(f'<{"th" if i == 0 else "td"}>{inline(cell, source)}</{"th" if i == 0 else "td"}>' for cell in row) + '</tr>' for i, row in enumerate(rows)) + '</table></div>')
             table.clear()
     for line in text.splitlines():
         if line.startswith('```'):
@@ -178,11 +179,11 @@ def build(issues, comments):
         dest = OUT / document_url(path)
         dest.parent.mkdir(parents=True, exist_ok=True)
         relative_root = os.path.relpath(OUT, dest.parent).replace(os.sep, '/') + '/'
-        page = f'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="{relative_root}"><title>{escape(title)} · Arche</title><link rel="icon" href="assets/olus-emre-logo.svg"><link rel="stylesheet" href="style.css"></head><body><div class="frame"><header class="record-header"><a href="index.html#library">← Arche / Kütüphane</a><a href="{GH}/blob/main/{path.as_posix()}">GitHub’da aslı ↗</a></header><main class="record"><p class="record-meta">PUBLIC RESEARCH RECORD / {escape(path.as_posix())}</p><article class="prose">{markdown(text, path)}</article></main></div></body></html>'
+        page = f'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="{relative_root}"><title>{escape(title)} · Arche</title><link rel="icon" href="assets/olus-emre-logo.svg"><link rel="stylesheet" href="style.css"></head><body><div class="frame"><header class="record-header"><a href="library.html">← Arche / Kütüphane</a><a href="{GH}/blob/main/{path.as_posix()}">GitHub’da aslı ↗</a></header><main class="record"><p class="record-meta">PUBLIC RESEARCH RECORD / {escape(path.as_posix())}</p><article class="prose">{markdown(text, path)}</article></main></div></body></html>'
         dest.write_text(page)
-        doc_links.append(f'<a href="{document_url(path)}"><span>{escape(title)}</span><small>{escape(path.parent.name.upper())} ↗</small></a>')
+        doc_links.append(f'<tr><th scope="row"><a href="{document_url(path)}">{escape(title)} ↗</a></th><td>{escape(path.parent.name.upper())}</td></tr>')
     shutil.copyfile(ROOT / 'docs/research/run-inventory.csv', OUT / 'records/run-inventory.csv')
-    doc_links.append('<a href="records/run-inventory.csv"><span>Run inventory</span><small>CSV ↗</small></a>')
+    doc_links.append('<tr><th scope="row"><a href="records/run-inventory.csv">Run inventory ↗</a></th><td>CSV</td></tr>')
     issues = sorted((i for i in issues if 'pull_request' not in i), key=lambda i: i['number'])
     tasks, journal = [], []
     weekly = [i for i in issues if any((l if isinstance(l, str) else l['name']) == 'type:weekly' for l in i['labels'])]
@@ -216,11 +217,12 @@ def build(issues, comments):
         week, period, hours, output, evidence = [cell.strip() for cell in line.strip('|').split('|')]
         task_number = int(week[1:])
         weeks.append({'id': week, 'hours': int(hours), 'period': period, 'output': output, 'evidence': evidence})
-        roadmap.append(f'<details><summary><span><b>{week}</b>{escape(period)}</span><strong>{escape(output)}</strong><span>{hours} saat +</span></summary><div><p>{escape(evidence)}</p><a href="#task-{task_number}" class="roadmap-task" data-task="task-{task_number}">İlgili görevi aç ↗</a></div></details>')
+        roadmap.append(f'<tr><th scope="row">{week}</th><td>{escape(period)}</td><td><strong>{escape(output)}</strong><p>{escape(evidence)}</p></td><td>{hours}</td><td><a href="tasks.html#task-{task_number}" class="roadmap-task">Görev ↗</a></td></tr>')
     counts = {s: sum(state(i) == s for i in weekly) for s in STATUS}
     metrics = ''.join(f'<div class="metric"><b>{count:02d}</b><span>{label}</span></div>' for count,label in [(counts['in-progress'],'Devam eden haftalık görev'),(counts['verified'],'Doğrulanan haftalık görev'),(counts['blocked'],'Engelli haftalık görev'),(len(weekly),'Toplam haftalık görev')])
+    status_table = '<div class="table-scroll"><table class="data-table status-table"><thead><tr>' + ''.join(f'<th scope="col">{label}</th>' for label in ['Devam eden', 'Doğrulanan', 'Engelli', 'Toplam haftalık görev']) + '</tr></thead><tbody><tr>' + ''.join(f'<td class="metric-value">{count:02d}</td>' for count in [counts['in-progress'], counts['verified'], counts['blocked'], len(weekly)]) + '</tr></tbody></table></div>'
     active = [i for i in weekly if state(i) == 'in-progress']
-    focus = ''.join(f'<h3>{escape(i["title"].split("|")[-1].strip())}</h3>{badge("in-progress")}<p><a href="#task-{i["number"]}">Görev #{i["number"]} ↗</a></p>' for i in active) or '<h3>Aktif görev işaretlenmedi.</h3><p>Güncel durumu görevler bölümünden inceleyin.</p>'
+    focus = ''.join(f'<h3>{escape(i["title"].split("|")[-1].strip())}</h3>{badge("in-progress")}<p><a href="tasks.html#task-{i["number"]}">Görev #{i["number"]} ↗</a></p>' for i in active) or '<h3>Aktif görev işaretlenmedi.</h3><p>Güncel durumu görevler bölümünden inceleyin.</p>'
     built = datetime.now(timezone.utc)
     log = subprocess.check_output(['git', 'log', '-5', '--format=%H%x09%cs%x09%s'], cwd=ROOT, text=True)
     commits = []
@@ -229,12 +231,17 @@ def build(issues, comments):
         commits.append(f'<a href="{GH}/commit/{sha}"><span>{escape(title)}</span><small>{date} · {sha[:7]} ↗</small></a>')
     access = Path('docs/access/access-register.md')
     decisions = Path('docs/planning/decisions.md')
-    tokens = {'COMMITS': ''.join(commits), 'ACCESS': markdown((ROOT / access).read_text(), access, embedded=True), 'DECISIONS': markdown((ROOT / decisions).read_text(), decisions, embedded=True), 'METRICS': metrics, 'FOCUS': focus, 'PROGRESS': ''.join(item[1] for item in journal), 'SYNC': f'GitHub ve repo kaydı · Son yayın: {short_date(built.isoformat())} (İstanbul).', 'TASKS': ''.join(tasks), 'ROADMAP': ''.join(roadmap), 'DOCUMENTS': ''.join(doc_links)}
-    page = (ROOT / 'site/index.html').read_text()
-    for key, value in tokens.items():
-        page = page.replace('{{' + key + '}}', value)
-    assert '{{' not in page
-    (OUT / 'index.html').write_text(page)
+    tokens = {'STATUS_TABLE': status_table, 'COMMITS': ''.join(commits), 'ACCESS': markdown((ROOT / access).read_text(), access, embedded=True), 'DECISIONS': markdown((ROOT / decisions).read_text(), decisions, embedded=True), 'METRICS': metrics, 'FOCUS': focus, 'PROGRESS': ''.join(item[1] for item in journal), 'SYNC': f'GitHub ve repo kaydı · Son yayın: {short_date(built.isoformat())} (İstanbul).', 'TASKS': ''.join(tasks), 'ROADMAP': ''.join(roadmap), 'DOCUMENTS': ''.join(doc_links)}
+    layout = (ROOT / 'site/layout.html').read_text()
+    for slug, title in PAGES:
+        body = (ROOT / 'site' / f'{slug}.html').read_text()
+        values = dict(tokens, CONTENT=body, TITLE=title, PAGE=slug, DESCRIPTION=f'{title} — Arche ME492 araştırma kaydı, Oluş Emre Demir.')
+        page = layout
+        for key in ('CONTENT', *values):
+            page = page.replace('{{' + key + '}}', values[key])
+        page = page.replace(f'data-page="{slug}"', f'data-page="{slug}" aria-current="page" class="active"')
+        assert '{{' not in page
+        (OUT / f'{slug}.html').write_text(page)
     (OUT / '.nojekyll').touch()
     with (ROOT / 'docs/research/run-inventory.csv').open() as source:
         run_count = len(list(csv.DictReader(source)))

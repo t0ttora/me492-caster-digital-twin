@@ -15,7 +15,8 @@ class DashboardTests(unittest.TestCase):
         result = subprocess.run(['python3', 'scripts/build_site.py', '--issues-file', 'site/issue-snapshot.json'], cwd=ROOT, capture_output=True, text=True)
         if result.returncode:
             raise AssertionError('Build failed: ' + result.stderr)
-        cls.html = (ROOT / '_site/index.html').read_text()
+        cls.pages = {slug: (ROOT / '_site' / f'{slug}.html').read_text() for slug, _ in build_site.PAGES}
+        cls.html = ''.join(cls.pages.values())
         cls.data = json.loads((ROOT / '_site/project.json').read_text())
 
     def test_source_grounded_scope(self):
@@ -30,7 +31,7 @@ class DashboardTests(unittest.TestCase):
     def test_real_content_without_javascript(self):
         self.assertEqual(self.html.count('class="task"'), 22)
         self.assertEqual(self.html.count('data-kind="gate"'), 6)
-        for phrase in ['Scope and preparation', 'Temsili şema', 'MANIFESTO', 'ADVISOR DESK']:
+        for phrase in ['Scope and preparation', 'MANIFESTO', 'Yayınlanan raporlar', 'PROFİL / ÇALIŞMA ALANI']:
             self.assertIn(phrase, self.html)
 
     def test_links_and_public_artifact(self):
@@ -43,9 +44,22 @@ class DashboardTests(unittest.TestCase):
     def test_accessibility_basics(self):
         self.assertIn('lang="tr"', self.html)
         self.assertIn('İçeriğe geç', self.html)
-        self.assertEqual(self.html.count('<h1'), 1)
+        for slug, page in self.pages.items():
+            self.assertEqual(page.count('<h1'), 1, slug)
         self.assertIn('aria-live="polite"', self.html)
-        self.assertIn('alt="Oluş Emre Demir"', self.html)
+        self.assertIn('aria-label="Arche ana sayfa"', self.html)
+
+    def test_separate_routes_without_invented_visuals(self):
+        self.assertEqual(len(self.pages), 9)
+        for slug, page in self.pages.items():
+            self.assertIn(f'data-page="{slug}" aria-current="page"', page)
+            self.assertNotIn('<svg', page)
+            self.assertNotIn('experiment-figure', page)
+            self.assertIn('href="tasks.html"', page)
+        self.assertNotIn('class="task"', self.pages['index'])
+        self.assertIn('class="task"', self.pages['tasks'])
+        self.assertIn('data-table roadmap', self.pages['roadmap'])
+        self.assertIn('journal-entry', self.pages['progress'])
 
     def test_untrusted_text_and_evidence_status(self):
         build_site.check()

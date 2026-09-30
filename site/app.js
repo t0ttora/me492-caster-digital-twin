@@ -4,6 +4,7 @@ const search = document.querySelector('#task-search');
 const filters = [...document.querySelectorAll('[data-filter]')];
 let filter = 'all';
 function updateTasks() {
+  if (!search) return;
   const query = search.value.toLocaleLowerCase('tr').trim();
   let visible = 0;
   for (const task of tasks) {
@@ -23,29 +24,24 @@ if (search) {
   });
   updateTasks();
 }
-const navLinks = [...document.querySelectorAll('.header nav a')];
-if ('IntersectionObserver' in window) {
-  const observer = new IntersectionObserver(entries => {
-    for (const entry of entries) if (entry.isIntersecting) {
-      for (const link of navLinks) {
-        const active = link.hash === `#${entry.target.id}`;
-        link.classList.toggle('active', active);
-        if (active) link.setAttribute('aria-current', 'location');
-        else link.removeAttribute('aria-current');
-      }
-    }
-  }, {rootMargin: '-20% 0px -60% 0px'});
-  for (const link of navLinks) { const section = document.querySelector(link.hash); if (section) observer.observe(section); }
-}
-
-for (const link of document.querySelectorAll('.roadmap-task')) link.addEventListener('click', () => {
+function openLinkedTask() {
+  const id = location.hash.slice(1);
+  if (!/^task-\d+$/.test(id)) return;
+  const task = document.getElementById(id);
+  if (!task) return;
   filter = 'all';
-  search.value = '';
+  if (search) search.value = '';
   for (const button of filters) button.setAttribute('aria-pressed', String(button.dataset.filter === 'all'));
   updateTasks();
-  const task = document.getElementById(link.dataset.task);
-  if (task) task.open = true;
-});
+  task.open = true;
+}
+if (search) {
+  openLinkedTask();
+  window.addEventListener('hashchange', openLinkedTask);
+}
+// Preserve old shared section URLs while all navigation uses real pages.
+const oldPage = location.hash.slice(1);
+if (/\/(?:index\.html)?$/.test(location.pathname) && ['progress','vision','manifesto','tasks','roadmap','decisions','library','about'].includes(oldPage)) location.replace(`${oldPage}.html`);
 
 const refresh = document.querySelector('#refresh');
 const syncStatus = document.querySelector('#sync-status');
@@ -81,17 +77,17 @@ if (refresh) {
       }
       const weekly = issues.filter(issue => issue.labels.some(label => (typeof label === 'string' ? label : label.name) === 'type:weekly'));
       const values = [weekly.filter(i => issueStatus(i) === 'in-progress').length, weekly.filter(i => issueStatus(i) === 'verified').length, weekly.filter(i => issueStatus(i) === 'blocked').length, weekly.length];
-      document.querySelectorAll('.metric b').forEach((item, index) => {item.textContent = String(values[index]).padStart(2, '0');});
+      document.querySelectorAll('.metric-value').forEach((item, index) => {item.textContent = String(values[index]).padStart(2, '0');});
       const focus = document.querySelector('#focus-items');
-      focus.replaceChildren();
+      if (focus) focus.replaceChildren();
       const active = weekly.filter(issue => issueStatus(issue) === 'in-progress');
       for (const issue of active) {
         const heading = document.createElement('h3'); heading.textContent = issue.title.split('|').at(-1).trim();
         const badge = document.createElement('span'); badge.className = 'badge in-progress'; badge.textContent = labels['in-progress'];
         const paragraph = document.createElement('p'); const link = document.createElement('a'); link.href = issue.html_url; link.textContent = `Görev #${issue.number} ↗`; paragraph.append(link);
-        focus.append(heading, badge, paragraph);
+        if (focus) focus.append(heading, badge, paragraph);
       }
-      if (!active.length) {const heading = document.createElement('h3');heading.textContent = 'Aktif görev işaretlenmedi.';focus.append(heading);}
+      if (focus && !active.length) {const heading = document.createElement('h3');heading.textContent = 'Aktif görev işaretlenmedi.';focus.append(heading);}
       const checked = new Intl.DateTimeFormat('tr-TR',{dateStyle:'short',timeStyle:'short',timeZone:'Europe/Istanbul'}).format(new Date());
       syncStatus.textContent = `Görev durumları GitHub’dan yenilendi · ${checked} (İstanbul). Araştırma ve yorum içerikleri son yayının kaydıdır.`;
       updateTasks();
@@ -104,3 +100,7 @@ if (refresh) {
     }
   });
 }
+
+const currentLink = document.querySelector('.header nav [aria-current="page"]');
+const navigation = document.querySelector('.header nav');
+if (currentLink && navigation && navigation.scrollWidth > navigation.clientWidth) navigation.scrollLeft = currentLink.offsetLeft - navigation.offsetLeft - navigation.clientWidth / 2 + currentLink.clientWidth / 2;

@@ -20,8 +20,9 @@ The [public research journal](https://t0ttora.github.io/me492-caster-digital-twi
 - **Progress:** add a dated Markdown file in `docs/progress/` and update its index, or add a dated evidence comment to the relevant issue. Public issue comments appear on the website, with author, timestamp and source link. Do not place restricted data in public comments.
 - **Roadmap:** update `docs/planning/timetable.md`; keep the existing table columns and W01–W16 identifiers aligned with the weekly issues.
 - **Decisions and access:** maintain the decision log and access register, with evidence, owners and actual approval state.
-- **Reports:** add permitted PDF files to `reports/` and update `reports/README.md`. The homepage highlights the two initial baseline reports; update `site/index.html` if those highlights change.
-- **Vision, manifesto and profile:** edit `site/index.html`. Present research aims as aims; add achieved results only with linked evidence.
+- **Page layout and navigation:** edit `site/layout.html`; page-specific content lives in the corresponding `site/*.html` template.
+- **Reports:** add permitted PDF files to `reports/` and update `reports/README.md`. The homepage highlights the two initial baseline reports; update `site/library.html` if those highlights change.
+- **Vision, manifesto and profile:** edit `site/vision.html`, `site/manifesto.html` and `site/about.html`. Present research aims as aims; add achieved results only with linked evidence.
 
 Pushes to main, issue edits/status changes, public issue comments and milestone changes trigger `.github/workflows/pages.yml`. The published timestamp describes the build, not the date of a new experiment. Run the workflow manually from GitHub Actions if a refresh is needed. Publication takes effect after a successful workflow run.
 
