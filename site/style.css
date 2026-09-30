@@ -47,3 +47,22 @@
 @media(max-width:760px){.task-types{gap:0}.task-types button{padding:8px;font-size:12px}.page-tasks .task-toolbar{gap:12px}.page-tasks .filters{flex-wrap:nowrap;overflow:auto;width:100%;padding-bottom:5px}.page-tasks .filters button{white-space:nowrap;flex-shrink:0}.page-tasks .search input{width:100%}.page-tasks .task-meta{font-size:11px}.page-tasks details.task>summary{padding:18px 0}.task-inspector{width:100%;border:0}.inspector-heading{padding:22px 18px}.inspector-heading h2{font-size:25px}.inspector-content{padding:20px 18px}.inspector-navigation{padding:14px 18px;gap:8px}.inspector-navigation button{font-size:11px}.inspector-heading .eyebrow{line-height:1.6}.task-types .filter-count{margin-left:4px}}
 @media print{.task-inspector,.task-controls{display:none}}
 .page-tasks .section-heading{margin-bottom:20px}.page-tasks .task-controls{padding-top:8px}.page-tasks .task-types{padding-bottom:10px;margin-bottom:10px}
+
+/* Motion follows the reading flow; controls remain usable throughout. */
+@media (prefers-reduced-motion:no-preference){
+  .header nav a,.repo-link,.text-link{transition:color 160ms ease,border-color 160ms ease}
+  .button,.filters button,.task-types button,.inspector-close,.inspector-navigation button,.pdf-controls button,.pdf-controls select{transition:background-color 160ms ease,color 160ms ease,border-color 160ms ease}
+  .task>summary{transition:background-color 160ms ease}
+  .task>summary:hover{background:rgba(248,247,239,.035)}
+  .task-open-label{display:inline-block;transition:transform 160ms ease,color 160ms ease}
+  .task>summary:hover .task-open-label,.task>summary:focus-visible .task-open-label{transform:translateX(3px);color:var(--blue)}
+  .hero-layout>div:first-child,.section-heading,.manifesto>h2{animation:page-arrive 420ms cubic-bezier(.2,.7,.2,1) both}
+  .overview-completion,.task-controls{animation:page-arrive 420ms 70ms cubic-bezier(.2,.7,.2,1) both}
+  .task-inspector[open]{animation:panel-arrive 240ms cubic-bezier(.2,.7,.2,1) both}
+  .task-inspector[open]::backdrop{animation:backdrop-arrive 180ms ease both}
+  .task-inspector .task-body,.journal-entry details[open]>:not(summary){animation:page-arrive 180ms ease both}
+  @keyframes page-arrive{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @keyframes panel-arrive{from{opacity:.6;transform:translateX(28px)}to{opacity:1;transform:none}}
+  @keyframes backdrop-arrive{from{opacity:0}to{opacity:1}}
+}
+@media(prefers-reduced-motion:reduce),print{*{animation:none!important;transition:none!important}}
