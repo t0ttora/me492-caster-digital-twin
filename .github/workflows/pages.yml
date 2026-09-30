@@ -1,0 +1,60 @@
+name: Project dashboard
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out project record
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 6
+      - name: Test and build dashboard
+        run: |
+          python3 -m unittest discover -s tests -v
+          node --test tests/*.test.mjs
+          node --check site/assets/app.mjs
+      - name: Install browser test tooling
+        run: |
+          python3 -m pip install --disable-pip-version-check playwright==1.58.0
+          python3 -m playwright install --with-deps chromium
+      - name: Check desktop, mobile and offline behavior
+        run: python3 tests/browser_check.py
+      - name: Save browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dashboard-browser-evidence
+          path: _qa
+          if-no-files-found: ignore
+      - name: Upload static Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Deploy advisor dashboard
+        id: deployment
+        uses: actions/deploy-pages@v4

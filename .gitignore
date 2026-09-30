@@ -10,3 +10,8 @@ cad/
 *.step
 *.stp
 *.stl
+
+# Generated dashboard and local QA artifacts
+_site/
+.qa/
+_qa/

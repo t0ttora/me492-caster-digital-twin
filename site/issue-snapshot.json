@@ -1,0 +1,247 @@
+{
+  "checked_at": "2026-09-30T15:35:00Z",
+  "issues": [
+    {
+      "number": 22,
+      "title": "G6 | Main result and scope freeze",
+      "state": "open",
+      "labels": [
+        "status:planned",
+        "type:gate"
+      ],
+      "url": "https://github.com/t0ttora/me492-caster-digital-twin/issues/22",
+      "updated_at": "2026-09-30T09:18:45Z"
+    },
+    {
+      "number": 21,
+      "title": "G5 | Learning and evaluation freeze",
+      "state": "open",
+      "labels": [
+        "status:planned",
+        "type:gate"
+      ],
+      "url": "https://github.com/t0ttora/me492-caster-digital-twin/issues/21",
+      "updated_at": "2026-09-30T09:18:44Z"
+    },
+    {
+      "number": 20,
+      "title": "G4 | Calibration and profile lock",
+      "state": "open",
+      "labels": [
+        "status:planned",
+        "type:gate"
+      ],
+      "url": "https://github.com/t0ttora/me492-caster-digital-twin/issues/20",
+      "updated_at": "2026-09-30T09:18:43Z"
+    },
+    {
+      "number": 19,
+      "title": "G3 | Data quality and GDS",
+      "state": "open",
+      "labels": [
+        "status:planned",
+        "type:gate"
+      ],
+      "url": "https://github.com/t0ttora/me492-caster-digital-twin/issues/19",
+      "updated_at": "2026-09-30T09:18:41Z"
+    },
+    {
+      "number": 18,
+      "title": "G2 | Caster model and pilot",
+      "state": "open",
+      "labels": [
+        "status:planned",
+        "type:gate"
+      ],
+      "url": "https://github.com/t0ttora/me492-caster-digital-twin/issues/18",
+      "updated_at": "2026-09-30T09:18:40Z"
+    },
+    {
+      "number": 17,
+      "title": "G1 | Platform and access",
+      "state": "open",
+      "labels": [
+        "status:planned",
+        "type:gate"
+      ],
+      "url": "https://github.com/t0ttora/me492-caster-digital-twin/issues/17",
+      "updated_at": "2026-09-30T09:18:38Z"
+    },
+    {
+      "number": 16,
+      "title": "W16 | 11–14 Jan | Final handoff",
+      "state": "open",
+      "labels": [
+        "status:planned",
+        "type:weekly"
+      ],
+      "url": "https://github.com/t0ttora/me492-caster-digital-twin/issues/16",
+      "updated_at": "2026-09-30T09:18:36Z"
+    },
+    {
+      "number": 15,
+      "title": "W15 | 4–10 Jan | Submission and defense preparation",
+      "state": "open",
+      "labels": [
+        "status:planned",
+        "type:weekly"
+      ],
+      "url": "https://github.com/t0ttora/me492-caster-digital-twin/issues/15",
+      "updated_at": "2026-09-30T09:18:35Z"
+    },
+    {
+      "number": 14,
+      "title": "W14 | 28 Dec–3 Jan | Finals and reserved corrections",
+      "state": "open",
+      "labels": [
+        "status:planned",
+        "type:weekly"
+      ],
+      "url": "https://github.com/t0ttora/me492-caster-digital-twin/issues/14",
+      "updated_at": "2026-09-30T09:18:34Z"
+    },
+    {
+      "number": 13,
+      "title": "W13 | 21–27 Dec | Package and advisor review",
+      "state": "open",
+      "labels": [
+        "status:planned",
+        "type:weekly"
+      ],
+      "url": "https://github.com/t0ttora/me492-caster-digital-twin/issues/13",
+      "updated_at": "2026-09-30T09:18:32Z"
+    },
+    {
+      "number": 12,
+      "title": "W12 | 14–20 Dec | Interpretation and final analysis",
+      "state": "open",
+      "labels": [
+        "status:planned",
+        "type:weekly"
+      ],
+      "url": "https://github.com/t0ttora/me492-caster-digital-twin/issues/12",
+      "updated_at": "2026-09-30T09:18:30Z"
+    },
+    {
+      "number": 11,
+      "title": "W11 | 7–13 Dec | Independent evaluation",
+      "state": "open",
+      "labels": [
+        "status:planned",
+        "type:weekly"
+      ],
+      "url": "https://github.com/t0ttora/me492-caster-digital-twin/issues/11",
+      "updated_at": "2026-09-30T09:18:29Z"
+    },
+    {
+      "number": 10,
+      "title": "W10 | 30 Nov–6 Dec | Draft report and model freeze",
+      "state": "open",
+      "labels": [
+        "status:planned",
+        "type:weekly"
+      ],
+      "url": "https://github.com/t0ttora/me492-caster-digital-twin/issues/10",
+      "updated_at": "2026-09-30T09:18:28Z"
+    },
+    {
+      "number": 9,
+      "title": "W09 | 23–29 Nov | Confirmation data and AI baseline",
+      "state": "open",
+      "labels": [
+        "status:planned",
+        "type:weekly"
+      ],
+      "url": "https://github.com/t0ttora/me492-caster-digital-twin/issues/9",
+      "updated_at": "2026-09-30T09:18:27Z"
+    },
+    {
+      "number": 8,
+      "title": "W08 | 16–22 Nov | Trajectory optimization",
+      "state": "open",
+      "labels": [
+        "status:planned",
+        "type:weekly"
+      ],
+      "url": "https://github.com/t0ttora/me492-caster-digital-twin/issues/8",
+      "updated_at": "2026-09-30T09:18:25Z"
+    },
+    {
+      "number": 7,
+      "title": "W07 | 9–15 Nov | Calibration experiments",
+      "state": "open",
+      "labels": [
+        "status:planned",
+        "type:weekly"
+      ],
+      "url": "https://github.com/t0ttora/me492-caster-digital-twin/issues/7",
+      "updated_at": "2026-09-30T09:18:23Z"
+    },
+    {
+      "number": 6,
+      "title": "W06 | 2–8 Nov | Protocol review and GDS",
+      "state": "open",
+      "labels": [
+        "status:planned",
+        "type:weekly"
+      ],
+      "url": "https://github.com/t0ttora/me492-caster-digital-twin/issues/6",
+      "updated_at": "2026-09-30T09:18:21Z"
+    },
+    {
+      "number": 5,
+      "title": "W05 | 26 Oct–1 Nov | Repeatable benchmark",
+      "state": "open",
+      "labels": [
+        "status:planned",
+        "type:weekly"
+      ],
+      "url": "https://github.com/t0ttora/me492-caster-digital-twin/issues/5",
+      "updated_at": "2026-09-30T09:18:19Z"
+    },
+    {
+      "number": 4,
+      "title": "W04 | 19–25 Oct | Caster model and physical pilot",
+      "state": "open",
+      "labels": [
+        "status:planned",
+        "type:weekly"
+      ],
+      "url": "https://github.com/t0ttora/me492-caster-digital-twin/issues/4",
+      "updated_at": "2026-09-30T09:18:18Z"
+    },
+    {
+      "number": 3,
+      "title": "W03 | 12–18 Oct | Platform and ideal model",
+      "state": "open",
+      "labels": [
+        "status:planned",
+        "type:weekly"
+      ],
+      "url": "https://github.com/t0ttora/me492-caster-digital-twin/issues/3",
+      "updated_at": "2026-09-30T09:18:16Z"
+    },
+    {
+      "number": 2,
+      "title": "W02 | 5–11 Oct | Arche technical visit",
+      "state": "open",
+      "labels": [
+        "status:planned",
+        "type:weekly"
+      ],
+      "url": "https://github.com/t0ttora/me492-caster-digital-twin/issues/2",
+      "updated_at": "2026-09-30T09:18:15Z"
+    },
+    {
+      "number": 1,
+      "title": "W01 | 30 Sep–4 Oct | Scope and preparation",
+      "state": "open",
+      "labels": [
+        "status:in-progress",
+        "type:weekly"
+      ],
+      "url": "https://github.com/t0ttora/me492-caster-digital-twin/issues/1",
+      "updated_at": "2026-09-30T09:22:52Z"
+    }
+  ]
+}

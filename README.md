@@ -58,12 +58,16 @@ Physical validation depends on suitable robot access, logs and reference measure
 │   ├── access/             Company access checklist and permission register
 │   ├── progress/           Dated work and evidence records
 │   └── sources.md          References and baseline provenance
+├── site/                   Advisor dashboard template and assets
+├── scripts/                Reproducible dashboard build
+├── tests/                  Record consistency and website checks
 ├── reports/                Published PDFs and report index
 └── .github/ISSUE_TEMPLATE/  Task, progress and decision templates
 ```
 
 | Looking for | Start here |
 | --- | --- |
+| Advisor dashboard | [Build, preview and publication guide](site/README.md) |
 | Reports and advisor handoff | [Report library](reports/README.md) |
 | Semester roadmap | [Timetable](docs/planning/timetable.md) and [task / gate index](docs/planning/task-index.md) |
 | Research methods | [Experiment protocol](docs/research/experiment-protocol.md), [prediction task](docs/research/learning-task.md) and [research notebook](docs/research/research-log.md) |

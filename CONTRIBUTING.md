@@ -11,3 +11,7 @@ Owner: Oluş Emre Demir. The advisor can read all public pages/issues without an
 ## Weekly progress fields
 
 Period; planned output; actual work; prepared/executed/verified state; evidence link/run ID; actual hours versus plan; blocker; next output; decision needed.
+
+## Dashboard updates
+
+The advisor dashboard reads the existing planning, decision and access tables at build time. Keep their headings intact or update the generator and tests together. Update the dated narrative in `site/index.html` when findings or dependencies change; a live issue-label refresh does not update research conclusions. See [the dashboard maintenance guide](site/README.md) for preview, checks, snapshot refresh and publication.
