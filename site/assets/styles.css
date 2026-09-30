@@ -1434,3 +1434,16 @@ tbody td:last-child {
     font-size:25px;
   }
 }
+
+/* Keep the compact reference layout legible on narrow phone screens. */
+.table-hint { display: none; }
+@media (max-width: 800px) {
+  .table-hint { display: block; margin-top: 14px; }
+  .scope-stats dt { font-size: 9px; }
+}
+@media (max-width: 480px) {
+  .scope-stats { grid-template-columns: repeat(2, 1fr); row-gap: 18px; }
+  .scope-stats > div { display: flex; gap: 12px; }
+  .scope-stats > div:nth-child(odd) { border-left: 0; padding-left: 0; }
+  .scope-stats dt { font-size: 9px; margin-top: 0; letter-spacing: .65px; }
+}

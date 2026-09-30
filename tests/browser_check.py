@@ -42,6 +42,8 @@ with sync_playwright() as p:
         page.set_viewport_size({'width':width,'height':844})
         page.goto('http://127.0.0.1:8765',wait_until='networkidle')
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), f'Overflow at {width}'
+        assert page.locator('.scope-stats dt').first.evaluate('(e) => parseFloat(getComputedStyle(e).fontSize)') >= 9
+        assert 'Open work. Explicit limits.' in page.locator('.project-links h2').inner_text().replace('\n',' ')
         if width==390:
             page.screenshot(path=str(OUT/'mobile.png'),full_page=False)
             page.screenshot(path=str(OUT/'mobile-full.png'),full_page=True)
