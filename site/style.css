@@ -66,3 +66,7 @@
   @keyframes backdrop-arrive{from{opacity:0}to{opacity:1}}
 }
 @media(prefers-reduced-motion:reduce),print{*{animation:none!important;transition:none!important}}
+
+.roadmap-map{margin:0 0 48px}.roadmap-map-heading{display:flex;align-items:baseline;justify-content:space-between;gap:20px;margin-bottom:24px}.roadmap-map-heading h2{font-size:26px}.roadmap-map-scroll{overflow:auto;border:1px solid var(--line);background:var(--ink)}.roadmap-map img{display:block;width:100%;max-width:916px;height:auto;margin:auto}.roadmap-map figcaption{line-height:1.6}.roadmap-map-scroll:focus-visible{outline:2px solid var(--blue);outline-offset:4px}
+@media(max-width:760px){.roadmap-map-heading{align-items:flex-start;flex-direction:column;gap:14px}.roadmap-map img{width:780px;max-width:none}.roadmap-map{margin-bottom:36px}}
+@media print{.roadmap-map-scroll{overflow:visible}.roadmap-map img{width:100%;max-width:916px}}
