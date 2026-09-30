@@ -31,7 +31,7 @@ class DashboardTests(unittest.TestCase):
     def test_real_content_without_javascript(self):
         self.assertEqual(self.html.count('class="task"'), 22)
         self.assertEqual(self.html.count('data-kind="gate"'), 6)
-        for phrase in ['Scope and preparation', 'MANIFESTO', 'Yayınlanan raporlar', 'PROFİL / ÇALIŞMA ALANI']:
+        for phrase in ['Scope and preparation', 'MANIFESTO', 'Published reports', 'PROFILE / PRACTICE']:
             self.assertIn(phrase, self.html)
 
     def test_links_and_public_artifact(self):
@@ -42,12 +42,15 @@ class DashboardTests(unittest.TestCase):
         self.assertTrue((ROOT / '_site/.nojekyll').exists())
 
     def test_accessibility_basics(self):
-        self.assertIn('lang="tr"', self.html)
-        self.assertIn('İçeriğe geç', self.html)
+        for page in self.pages.values():
+            self.assertIn('lang="en"', page)
+            for phrase in ['Görev', 'İlerleme', 'Kütüphane', 'koşulları', 'Yol haritası']:
+                self.assertNotIn(phrase, page)
+        self.assertIn('Skip to content', self.html)
         for slug, page in self.pages.items():
             self.assertEqual(page.count('<h1'), 1, slug)
         self.assertIn('aria-live="polite"', self.html)
-        self.assertIn('aria-label="Arche ana sayfa"', self.html)
+        self.assertIn('aria-label="Arche home"', self.html)
 
     def test_separate_routes_without_invented_visuals(self):
         self.assertEqual(len(self.pages), 9)

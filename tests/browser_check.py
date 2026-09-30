@@ -18,11 +18,11 @@ with sync_playwright() as p:
     page.route('https://api.github.com/**', lambda route: route.fulfill(status=403, content_type='application/json', body='{"message":"Rate limit"}'))
     page.goto('http://127.0.0.1:8766/tasks.html', wait_until='networkidle')
     assert page.locator('.task:visible').count() == 22
-    page.get_by_role('button', name='Devam eden', exact=True).click()
+    page.get_by_role('button', name='In progress', exact=True).click()
     assert page.locator('.task:visible').count() == 1
-    page.get_by_role('button', name='Doğrulanan', exact=True).click()
+    page.get_by_role('button', name='Verified', exact=True).click()
     assert page.locator('#empty-tasks').is_visible()
-    page.get_by_role('button', name='Karar kapıları', exact=True).click()
+    page.get_by_role('button', name='Decision gates', exact=True).click()
     assert page.locator('.task:visible').count() == 6
     page.get_by_role('searchbox').fill('freeze')
     assert page.locator('.task:visible').count() == 3
@@ -31,9 +31,9 @@ with sync_playwright() as p:
     assert page.locator('#task-1').get_attribute('open') is not None
     assert page.locator('#task-1').is_visible()
     page.goto('http://127.0.0.1:8766/progress.html')
-    page.get_by_role('button', name='GitHub durumunu yenile').click()
+    page.get_by_role('button', name='Refresh GitHub status').click()
     page.wait_for_function("!document.querySelector('#refresh').disabled")
-    assert 'kullanılamıyor' in page.locator('#sync-status').inner_text()
+    assert 'unavailable' in page.locator('#sync-status').inner_text()
     for width in [320, 390, 768, 1280]:
         page.set_viewport_size({'width':width, 'height':844})
         page.goto('http://127.0.0.1:8766/tasks.html', wait_until='networkidle')
@@ -44,9 +44,9 @@ with sync_playwright() as p:
     page.unroute_all()
     page.route('https://api.github.com/**', lambda route: route.fulfill(status=200, content_type='application/json', body=json.dumps(fixture)))
     page.goto('http://127.0.0.1:8766/progress.html')
-    page.get_by_role('button', name='GitHub durumunu yenile').click()
+    page.get_by_role('button', name='Refresh GitHub status').click()
     page.wait_for_function("!document.querySelector('#refresh').disabled")
-    assert 'yenilendi' in page.locator('#sync-status').inner_text()
+    assert 'refreshed' in page.locator('#sync-status').inner_text()
     nojs = browser.new_context(java_script_enabled=False, viewport={'width':390,'height':844})
     static = nojs.new_page()
     static.goto('http://127.0.0.1:8766/tasks.html')

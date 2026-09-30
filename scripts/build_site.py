@@ -18,8 +18,8 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / '_site'
 REPO = 't0ttora/me492-caster-digital-twin'
 GH = f'https://github.com/{REPO}'
-PAGES = [('index', 'Genel bakış'), ('progress', 'İlerleme'), ('vision', 'Vizyon'), ('manifesto', 'Manifesto'), ('tasks', 'Görevler'), ('roadmap', 'Yol haritası'), ('decisions', 'Kararlar'), ('library', 'Kütüphane'), ('about', 'Hakkımda')]
-STATUS = {'planned': 'Planlanan', 'in-progress': 'Devam ediyor', 'blocked': 'Engelli', 'verified': 'Doğrulandı', 'closed': 'Kapalı · doğrulanmadı', 'unclassified': 'Durum belirtilmedi', 'conflicting': 'Etiketler çelişkili'}
+PAGES = [('index', 'Overview'), ('progress', 'Progress'), ('vision', 'Vision'), ('manifesto', 'Manifesto'), ('tasks', 'Tasks'), ('roadmap', 'Roadmap'), ('decisions', 'Decisions'), ('library', 'Library'), ('about', 'About')]
+STATUS = {'planned': 'Planned', 'in-progress': 'In progress', 'blocked': 'Blocked', 'verified': 'Verified', 'closed': 'Closed · unverified', 'unclassified': 'Unclassified', 'conflicting': 'Conflicting labels'}
 
 
 def api_all(endpoint):
@@ -144,7 +144,7 @@ def issue_url(issue):
 
 
 def short_date(value):
-    return datetime.fromisoformat(value.replace('Z', '+00:00')).astimezone(ZoneInfo('Europe/Istanbul')).strftime('%d.%m.%Y · %H:%M')
+    return datetime.fromisoformat(value.replace('Z', '+00:00')).astimezone(ZoneInfo('Europe/Istanbul')).strftime('%d %b %Y, %H:%M')
 
 
 def check():
@@ -179,7 +179,7 @@ def build(issues, comments):
         dest = OUT / document_url(path)
         dest.parent.mkdir(parents=True, exist_ok=True)
         relative_root = os.path.relpath(OUT, dest.parent).replace(os.sep, '/') + '/'
-        page = f'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="{relative_root}"><title>{escape(title)} · Arche</title><link rel="icon" href="assets/olus-emre-logo.svg"><link rel="stylesheet" href="style.css"></head><body><div class="frame"><header class="record-header"><a href="library.html">← Arche / Kütüphane</a><a href="{GH}/blob/main/{path.as_posix()}">GitHub’da aslı ↗</a></header><main class="record"><p class="record-meta">PUBLIC RESEARCH RECORD / {escape(path.as_posix())}</p><article class="prose">{markdown(text, path)}</article></main></div></body></html>'
+        page = f'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="{relative_root}"><title>{escape(title)} · Arche</title><link rel="icon" href="assets/olus-emre-logo.svg"><link rel="stylesheet" href="style.css"></head><body><div class="frame"><header class="record-header"><a href="library.html">← Arche / Library</a><a href="{GH}/blob/main/{path.as_posix()}">Source on GitHub ↗</a></header><main class="record"><p class="record-meta">PUBLIC RESEARCH RECORD / {escape(path.as_posix())}</p><article class="prose">{markdown(text, path)}</article></main></div></body></html>'
         dest.write_text(page)
         doc_links.append(f'<tr><th scope="row"><a href="{document_url(path)}">{escape(title)} ↗</a></th><td>{escape(path.parent.name.upper())}</td></tr>')
     shutil.copyfile(ROOT / 'docs/research/run-inventory.csv', OUT / 'records/run-inventory.csv')
@@ -199,15 +199,15 @@ def build(issues, comments):
         history = []
         for comment in comments:
             if comment['issue_url'].endswith(f'/{issue["number"]}'):
-                history.append(f'<div class="issue-comment"><p>{escape(comment["user"]["login"])} · {short_date(comment["created_at"])} · <a href="{escape(comment["html_url"])}">Kaynak ↗</a></p><div class="prose">{markdown(comment.get("body") or "", embedded=True)}</div></div>')
-        tasks.append(f'<details class="task" data-status="{status}" data-kind="{kind}" data-issue="{issue["number"]}" id="task-{issue["number"]}"><summary><span class="task-code">{escape(code)}</span><span>{escape(title)}</span>{badge(status)}<span class="task-arrow" aria-hidden="true">+</span></summary><div class="task-body"><div class="prose">{markdown(issue.get("body") or "", embedded=True)}</div>{"".join(history)}<a class="text-link" href="{escape(issue_url(issue))}">GitHub’da görev ve yorumlar ↗</a></div></details>')
+                history.append(f'<div class="issue-comment"><p>{escape(comment["user"]["login"])} · {short_date(comment["created_at"])} · <a href="{escape(comment["html_url"])}">Source ↗</a></p><div class="prose">{markdown(comment.get("body") or "", embedded=True)}</div></div>')
+        tasks.append(f'<details class="task" data-status="{status}" data-kind="{kind}" data-issue="{issue["number"]}" id="task-{issue["number"]}"><summary><span class="task-code">{escape(code)}</span><span>{escape(title)}</span>{badge(status)}<span class="task-arrow" aria-hidden="true">+</span></summary><div class="task-body"><div class="prose">{markdown(issue.get("body") or "", embedded=True)}</div>{"".join(history)}<a class="text-link" href="{escape(issue_url(issue))}">Task and comments on GitHub ↗</a></div></details>')
     for path in sorted((ROOT / 'docs/progress').glob('????-??-??*.md'), reverse=True):
         source = path.relative_to(ROOT)
         title = path.read_text().splitlines()[0].lstrip('# ')
-        journal.append((path.name[:10], f'<article class="journal-entry"><time datetime="{path.name[:10]}">{path.name[:10]}</time><h3>{escape(title)}</h3><p>Repo ilerleme kaydı · hazırlık, uygulama ve doğrulama sınırları belgenin içinde.</p><details><summary>Kaydı oku +</summary><div class="prose">{markdown(path.read_text(), source, embedded=True)}</div></details><a class="text-link" href="{document_url(source)}">Tam kayıt ↗</a></article>'))
+        journal.append((path.name[:10], f'<article class="journal-entry"><time datetime="{path.name[:10]}">{path.name[:10]}</time><h3>{escape(title)}</h3><p>Repository progress record. The document distinguishes preparation, execution and verification.</p><details><summary>Read entry +</summary><div class="prose">{markdown(path.read_text(), source, embedded=True)}</div></details><a class="text-link" href="{document_url(source)}">Full record ↗</a></article>'))
     for comment in comments:
         number = int(comment['issue_url'].rsplit('/', 1)[1])
-        journal.append((comment['created_at'], f'<article class="journal-entry"><time datetime="{comment["created_at"]}">{short_date(comment["created_at"])}</time><h3>Görev #{number} / güncelleme</h3><p>{escape(comment["user"]["login"])} tarafından GitHub’da kaydedildi.</p><details><summary>Güncellemeyi oku +</summary><div class="prose">{markdown(comment.get("body") or "", embedded=True)}</div></details><a class="text-link" href="{escape(comment["html_url"])}">Kaynak yorum ↗</a></article>'))
+        journal.append((comment['created_at'], f'<article class="journal-entry"><time datetime="{comment["created_at"]}">{short_date(comment["created_at"])}</time><h3>Task #{number} update</h3><p>{escape(comment["user"]["login"])} posted this update on GitHub.</p><details><summary>Read update +</summary><div class="prose">{markdown(comment.get("body") or "", embedded=True)}</div></details><a class="text-link" href="{escape(comment["html_url"])}">Source comment ↗</a></article>'))
     journal.sort(key=lambda item: item[0], reverse=True)
     roadmap = []
     weeks = []
@@ -217,12 +217,11 @@ def build(issues, comments):
         week, period, hours, output, evidence = [cell.strip() for cell in line.strip('|').split('|')]
         task_number = int(week[1:])
         weeks.append({'id': week, 'hours': int(hours), 'period': period, 'output': output, 'evidence': evidence})
-        roadmap.append(f'<tr><th scope="row">{week}</th><td>{escape(period)}</td><td><strong>{escape(output)}</strong><p>{escape(evidence)}</p></td><td>{hours}</td><td><a href="tasks.html#task-{task_number}" class="roadmap-task">Görev ↗</a></td></tr>')
+        roadmap.append(f'<tr><th scope="row">{week}</th><td>{escape(period)}</td><td><strong>{escape(output)}</strong><p>{escape(evidence)}</p></td><td>{hours}</td><td><a href="tasks.html#task-{task_number}" class="roadmap-task">Task ↗</a></td></tr>')
     counts = {s: sum(state(i) == s for i in weekly) for s in STATUS}
-    metrics = ''.join(f'<div class="metric"><b>{count:02d}</b><span>{label}</span></div>' for count,label in [(counts['in-progress'],'Devam eden haftalık görev'),(counts['verified'],'Doğrulanan haftalık görev'),(counts['blocked'],'Engelli haftalık görev'),(len(weekly),'Toplam haftalık görev')])
-    status_table = '<div class="table-scroll"><table class="data-table status-table"><thead><tr>' + ''.join(f'<th scope="col">{label}</th>' for label in ['Devam eden', 'Doğrulanan', 'Engelli', 'Toplam haftalık görev']) + '</tr></thead><tbody><tr>' + ''.join(f'<td class="metric-value">{count:02d}</td>' for count in [counts['in-progress'], counts['verified'], counts['blocked'], len(weekly)]) + '</tr></tbody></table></div>'
+    status_table = '<div class="table-scroll"><table class="data-table status-table"><thead><tr>' + ''.join(f'<th scope="col">{label}</th>' for label in ['In progress', 'Verified', 'Blocked', 'Total weekly tasks']) + '</tr></thead><tbody><tr>' + ''.join(f'<td class="metric-value">{count:02d}</td>' for count in [counts['in-progress'], counts['verified'], counts['blocked'], len(weekly)]) + '</tr></tbody></table></div>'
     active = [i for i in weekly if state(i) == 'in-progress']
-    focus = ''.join(f'<h3>{escape(i["title"].split("|")[-1].strip())}</h3>{badge("in-progress")}<p><a href="tasks.html#task-{i["number"]}">Görev #{i["number"]} ↗</a></p>' for i in active) or '<h3>Aktif görev işaretlenmedi.</h3><p>Güncel durumu görevler bölümünden inceleyin.</p>'
+    focus = ''.join(f'<h3>{escape(i["title"].split("|")[-1].strip())}</h3>{badge("in-progress")}<p><a href="tasks.html#task-{i["number"]}">Task #{i["number"]} ↗</a></p>' for i in active) or '<h3>No task is marked in progress.</h3><p>Check the Tasks page for the current record.</p>'
     built = datetime.now(timezone.utc)
     log = subprocess.check_output(['git', 'log', '-5', '--format=%H%x09%cs%x09%s'], cwd=ROOT, text=True)
     commits = []
@@ -231,11 +230,11 @@ def build(issues, comments):
         commits.append(f'<a href="{GH}/commit/{sha}"><span>{escape(title)}</span><small>{date} · {sha[:7]} ↗</small></a>')
     access = Path('docs/access/access-register.md')
     decisions = Path('docs/planning/decisions.md')
-    tokens = {'STATUS_TABLE': status_table, 'COMMITS': ''.join(commits), 'ACCESS': markdown((ROOT / access).read_text(), access, embedded=True), 'DECISIONS': markdown((ROOT / decisions).read_text(), decisions, embedded=True), 'METRICS': metrics, 'FOCUS': focus, 'PROGRESS': ''.join(item[1] for item in journal), 'SYNC': f'GitHub ve repo kaydı · Son yayın: {short_date(built.isoformat())} (İstanbul).', 'TASKS': ''.join(tasks), 'ROADMAP': ''.join(roadmap), 'DOCUMENTS': ''.join(doc_links)}
+    tokens = {'STATUS_TABLE': status_table, 'COMMITS': ''.join(commits), 'ACCESS': markdown((ROOT / access).read_text(), access, embedded=True), 'DECISIONS': markdown((ROOT / decisions).read_text(), decisions, embedded=True), 'FOCUS': focus, 'PROGRESS': ''.join(item[1] for item in journal), 'SYNC': f'GitHub and repository snapshot · Published: {short_date(built.isoformat())} (Istanbul).', 'TASKS': ''.join(tasks), 'ROADMAP': ''.join(roadmap), 'DOCUMENTS': ''.join(doc_links)}
     layout = (ROOT / 'site/layout.html').read_text()
     for slug, title in PAGES:
         body = (ROOT / 'site' / f'{slug}.html').read_text()
-        values = dict(tokens, CONTENT=body, TITLE=title, PAGE=slug, DESCRIPTION=f'{title} — Arche ME492 araştırma kaydı, Oluş Emre Demir.')
+        values = dict(tokens, CONTENT=body, TITLE=title, PAGE=slug, DESCRIPTION=f'{title} | Arche ME492 research record by Oluş Emre Demir.')
         page = layout
         for key in ('CONTENT', *values):
             page = page.replace('{{' + key + '}}', values[key])

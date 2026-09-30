@@ -5,14 +5,14 @@ const filters = [...document.querySelectorAll('[data-filter]')];
 let filter = 'all';
 function updateTasks() {
   if (!search) return;
-  const query = search.value.toLocaleLowerCase('tr').trim();
+  const query = search.value.toLocaleLowerCase('en').trim();
   let visible = 0;
   for (const task of tasks) {
-    const match = (filter === 'all' || task.dataset.status === filter || (filter === 'gate' && task.dataset.kind === 'gate')) && task.textContent.toLocaleLowerCase('tr').includes(query);
+    const match = (filter === 'all' || task.dataset.status === filter || (filter === 'gate' && task.dataset.kind === 'gate')) && task.textContent.toLocaleLowerCase('en').includes(query);
     task.hidden = !match;
     if (match) visible++;
   }
-  document.querySelector('#task-count').textContent = `${visible} / ${tasks.length} görev gösteriliyor`;
+  document.querySelector('#task-count').textContent = `${visible} / ${tasks.length} tasks shown`;
   document.querySelector('#empty-tasks').hidden = visible > 0;
 }
 if (search) {
@@ -45,12 +45,12 @@ if (/\/(?:index\.html)?$/.test(location.pathname) && ['progress','vision','manif
 
 const refresh = document.querySelector('#refresh');
 const syncStatus = document.querySelector('#sync-status');
-const labels = {planned:'Planlanan','in-progress':'Devam ediyor',blocked:'Engelli',verified:'Doğrulandı',closed:'Kapalı · doğrulanmadı',unlabelled:'Durum belirtilmedi',conflicting:'Etiketler çelişkili'};
+const labels = {planned:'Planned','in-progress':'In progress',blocked:'Blocked',verified:'Verified',closed:'Closed · unverified',unlabelled:'Unclassified',conflicting:'Conflicting labels'};
 if (refresh) {
   refresh.hidden = false;
   refresh.addEventListener('click', async () => {
     refresh.disabled = true;
-    refresh.textContent = 'GitHub kontrol ediliyor…';
+    refresh.textContent = 'Checking GitHub…';
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
     try {
@@ -84,19 +84,19 @@ if (refresh) {
       for (const issue of active) {
         const heading = document.createElement('h3'); heading.textContent = issue.title.split('|').at(-1).trim();
         const badge = document.createElement('span'); badge.className = 'badge in-progress'; badge.textContent = labels['in-progress'];
-        const paragraph = document.createElement('p'); const link = document.createElement('a'); link.href = issue.html_url; link.textContent = `Görev #${issue.number} ↗`; paragraph.append(link);
+        const paragraph = document.createElement('p'); const link = document.createElement('a'); link.href = issue.html_url; link.textContent = `Task #${issue.number} ↗`; paragraph.append(link);
         if (focus) focus.append(heading, badge, paragraph);
       }
-      if (focus && !active.length) {const heading = document.createElement('h3');heading.textContent = 'Aktif görev işaretlenmedi.';focus.append(heading);}
-      const checked = new Intl.DateTimeFormat('tr-TR',{dateStyle:'short',timeStyle:'short',timeZone:'Europe/Istanbul'}).format(new Date());
-      syncStatus.textContent = `Görev durumları GitHub’dan yenilendi · ${checked} (İstanbul). Araştırma ve yorum içerikleri son yayının kaydıdır.`;
+      if (focus && !active.length) {const heading = document.createElement('h3');heading.textContent = 'No task is marked in progress.';focus.append(heading);}
+      const checked = new Intl.DateTimeFormat('en-GB',{dateStyle:'short',timeStyle:'short',timeZone:'Europe/Istanbul'}).format(new Date());
+      syncStatus.textContent = `Task statuses refreshed from GitHub · ${checked} (Istanbul). Research entries and comments reflect the last published snapshot.`;
       updateTasks();
     } catch {
-      syncStatus.textContent = 'GitHub yenilemesi kullanılamıyor. Son gösterilen kayıt korunuyor; güncel durum için GitHub’ı açın.';
+      syncStatus.textContent = 'GitHub refresh is unavailable. The displayed snapshot is retained. Open GitHub for the current status.';
     } finally {
       clearTimeout(timeout);
       refresh.disabled = false;
-      refresh.textContent = 'GitHub durumunu yenile ↻';
+      refresh.textContent = 'Refresh GitHub status ↻';
     }
   });
 }

@@ -44,3 +44,7 @@ node --input-type=module --check < site/app.js
 Desktop/mobile screenshots and UI checks are performed in the browser. The optional `tests/browser_check.py` provides CI regression checks when Playwright is available. Its test fixtures are not project results. No runtime framework, CMS, database or frontend package installation is required.
 
 Each primary tab has a real HTML URL and a distinct content layout. Legacy homepage section hashes redirect to their matching pages. No generated illustrations, robot diagrams or synthetic data plots are included.
+
+## Editorial voice
+
+All interface copy is English. Use the reports’ technical terminology and plain, descriptive headings. Introductions can use first person and an occasional dry aside; evidence, permissions, deadlines and status messages stay precise. Keep source documents, issue text and reports faithful to their authors. Distinguish planned, executed and verified work, and avoid claims that the records cannot support.
