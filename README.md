@@ -8,6 +8,8 @@ This project investigates how passive caster wheels affect mobile-robot motion a
 
 The study is being prepared around an Arche Robotics platform. Its actual configuration, available telemetry and permitted experiments must be confirmed with the company. This repository is the public project record: research methods, execution plans, decisions, progress and permitted reports. It currently contains documentation; simulation software and experimental results have not yet been published.
 
+**Follow the project:** [Public research journal](https://t0ttora.github.io/me492-caster-digital-twin/) — progress, vision, tasks, roadmap, decisions and reports.
+
 ## The engineering problem
 
 An ideal differential-drive model describes motion through the driven wheels, but a real platform also interacts with passive casters and the floor. Caster reorientation, rolling resistance and contact effects can contribute to deviations during turns, reversals and speed changes. The study will test when those effects matter and whether a more detailed model or a smoother command profile provides a useful improvement.
@@ -59,7 +61,9 @@ Physical validation depends on suitable robot access, logs and reference measure
 │   ├── progress/           Dated work and evidence records
 │   └── sources.md          References and baseline provenance
 ├── reports/                Published PDFs and report index
-└── .github/ISSUE_TEMPLATE/  Task, progress and decision templates
+├── site/                   Research website design and brand assets
+├── scripts/                Static website builder and checks
+└── .github/                Issue templates and Pages publication workflow
 ```
 
 | Looking for | Start here |

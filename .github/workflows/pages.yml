@@ -1,0 +1,41 @@
+name: Publish research journal
+on:
+  push:
+    branches: [main]
+  issues:
+    types: [opened, edited, closed, reopened, labeled, unlabeled, deleted, milestoned, demilestoned]
+  issue_comment:
+    types: [created, edited, deleted]
+  milestone:
+    types: [created, edited, closed, opened, deleted]
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: read
+  pages: write
+  id-token: write
+concurrency:
+  group: arche-pages
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.event_name != 'issue_comment' || !github.event.issue.pull_request
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - uses: actions/configure-pages@v5
+      - name: Build from public records and GitHub tasks
+        run: python scripts/build_site.py
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+      - uses: actions/deploy-pages@v4
+        id: deployment

@@ -10,3 +10,5 @@ cad/
 *.step
 *.stp
 *.stl
+
+_site/
