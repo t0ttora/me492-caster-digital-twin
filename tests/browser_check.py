@@ -53,9 +53,15 @@ with sync_playwright() as p:
     assert 'refreshed' in page.locator('#sync-status').inner_text()
     page.goto('http://127.0.0.1:8766/report-ME492_Timetable_EN.html')
     page.get_by_text('Page 1 of 2', exact=True).wait_for()
-    page.get_by_role('button', name='Next →', exact=True).click()
+    page.get_by_role('button', name='Next page', exact=True).click()
     page.get_by_text('Page 2 of 2', exact=True).wait_for()
-    assert page.locator('#pdf-canvas').evaluate('(el) => el.width > 0 && el.height > 0')
+    page.locator('.pdf-sheet[data-page="2"][data-ready="true"]').wait_for()
+    assert page.locator('.pdf-sheet').count() == 2
+    assert page.evaluate('document.documentElement.scrollHeight <= innerHeight')
+    page.get_by_role('button', name='Focus view', exact=True).click()
+    assert page.locator('body').get_attribute('class') == 'page-reader reader-focus'
+    page.keyboard.press('Escape')
+    assert page.locator('body').get_attribute('class') == 'page-reader'
     nojs = browser.new_context(java_script_enabled=False, viewport={'width':390,'height':844})
     static = nojs.new_page()
     static.goto('http://127.0.0.1:8766/tasks.html')
