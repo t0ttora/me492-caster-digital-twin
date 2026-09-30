@@ -8,7 +8,7 @@
 
 **Method:** 24 calibration/development runs and 48 confirmation runs are requested. Split by whole run/session; seal confirmation data until model/profile/metric locking. Three repeats per cell are an access-constrained engineering minimum and do not establish statistical power.
 
-**Evidence:** [execution baseline](../reports/ME492_Final_Roadmap_and_Arche_Visit_EN.pdf), [experiment protocol](experiment-protocol.md), [learning task](learning-task.md).
+**Evidence:** [execution baseline](../../reports/ME492_Final_Roadmap_and_Arche_Visit_EN.pdf), [experiment protocol](experiment-protocol.md), [learning task](learning-task.md).
 
 **Open uncertainties:** actual configuration, logging quality, independent reference and available robot time. Prior architecture choices remain hypotheses until the platform visit.
 
