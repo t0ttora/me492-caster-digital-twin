@@ -162,6 +162,20 @@ def check():
     print('PASS: escaping, tables, checklists, evidence status and document links')
 
 
+def progress_summary(issues):
+    def labelled(issue, label):
+        return any((item if isinstance(item, str) else item['name']) == label for item in issue['labels'])
+    weekly = [issue for issue in issues if labelled(issue, 'type:weekly')]
+    gates = [issue for issue in issues if labelled(issue, 'type:gate')]
+    rows = []
+    for key, label, records, target in [('weekly-verified', 'Verified weekly tasks', weekly, 'verified'), ('weekly-active', 'Work in progress', weekly, 'in-progress'), ('gates-verified', 'Verified decision gates', gates, 'verified')]:
+        count = sum(state(issue) == target for issue in records)
+        percent = int(count / len(records) * 1000 + 0.5) / 10 if records else 0
+        value = f'{percent:g}%' if records else 'Not available'
+        rows.append(f'<div class="completion-row" data-summary="{key}"><div><span>{label}</span><b class="completion-value">{value}</b></div><progress value="{percent}" max="100" aria-label="{label}"></progress><p class="completion-count">{count} of {len(records)} records</p></div>')
+    return ''.join(rows)
+
+
 def build(issues, comments):
     if OUT.is_symlink():
         raise ValueError('Refusing a symlinked build output')
@@ -231,7 +245,9 @@ def build(issues, comments):
         commits.append(f'<a href="{GH}/commit/{sha}"><span>{escape(title)}</span><small>{date} · {sha[:7]} ↗</small></a>')
     access = Path('docs/access/access-register.md')
     decisions = Path('docs/planning/decisions.md')
-    tokens = {'STATUS_TABLE': status_table, 'COMMITS': ''.join(commits), 'ACCESS': markdown((ROOT / access).read_text(), access, embedded=True), 'DECISIONS': markdown((ROOT / decisions).read_text(), decisions, embedded=True), 'FOCUS': focus, 'PROGRESS': ''.join(item[1] for item in journal), 'SYNC': f'GitHub and repository snapshot · Published: {short_date(built.isoformat())} (Istanbul).', 'TASKS': ''.join(tasks), 'ROADMAP': ''.join(roadmap), 'DOCUMENTS': ''.join(doc_links)}
+    with (ROOT / 'docs/research/run-inventory.csv').open() as source:
+        run_count = len(list(csv.DictReader(source)))
+    tokens = {'COMPLETION': progress_summary(issues), 'RUN_COUNT': str(run_count), 'ACCESS_SNAPSHOT': escape((ROOT / access).read_text().split('\n\n')[1]), 'STATUS_TABLE': status_table, 'COMMITS': ''.join(commits), 'ACCESS': markdown((ROOT / access).read_text(), access, embedded=True), 'DECISIONS': markdown((ROOT / decisions).read_text(), decisions, embedded=True), 'FOCUS': focus, 'PROGRESS': ''.join(item[1] for item in journal), 'SYNC': f'GitHub and repository snapshot · Published: {short_date(built.isoformat())} (Istanbul).', 'TASKS': ''.join(tasks), 'ROADMAP': ''.join(roadmap), 'DOCUMENTS': ''.join(doc_links)}
     layout = (ROOT / 'site/layout.html').read_text()
     for slug, title in PAGES:
         body = (ROOT / 'site' / f'{slug}.html').read_text()
@@ -252,8 +268,6 @@ def build(issues, comments):
         page = page.replace('data-page="library"', 'data-page="library" aria-current="page" class="active"')
         (OUT / f'report-{name}.html').write_text(page)
     (OUT / '.nojekyll').touch()
-    with (ROOT / 'docs/research/run-inventory.csv').open() as source:
-        run_count = len(list(csv.DictReader(source)))
     (OUT / 'project.json').write_text(json.dumps({'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(), 'weeks': weeks, 'gates': [i for i in issues if 'type:gate' in label_names(i)], 'published_runs': run_count}, ensure_ascii=False))
     (OUT / 'snapshot.json').write_text(json.dumps({'published_at': built.isoformat(), 'source': GH, 'issues': issues, 'comments': comments}, ensure_ascii=False, indent=2))
     version = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'], cwd=ROOT, text=True).strip()

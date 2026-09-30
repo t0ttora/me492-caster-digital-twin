@@ -41,6 +41,20 @@ class DashboardTests(unittest.TestCase):
         self.assertFalse(any('.git' in p.parts or p.suffix in {'.py', '.md', '.env'} for p in files))
         self.assertTrue((ROOT / '_site/.nojekyll').exists())
 
+    def test_progress_percentages_require_verification(self):
+        records = [
+            {'state':'closed', 'labels':['type:weekly', 'status:verified']},
+            {'state':'open', 'labels':['type:weekly', 'status:in-progress']},
+            {'state':'closed', 'labels':['type:gate']},
+        ]
+        summary = build_site.progress_summary(records)
+        self.assertEqual(summary.count('>50%<'), 2)
+        self.assertIn('>0%<', summary)
+        self.assertIn('1 of 2 records', summary)
+        self.assertIn('0 of 1 records', summary)
+        self.assertIn('Not available', build_site.progress_summary([]))
+        self.assertIn('0 of 1 records', build_site.progress_summary([{'state':'open','labels':['type:weekly','status:verified']}]))
+
     def test_embedded_report_readers(self):
         for name, title in build_site.REPORTS:
             page = (ROOT / '_site' / f'report-{name}.html').read_text()

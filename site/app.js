@@ -98,6 +98,16 @@ if (refresh) {
         badge.textContent = labels[state];
       }
       const weekly = issues.filter(issue => issue.labels.some(label => (typeof label === 'string' ? label : label.name) === 'type:weekly'));
+      const gates = issues.filter(issue => issue.labels.some(label => (typeof label === 'string' ? label : label.name) === 'type:gate'));
+      const summaries = {'weekly-verified':[weekly,'verified'], 'weekly-active':[weekly,'in-progress'], 'gates-verified':[gates,'verified']};
+      for (const row of document.querySelectorAll('[data-summary]')) {
+        const [records, target] = summaries[row.dataset.summary];
+        const count = records.filter(issue => issueStatus(issue) === target).length;
+        const percent = records.length ? Math.round(count / records.length * 1000) / 10 : 0;
+        row.querySelector('.completion-value').textContent = records.length ? `${percent}%` : 'Not available';
+        row.querySelector('.completion-count').textContent = `${count} of ${records.length} records`;
+        row.querySelector('progress').value = percent;
+      }
       const values = [weekly.filter(i => issueStatus(i) === 'in-progress').length, weekly.filter(i => issueStatus(i) === 'verified').length, weekly.filter(i => issueStatus(i) === 'blocked').length, weekly.length];
       document.querySelectorAll('.metric-value').forEach((item, index) => {item.textContent = String(values[index]).padStart(2, '0');});
       const focus = document.querySelector('#focus-items');

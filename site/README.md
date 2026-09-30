@@ -52,3 +52,5 @@ All interface copy is English. Use the reports’ technical terminology and plai
 Tasks use explicit open/close actions, one expanded record at a time, stable task links and filter reset. Report links resolve to dedicated site pages with PDF continuous scrolling, page navigation, fit-width/fit-page sizing, selectable text, zoom and a focus mode. Original downloads remain available. PDF.js provenance and licenses are in `assets/pdfjs/`; update the engine and worker together when upgrading.
 
 The reader fills the available viewport with one document scroll area. Pages render near the viewport, and old canvas buffers are released on scale changes. The source PDFs remain unchanged.
+
+Overview progress uses equally weighted weekly tasks and a separate decision-gate denominator. Completion requires a closed issue with an unambiguous `status:verified` label. Active work gets no partial completion credit; percentages refresh with the public GitHub status request. The scope and evidence panels reflect the published research records.
