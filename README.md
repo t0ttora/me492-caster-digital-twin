@@ -4,11 +4,13 @@
 
 Oluş Emre Demir · Mechanical Engineering, Yeditepe University · ME492 · Fall 2026
 
+**[Project website →](https://t0ttora.github.io/me492-caster-digital-twin/)**
+
+Progress, weekly tasks, semester roadmap, decisions and reports in one public research journal.
+
 This project investigates how passive caster wheels affect mobile-robot motion and whether accounting for their dynamics can improve simulation fidelity and trajectory tracking. The intended outcome is a calibrated digital twin, a repeatable comparison of conventional and smoother motion profiles, and engineering conclusions supported by measured evidence.
 
 The study is being prepared around an Arche Robotics platform. Its actual configuration, available telemetry and permitted experiments must be confirmed with the company. This repository is the public project record: research methods, execution plans, decisions, progress and permitted reports. It currently contains documentation; simulation software and experimental results have not yet been published.
-
-**Follow the project:** [Public research journal](https://t0ttora.github.io/me492-caster-digital-twin/) — progress, vision, tasks, roadmap, decisions and reports.
 
 ## The engineering problem
 
@@ -69,7 +71,7 @@ Physical validation depends on suitable robot access, logs and reference measure
 
 | Looking for | Start here |
 | --- | --- |
-| Advisor dashboard | [Build, preview and publication guide](site/README.md) |
+| Advisor dashboard | [Live research journal](https://t0ttora.github.io/me492-caster-digital-twin/) · [Build and publication guide](site/README.md) |
 | Reports and advisor handoff | [Report library](reports/README.md) |
 | Semester roadmap | [Timetable](docs/planning/timetable.md) and [task / gate index](docs/planning/task-index.md) |
 | Research methods | [Experiment protocol](docs/research/experiment-protocol.md), [prediction task](docs/research/learning-task.md) and [research notebook](docs/research/research-log.md) |

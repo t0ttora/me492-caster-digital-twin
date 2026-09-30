@@ -154,3 +154,18 @@ if (refresh) {
 const currentLink = document.querySelector('.header nav [aria-current="page"]');
 const navigation = document.querySelector('.header nav');
 if (currentLink && navigation && navigation.scrollWidth > navigation.clientWidth) navigation.scrollLeft = currentLink.offsetLeft - navigation.offsetLeft - navigation.clientWidth / 2 + currentLink.clientWidth / 2;
+
+const menuToggle = document.querySelector('.nav-toggle');
+if (menuToggle) {
+  menuToggle.hidden = false;
+  menuToggle.addEventListener('click', () => {
+    const expanded = menuToggle.getAttribute('aria-expanded') !== 'true';
+    menuToggle.setAttribute('aria-expanded', String(expanded));
+    menuToggle.textContent = expanded ? 'Close ×' : 'Menu +';
+  });
+  navigation.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && menuToggle.getAttribute('aria-expanded') === 'true') {
+      menuToggle.click(); menuToggle.focus();
+    }
+  });
+}

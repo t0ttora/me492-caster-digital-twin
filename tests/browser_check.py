@@ -45,6 +45,15 @@ with sync_playwright() as p:
         page.set_viewport_size({'width':width, 'height':844})
         page.goto('http://127.0.0.1:8766/tasks.html', wait_until='networkidle')
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), f'Overflow at {width}'
+        if width <= 760:
+            assert not page.locator('#site-navigation').is_visible()
+            page.locator('.nav-toggle').click()
+            assert page.locator('#site-navigation').is_visible()
+            assert page.locator('#site-navigation a').count() == 10
+            page.get_by_role('link', name='Roadmap', exact=True).press('Escape')
+            assert page.locator('.nav-toggle').get_attribute('aria-expanded') == 'false'
+        else:
+            assert page.locator('#site-navigation').is_visible()
         page.screenshot(path=str(OUT / f'{width}.png'))
     fixture = json.loads((ROOT / 'site/issue-snapshot.json').read_text())['issues']
     fixture[0]['labels'] = [{'name':'status:blocked'}, {'name':'type:gate'}]
