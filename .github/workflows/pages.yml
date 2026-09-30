@@ -2,6 +2,7 @@ name: Publish research journal
 on:
   push:
     branches: [main]
+  pull_request:
   issues:
     types: [opened, edited, closed, reopened, labeled, unlabeled, deleted, milestoned, demilestoned]
   issue_comment:
@@ -30,12 +31,20 @@ jobs:
         with:
           python-version: '3.12'
       - uses: actions/configure-pages@v5
+        if: github.event_name != 'pull_request'
+      - name: Validate rendering and status rules
+        run: |
+          python3 -m unittest discover -s tests -v
+          node --test tests/*.test.mjs
+          node --input-type=module --check < site/app.js
       - name: Build from public records and GitHub tasks
         run: python scripts/build_site.py
         env:
           GH_TOKEN: ${{ github.token }}
       - uses: actions/upload-pages-artifact@v4
+        if: github.event_name != 'pull_request'
         with:
           path: _site
       - uses: actions/deploy-pages@v4
+        if: github.event_name != 'pull_request'
         id: deployment

@@ -6,6 +6,8 @@ from pathlib import Path
 from urllib.parse import urlsplit, quote
 from urllib.request import Request, urlopen
 from zoneinfo import ZoneInfo
+import csv
+import subprocess
 import argparse
 import json
 import os
@@ -16,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / '_site'
 REPO = 't0ttora/me492-caster-digital-twin'
 GH = f'https://github.com/{REPO}'
-STATUS = {'planned': 'Planlanan', 'in-progress': 'Devam ediyor', 'blocked': 'Engelli', 'verified': 'Doğrulandı', 'closed': 'Kapalı · doğrulanmadı', 'unclassified': 'Durum belirtilmedi'}
+STATUS = {'planned': 'Planlanan', 'in-progress': 'Devam ediyor', 'blocked': 'Engelli', 'verified': 'Doğrulandı', 'closed': 'Kapalı · doğrulanmadı', 'unclassified': 'Durum belirtilmedi', 'conflicting': 'Etiketler çelişkili'}
 
 
 def api_all(endpoint):
@@ -66,7 +68,7 @@ def inline(text, source=None):
     return text
 
 
-def markdown(text, source=None):
+def markdown(text, source=None, embedded=False):
     # ponytail: repository prose subset, use a maintained Markdown parser if nested lists or complex embeds become necessary.
     result, paragraph, bullets, table = [], [], [], []
     code = None
@@ -105,7 +107,7 @@ def markdown(text, source=None):
             bullets.append(item)
         elif match := re.match(r'^(#{1,6}) (.+)$', line):
             flush()
-            level = len(match[1])
+            level = min(6, len(match[1]) + (2 if embedded else 0))
             result.append(f'<h{level}>{inline(match[2], source)}</h{level}>')
         elif not line.strip():
             flush()
@@ -120,7 +122,10 @@ def markdown(text, source=None):
 
 
 def state(issue):
-    labels = [label['name'] for label in issue['labels']]
+    labels = [label if isinstance(label, str) else label['name'] for label in issue['labels']]
+    states = {label for label in labels if label in {'status:planned', 'status:in-progress', 'status:blocked', 'status:verified'}}
+    if len(states) > 1:
+        return 'conflicting'
     if issue['state'].lower() == 'closed':
         return 'verified' if 'status:verified' in labels else 'closed'
     for status in ('blocked', 'in-progress', 'planned'):
@@ -156,9 +161,14 @@ def check():
 
 
 def build(issues, comments):
+    if OUT.is_symlink():
+        raise ValueError('Refusing a symlinked build output')
     if OUT.exists():
         shutil.rmtree(OUT)
-    shutil.copytree(ROOT / 'site', OUT)
+    OUT.mkdir()
+    shutil.copytree(ROOT / 'site/assets', OUT / 'assets')
+    for name in ('index.html', 'style.css', 'app.js'):
+        shutil.copyfile(ROOT / 'site' / name, OUT / name)
     shutil.copytree(ROOT / 'reports', OUT / 'reports', ignore=shutil.ignore_patterns('*.md'))
     documents = [Path('CONTRIBUTING.md'), *sorted(p.relative_to(ROOT) for p in (ROOT / 'docs').rglob('*.md')), Path('reports/README.md')]
     doc_links = []
@@ -175,10 +185,12 @@ def build(issues, comments):
     doc_links.append('<a href="records/run-inventory.csv"><span>Run inventory</span><small>CSV ↗</small></a>')
     issues = sorted((i for i in issues if 'pull_request' not in i), key=lambda i: i['number'])
     tasks, journal = [], []
-    weekly = [i for i in issues if any(l['name'] == 'type:weekly' for l in i['labels'])]
+    weekly = [i for i in issues if any((l if isinstance(l, str) else l['name']) == 'type:weekly' for l in i['labels'])]
+    def label_names(issue):
+        return [label if isinstance(label, str) else label['name'] for label in issue['labels']]
     for issue in issues:
         status = state(issue)
-        kind = 'gate' if any(l['name'] == 'type:gate' for l in issue['labels']) else 'weekly' if issue in weekly else 'task'
+        kind = 'gate' if 'type:gate' in label_names(issue) else 'weekly' if issue in weekly else 'task'
         code = issue['title'].split('|')[0].strip()
         if not re.fullmatch(r'[WG]\d+', code):
             code = f'#{issue["number"]}'
@@ -186,35 +198,47 @@ def build(issues, comments):
         history = []
         for comment in comments:
             if comment['issue_url'].endswith(f'/{issue["number"]}'):
-                history.append(f'<div class="issue-comment"><p>{escape(comment["user"]["login"])} · {short_date(comment["created_at"])} · <a href="{escape(comment["html_url"])}">Kaynak ↗</a></p><div class="prose">{markdown(comment.get("body") or "")}</div></div>')
-        tasks.append(f'<details class="task" data-status="{status}" data-kind="{kind}" id="task-{issue["number"]}"><summary><span class="task-code">{escape(code)}</span><span>{escape(title)}</span>{badge(status)}<span class="task-arrow" aria-hidden="true">+</span></summary><div class="task-body"><div class="prose">{markdown(issue.get("body") or "")}</div>{"".join(history)}<a class="text-link" href="{escape(issue_url(issue))}">GitHub’da görev ve yorumlar ↗</a></div></details>')
+                history.append(f'<div class="issue-comment"><p>{escape(comment["user"]["login"])} · {short_date(comment["created_at"])} · <a href="{escape(comment["html_url"])}">Kaynak ↗</a></p><div class="prose">{markdown(comment.get("body") or "", embedded=True)}</div></div>')
+        tasks.append(f'<details class="task" data-status="{status}" data-kind="{kind}" data-issue="{issue["number"]}" id="task-{issue["number"]}"><summary><span class="task-code">{escape(code)}</span><span>{escape(title)}</span>{badge(status)}<span class="task-arrow" aria-hidden="true">+</span></summary><div class="task-body"><div class="prose">{markdown(issue.get("body") or "", embedded=True)}</div>{"".join(history)}<a class="text-link" href="{escape(issue_url(issue))}">GitHub’da görev ve yorumlar ↗</a></div></details>')
     for path in sorted((ROOT / 'docs/progress').glob('????-??-??*.md'), reverse=True):
         source = path.relative_to(ROOT)
         title = path.read_text().splitlines()[0].lstrip('# ')
-        journal.append((path.name[:10], f'<article class="journal-entry"><time datetime="{path.name[:10]}">{path.name[:10]}</time><h3>{escape(title)}</h3><p>Repo ilerleme kaydı · hazırlık, uygulama ve doğrulama sınırları belgenin içinde.</p><details><summary>Kaydı oku +</summary><div class="prose">{markdown(path.read_text(), source)}</div></details><a class="text-link" href="{document_url(source)}">Tam kayıt ↗</a></article>'))
+        journal.append((path.name[:10], f'<article class="journal-entry"><time datetime="{path.name[:10]}">{path.name[:10]}</time><h3>{escape(title)}</h3><p>Repo ilerleme kaydı · hazırlık, uygulama ve doğrulama sınırları belgenin içinde.</p><details><summary>Kaydı oku +</summary><div class="prose">{markdown(path.read_text(), source, embedded=True)}</div></details><a class="text-link" href="{document_url(source)}">Tam kayıt ↗</a></article>'))
     for comment in comments:
         number = int(comment['issue_url'].rsplit('/', 1)[1])
-        journal.append((comment['created_at'], f'<article class="journal-entry"><time datetime="{comment["created_at"]}">{short_date(comment["created_at"])}</time><h3>Görev #{number} / güncelleme</h3><p>{escape(comment["user"]["login"])} tarafından GitHub’da kaydedildi.</p><details><summary>Güncellemeyi oku +</summary><div class="prose">{markdown(comment.get("body") or "")}</div></details><a class="text-link" href="{escape(comment["html_url"])}">Kaynak yorum ↗</a></article>'))
+        journal.append((comment['created_at'], f'<article class="journal-entry"><time datetime="{comment["created_at"]}">{short_date(comment["created_at"])}</time><h3>Görev #{number} / güncelleme</h3><p>{escape(comment["user"]["login"])} tarafından GitHub’da kaydedildi.</p><details><summary>Güncellemeyi oku +</summary><div class="prose">{markdown(comment.get("body") or "", embedded=True)}</div></details><a class="text-link" href="{escape(comment["html_url"])}">Kaynak yorum ↗</a></article>'))
     journal.sort(key=lambda item: item[0], reverse=True)
     roadmap = []
+    weeks = []
     for line in (ROOT / 'docs/planning/timetable.md').read_text().splitlines():
         if not re.match(r'^\| W\d+', line):
             continue
         week, period, hours, output, evidence = [cell.strip() for cell in line.strip('|').split('|')]
         task_number = int(week[1:])
+        weeks.append({'id': week, 'hours': int(hours), 'period': period, 'output': output, 'evidence': evidence})
         roadmap.append(f'<details><summary><span><b>{week}</b>{escape(period)}</span><strong>{escape(output)}</strong><span>{hours} saat +</span></summary><div><p>{escape(evidence)}</p><a href="#task-{task_number}" class="roadmap-task" data-task="task-{task_number}">İlgili görevi aç ↗</a></div></details>')
     counts = {s: sum(state(i) == s for i in weekly) for s in STATUS}
     metrics = ''.join(f'<div class="metric"><b>{count:02d}</b><span>{label}</span></div>' for count,label in [(counts['in-progress'],'Devam eden haftalık görev'),(counts['verified'],'Doğrulanan haftalık görev'),(counts['blocked'],'Engelli haftalık görev'),(len(weekly),'Toplam haftalık görev')])
     active = [i for i in weekly if state(i) == 'in-progress']
     focus = ''.join(f'<h3>{escape(i["title"].split("|")[-1].strip())}</h3>{badge("in-progress")}<p><a href="#task-{i["number"]}">Görev #{i["number"]} ↗</a></p>' for i in active) or '<h3>Aktif görev işaretlenmedi.</h3><p>Güncel durumu görevler bölümünden inceleyin.</p>'
     built = datetime.now(timezone.utc)
-    tokens = {'METRICS': metrics, 'FOCUS': focus, 'PROGRESS': ''.join(item[1] for item in journal), 'SYNC': f'GitHub ve repo kaydı · Son yayın: {short_date(built.isoformat())} (İstanbul).', 'TASKS': ''.join(tasks), 'ROADMAP': ''.join(roadmap), 'DOCUMENTS': ''.join(doc_links)}
+    log = subprocess.check_output(['git', 'log', '-5', '--format=%H%x09%cs%x09%s'], cwd=ROOT, text=True)
+    commits = []
+    for line in log.splitlines():
+        sha, date, title = line.split('\t', 2)
+        commits.append(f'<a href="{GH}/commit/{sha}"><span>{escape(title)}</span><small>{date} · {sha[:7]} ↗</small></a>')
+    access = Path('docs/access/access-register.md')
+    decisions = Path('docs/planning/decisions.md')
+    tokens = {'COMMITS': ''.join(commits), 'ACCESS': markdown((ROOT / access).read_text(), access, embedded=True), 'DECISIONS': markdown((ROOT / decisions).read_text(), decisions, embedded=True), 'METRICS': metrics, 'FOCUS': focus, 'PROGRESS': ''.join(item[1] for item in journal), 'SYNC': f'GitHub ve repo kaydı · Son yayın: {short_date(built.isoformat())} (İstanbul).', 'TASKS': ''.join(tasks), 'ROADMAP': ''.join(roadmap), 'DOCUMENTS': ''.join(doc_links)}
     page = (ROOT / 'site/index.html').read_text()
     for key, value in tokens.items():
         page = page.replace('{{' + key + '}}', value)
     assert '{{' not in page
     (OUT / 'index.html').write_text(page)
     (OUT / '.nojekyll').touch()
+    with (ROOT / 'docs/research/run-inventory.csv').open() as source:
+        run_count = len(list(csv.DictReader(source)))
+    (OUT / 'project.json').write_text(json.dumps({'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(), 'weeks': weeks, 'gates': [i for i in issues if 'type:gate' in label_names(i)], 'published_runs': run_count}, ensure_ascii=False))
     (OUT / 'snapshot.json').write_text(json.dumps({'published_at': built.isoformat(), 'source': GH, 'issues': issues, 'comments': comments}, ensure_ascii=False, indent=2))
     validate_links()
     print(f'Built {len(tasks)} tasks, {len(roadmap)} weeks, {len(documents)} documents and {len(journal)} journal entries.')
@@ -249,6 +273,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     check()
     if not args.check:
-        issues = json.loads(args.issues_file.read_text()) if args.issues_file else api_all('issues?state=all')
+        saved = json.loads(args.issues_file.read_text()) if args.issues_file else None
+        issues = saved.get('issues', []) if isinstance(saved, dict) else saved if saved is not None else api_all('issues?state=all')
         comments = [] if args.issues_file else api_all('issues/comments?sort=created&direction=asc')
         build(issues, comments)

@@ -7,3 +7,6 @@
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
 
 .prose pre{overflow-x:auto;padding:18px;background:rgba(248,247,239,.04);border:1px solid var(--line);font-size:12px;line-height:1.6}.prose td,.prose th{overflow-wrap:normal;min-width:85px}
+.text-button{padding:0;border:0;background:transparent;color:var(--paper);font-size:11px}.text-button:disabled{color:var(--muted);cursor:wait}.activity-record{margin-top:40px}.commit-list{margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:0 32px}.commit-list a{display:block;border-top:1px solid var(--line);padding:16px 0;font-size:14px}.commit-list small{display:block;color:var(--muted);font-size:10px;margin-top:7px}@media(max-width:760px){.commit-list{grid-template-columns:1fr}.sync-note button{margin-top:12px}}@media print{.ruler,.rail,.header,.filters,.search,#refresh{display:none}.frame{margin:0}body{background:#fff;color:#000}.frame,.manifesto{background:#fff}.section{break-inside:avoid;padding:25px 0}.prose p,.prose td,.muted{color:#333}details>summary{display:block}details::details-content{content-visibility:visible;height:auto}.hero-layout{padding:20px 0}.task[hidden]{display:block!important}.task-body{display:block!important}}
+
+.prose h4,.prose h5,.prose h6{font-size:20px;font-weight:400;margin:24px 0 12px}
