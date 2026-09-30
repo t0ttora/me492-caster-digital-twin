@@ -41,10 +41,12 @@ node --test tests/*.test.mjs
 node --input-type=module --check < site/app.js
 ```
 
-Desktop/mobile screenshots and UI checks are performed in the browser. The optional `tests/browser_check.py` provides CI regression checks when Playwright is available. Its test fixtures are not project results. No runtime framework, CMS, database or frontend package installation is required.
+Desktop/mobile screenshots and UI checks are performed in the browser. The optional `tests/browser_check.py` provides CI regression checks when Playwright is available. Its test fixtures are not project results. No runtime framework, CMS or database is required. The PDF reader uses a pinned, locally vendored Mozilla PDF.js build; no CDN or third-party document upload is involved.
 
 Each primary tab has a real HTML URL and a distinct content layout. Legacy homepage section hashes redirect to their matching pages. No generated illustrations, robot diagrams or synthetic data plots are included.
 
 ## Editorial voice
 
 All interface copy is English. Use the reports’ technical terminology and plain, descriptive headings. Introductions can use first person and an occasional dry aside; evidence, permissions, deadlines and status messages stay precise. Keep source documents, issue text and reports faithful to their authors. Distinguish planned, executed and verified work, and avoid claims that the records cannot support.
+
+Tasks use explicit open/close actions, one expanded record at a time, stable task links and filter reset. Report links resolve to dedicated site pages with PDF page navigation, fit-to-width rendering, zoom and a text alternative. Original downloads remain available. PDF.js provenance and licenses are in `assets/pdfjs/`; update the engine and worker together when upgrading.

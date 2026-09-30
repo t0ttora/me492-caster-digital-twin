@@ -18,6 +18,10 @@ with sync_playwright() as p:
     page.route('https://api.github.com/**', lambda route: route.fulfill(status=403, content_type='application/json', body='{"message":"Rate limit"}'))
     page.goto('http://127.0.0.1:8766/tasks.html', wait_until='networkidle')
     assert page.locator('.task:visible').count() == 22
+    page.locator('#task-1 > summary').click()
+    page.locator('#task-2 > summary').click()
+    assert page.locator('.task[open]').count() == 1
+    assert page.locator('#task-2').evaluate('(el) => el.getBoundingClientRect().top >= document.querySelector(".header").getBoundingClientRect().bottom')
     page.get_by_role('button', name='In progress', exact=True).click()
     assert page.locator('.task:visible').count() == 1
     page.get_by_role('button', name='Verified', exact=True).click()
@@ -47,6 +51,11 @@ with sync_playwright() as p:
     page.get_by_role('button', name='Refresh GitHub status').click()
     page.wait_for_function("!document.querySelector('#refresh').disabled")
     assert 'refreshed' in page.locator('#sync-status').inner_text()
+    page.goto('http://127.0.0.1:8766/report-ME492_Timetable_EN.html')
+    page.get_by_text('Page 1 of 2', exact=True).wait_for()
+    page.get_by_role('button', name='Next →', exact=True).click()
+    page.get_by_text('Page 2 of 2', exact=True).wait_for()
+    assert page.locator('#pdf-canvas').evaluate('(el) => el.width > 0 && el.height > 0')
     nojs = browser.new_context(java_script_enabled=False, viewport={'width':390,'height':844})
     static = nojs.new_page()
     static.goto('http://127.0.0.1:8766/tasks.html')

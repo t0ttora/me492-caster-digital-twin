@@ -10,9 +10,11 @@ function updateTasks() {
   for (const task of tasks) {
     const match = (filter === 'all' || task.dataset.status === filter || (filter === 'gate' && task.dataset.kind === 'gate')) && task.textContent.toLocaleLowerCase('en').includes(query);
     task.hidden = !match;
+    if (!match) task.open = false;
     if (match) visible++;
   }
-  document.querySelector('#task-count').textContent = `${visible} / ${tasks.length} tasks shown`;
+  document.querySelector('#task-count').textContent = `${visible} / ${tasks.length} tasks shown · ${filter === 'all' ? 'All statuses' : document.querySelector(`[data-filter="${filter}"]`).textContent}${query ? ` · Search: ${search.value.trim()}` : ''}`;
+  document.querySelector('#reset-tasks').hidden = filter === 'all' && !query;
   document.querySelector('#empty-tasks').hidden = visible > 0;
 }
 if (search) {
@@ -34,8 +36,28 @@ function openLinkedTask() {
   for (const button of filters) button.setAttribute('aria-pressed', String(button.dataset.filter === 'all'));
   updateTasks();
   task.open = true;
+  task.scrollIntoView({block:'start', behavior:'instant'});
 }
 if (search) {
+  document.querySelector('#reset-tasks').addEventListener('click', () => {
+    filter = 'all'; search.value = '';
+    for (const button of filters) button.setAttribute('aria-pressed', String(button.dataset.filter === 'all'));
+    updateTasks(); search.focus();
+  });
+  for (const task of tasks) {
+    const close = task.querySelector('[data-close-task]');
+    close.hidden = false;
+    close.addEventListener('click', () => {task.open = false; task.querySelector('summary').focus();});
+    task.addEventListener('toggle', () => {
+      if (task.open) {
+        for (const other of tasks) if (other !== task) other.open = false;
+        history.replaceState(null, '', `#${task.id}`);
+        const top = task.getBoundingClientRect().top;
+        const headerBottom = document.querySelector('.header').getBoundingClientRect().bottom;
+        if (top < headerBottom || top > innerHeight - 100) task.scrollIntoView({block:'start', behavior:'instant'});
+      } else if (location.hash === `#${task.id}`) history.replaceState(null, '', location.pathname + location.search);
+    });
+  }
   openLinkedTask();
   window.addEventListener('hashchange', openLinkedTask);
 }
@@ -84,7 +106,7 @@ if (refresh) {
       for (const issue of active) {
         const heading = document.createElement('h3'); heading.textContent = issue.title.split('|').at(-1).trim();
         const badge = document.createElement('span'); badge.className = 'badge in-progress'; badge.textContent = labels['in-progress'];
-        const paragraph = document.createElement('p'); const link = document.createElement('a'); link.href = issue.html_url; link.textContent = `Task #${issue.number} ↗`; paragraph.append(link);
+        const paragraph = document.createElement('p'); const link = document.createElement('a'); link.href = `tasks.html#task-${issue.number}`; link.textContent = `Task #${issue.number} ↗`; paragraph.append(link);
         if (focus) focus.append(heading, badge, paragraph);
       }
       if (focus && !active.length) {const heading = document.createElement('h3');heading.textContent = 'No task is marked in progress.';focus.append(heading);}

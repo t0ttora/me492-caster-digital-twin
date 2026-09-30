@@ -41,6 +41,16 @@ class DashboardTests(unittest.TestCase):
         self.assertFalse(any('.git' in p.parts or p.suffix in {'.py', '.md', '.env'} for p in files))
         self.assertTrue((ROOT / '_site/.nojekyll').exists())
 
+    def test_embedded_report_readers(self):
+        for name, title in build_site.REPORTS:
+            page = (ROOT / '_site' / f'report-{name}.html').read_text()
+            self.assertIn(f'data-pdf="reports/{name}.pdf"', page)
+            self.assertIn('assets/pdf-reader.mjs', page)
+            self.assertIn('id="pdf-page"', page)
+            self.assertIn('Download PDF', page)
+            self.assertIn(f'href="report-{name}.html"', self.pages['library'])
+        self.assertTrue((ROOT / '_site/assets/pdfjs/pdf.worker.min.mjs').exists())
+
     def test_accessibility_basics(self):
         for page in self.pages.values():
             self.assertIn('lang="en"', page)

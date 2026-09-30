@@ -19,6 +19,7 @@ OUT = ROOT / '_site'
 REPO = 't0ttora/me492-caster-digital-twin'
 GH = f'https://github.com/{REPO}'
 PAGES = [('index', 'Overview'), ('progress', 'Progress'), ('vision', 'Vision'), ('manifesto', 'Manifesto'), ('tasks', 'Tasks'), ('roadmap', 'Roadmap'), ('decisions', 'Decisions'), ('library', 'Library'), ('about', 'About')]
+REPORTS = [('ME492_Final_Roadmap_and_Arche_Visit_EN', 'Execution baseline & Arche visit'), ('ME492_Timetable_EN', 'Semester timetable')]
 STATUS = {'planned': 'Planned', 'in-progress': 'In progress', 'blocked': 'Blocked', 'verified': 'Verified', 'closed': 'Closed · unverified', 'unclassified': 'Unclassified', 'conflicting': 'Conflicting labels'}
 
 
@@ -54,7 +55,7 @@ def safe_link(url, source=None):
         target = (ROOT / source.parent / parts.path).resolve()
         if target.is_relative_to(ROOT) and target.exists():
             relative = target.relative_to(ROOT)
-            mapped = document_url(relative) if relative.suffix == '.md' else relative.as_posix()
+            mapped = document_url(relative) if relative.suffix == '.md' else f'report-{relative.stem}.html' if relative.parent == Path('reports') and relative.stem in {name for name, _ in REPORTS} else relative.as_posix()
             return mapped + (f'#{parts.fragment}' if parts.fragment else '')
         return f'{GH}/blob/main/{quote(source.parent.as_posix() + "/" + url)}'
     return f'{GH}/{url.lstrip("/")}'
@@ -157,7 +158,7 @@ def check():
     assert state({'state': 'closed', 'labels': []}) == 'closed'
     assert state({'state': 'open', 'labels': [{'name': 'status:verified'}]}) == 'unclassified'
     assert state({'state': 'closed', 'labels': [{'name': 'status:verified'}]}) == 'verified'
-    assert safe_link('../../reports/ME492_Timetable_EN.pdf', Path('docs/progress/2026-09-30.md')) == 'reports/ME492_Timetable_EN.pdf'
+    assert safe_link('../../reports/ME492_Timetable_EN.pdf', Path('docs/progress/2026-09-30.md')) == 'report-ME492_Timetable_EN.html'
     print('PASS: escaping, tables, checklists, evidence status and document links')
 
 
@@ -200,7 +201,7 @@ def build(issues, comments):
         for comment in comments:
             if comment['issue_url'].endswith(f'/{issue["number"]}'):
                 history.append(f'<div class="issue-comment"><p>{escape(comment["user"]["login"])} · {short_date(comment["created_at"])} · <a href="{escape(comment["html_url"])}">Source ↗</a></p><div class="prose">{markdown(comment.get("body") or "", embedded=True)}</div></div>')
-        tasks.append(f'<details class="task" data-status="{status}" data-kind="{kind}" data-issue="{issue["number"]}" id="task-{issue["number"]}"><summary><span class="task-code">{escape(code)}</span><span>{escape(title)}</span>{badge(status)}<span class="task-arrow" aria-hidden="true">+</span></summary><div class="task-body"><div class="prose">{markdown(issue.get("body") or "", embedded=True)}</div>{"".join(history)}<a class="text-link" href="{escape(issue_url(issue))}">Task and comments on GitHub ↗</a></div></details>')
+        tasks.append(f'<details class="task" name="research-task" data-status="{status}" data-kind="{kind}" data-issue="{issue["number"]}" id="task-{issue["number"]}"><summary><span class="task-code">{escape(code)}</span><span>{escape(title)}</span>{badge(status)}<span class="task-open-label">View details ↓</span><span class="task-close-label">Close details ↑</span></summary><div class="task-body"><p class="task-context">{kind.title()} task · GitHub issue #{issue["number"]} · Published record</p><div class="prose">{markdown(issue.get("body") or "", embedded=True)}</div>{"".join(history)}<div class="task-actions"><button type="button" data-close-task hidden>Close details ↑</button><a href="#task-{issue["number"]}">Link to this task</a><a href="{escape(issue_url(issue))}">Issue and updates on GitHub ↗</a></div></div></details>')
     for path in sorted((ROOT / 'docs/progress').glob('????-??-??*.md'), reverse=True):
         source = path.relative_to(ROOT)
         title = path.read_text().splitlines()[0].lstrip('# ')
@@ -241,6 +242,14 @@ def build(issues, comments):
         page = page.replace(f'data-page="{slug}"', f'data-page="{slug}" aria-current="page" class="active"')
         assert '{{' not in page
         (OUT / f'{slug}.html').write_text(page)
+    for name, title in REPORTS:
+        pdf = f'reports/{name}.pdf'
+        body = f'<section class="pdf-reader"><a class="text-link" href="library.html">← Back to library</a><h1>{escape(title)}</h1><div class="reader-toolbar"><p class="muted small">Published report · PDF · English</p><div class="reader-actions"><a href="{pdf}" download>Download PDF ↓</a><a href="{pdf}" target="_blank" rel="noopener">Open original ↗</a></div></div><div class="pdf-controls" role="group" aria-label="PDF controls"><button id="pdf-prev" disabled>← Previous</button><label>Page <input id="pdf-page" type="number" min="1" value="1" disabled></label><span id="pdf-total"></span><button id="pdf-next" disabled>Next →</button><button id="pdf-out" aria-label="Zoom out" disabled>−</button><span id="pdf-zoom">Fit width</span><button id="pdf-in" aria-label="Zoom in" disabled>+</button></div><p id="pdf-status" role="status">Loading document…</p><div class="pdf-stage" data-pdf="{pdf}"><canvas id="pdf-canvas" role="img" aria-label="{escape(title)}"></canvas></div><details class="pdf-text"><summary>Read page as text</summary><p id="pdf-text"></p></details><script type="module" src="assets/pdf-reader.mjs"></script><p class="reader-fallback">You can also <a href="{pdf}">open the original document</a> or download it above.</p></section>'
+        page = layout
+        for key, value in dict(CONTENT=body, TITLE=escape(title), PAGE='library', DESCRIPTION=escape(title) + ' | Arche research report').items():
+            page = page.replace('{{' + key + '}}', value)
+        page = page.replace('data-page="library"', 'data-page="library" aria-current="page" class="active"')
+        (OUT / f'report-{name}.html').write_text(page)
     (OUT / '.nojekyll').touch()
     with (ROOT / 'docs/research/run-inventory.csv').open() as source:
         run_count = len(list(csv.DictReader(source)))
