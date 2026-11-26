@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>__RUN__ · Arche JANUS</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f6f4ee;color:#1b2725;font:16px system-ui,sans-serif}main{max-width:920px;margin:0 auto;padding:24px}h1{margin:0 0 14px;font-size:clamp(19px,5vw,30px)}svg{width:100%;height:auto;display:block;border:1px solid #c9d0c6;background:#fffdf7}label{display:flex;align-items:center;gap:10px;flex:1}footer{display:flex;gap:14px;align-items:center;margin-top:14px}button{background:#1e514a;color:#fff;border:0;padding:9px 17px;border-radius:4px;font:inherit}input{width:100%;accent-color:#1e514a}#readout{font-variant-numeric:tabular-nums;line-height:1.5}small{color:#495b56}
+</style>
+<main>
+<h1>__RUN__</h1>
+<svg id="scene" viewBox="0 0 860 480" role="img" aria-label="Top-down simulated robot path, current body heading and passive caster">
+<polyline id="ref" fill="none" stroke="#9b7d4b" stroke-width="2" stroke-dasharray="6 5"/>
+<circle id="station" r="6" fill="#9b7d4b" visibility="hidden"/>
+<polyline id="path" fill="none" stroke="#126b67" stroke-width="2.4"/>
+<g id="robot">
+<rect id="body" fill="#c4dcd0" stroke="#284d46" stroke-width="2" rx="6"/>
+<line id="drive" x1="0" x2="0" stroke="#284d46" stroke-width="6" stroke-linecap="round"/>
+<path d="M 3,0 H 24 M 24,0 L 17,-6 M 24,0 L 17,6" stroke="#274b46" stroke-width="2" fill="none"/>
+<g id="caster"><line id="trail" x1="0" y1="0" y2="0" stroke="#a05328" stroke-width="4"/><circle id="wheel" cy="0" r="6" fill="#a05328"/></g>
+</g>
+</svg>
+<footer><button id="play" type="button">Play</button><label>Time <input id="slider" type="range" min="0" value="0" aria-label="Playback time"></label></footer>
+<p id="readout"></p>
+<small>Synthetic plant. Green shows axle travel. Dashed ochre marks the reference or dock target. Orange shows the passive caster.</small>
+</main>
+<script>
+const data=__DATA__, frames=data.frames, $=id=>document.getElementById(id);
+const xs=frames.flatMap(f=>[f[1],f[5]]), ys=frames.flatMap(f=>[f[2],f[6]]);
+const minX=Math.min(...xs)-.32,maxX=Math.max(...xs)+.32,minY=Math.min(...ys)-.32,maxY=Math.max(...ys)+.32;
+const scale=Math.min(840/(maxX-minX),460/(maxY-minY));
+const p=(x,y)=>[430+scale*(x-(maxX+minX)/2),240-scale*(y-(maxY+minY)/2)];
+const set=(id,props)=>Object.entries(props).forEach(([k,v])=>$(id).setAttribute(k,v));
+const poly=(a,b)=>frames.map(f=>p(f[a],f[b]).join(',')).join(' ');
+set('path',{points:poly(1,2)});set('ref',{points:poly(5,6)});
+if(frames.some(f=>f[9]!==null)||frames.some(f=>['search','center','advance','recenter'].includes(f[7]))){
+  const end=frames[frames.length-1], [cx,cy]=p(end[5],end[6]);
+  set('station',{cx,cy,visibility:'visible'});
+}
+const [l,w]=data.chassis.map(x=>x*scale);
+set('body',{x:-l/2,y:-w/2,width:l,height:w});set('drive',{y1:-data.track*scale/2,y2:data.track*scale/2});
+set('trail',{x2:-data.trail*scale});set('wheel',{cx:-data.trail*scale});
+$('slider').max=frames.length-1;
+function draw(i){
+  const f=frames[i], [x,y]=p(f[1],f[2]);
+  set('robot',{transform:'translate('+x+' '+y+') rotate('+(-f[3]*180/Math.PI)+')'});
+  set('caster',{transform:'translate('+data.caster[0]*scale+' '+(-data.caster[1]*scale)+') rotate('+(-f[4]*180/Math.PI)+')'});
+  $('slider').value=i;
+  $('readout').textContent=f[0].toFixed(2)+' s  ·  '+f[7]+'  ·  '+f[8]+'  ·  v request '+f[10].toFixed(3)+' m/s'+(f[9]===null?'':'  ·  QR error '+(100*f[9]).toFixed(2)+'%');
+}
+let running=false,start=0,base=0,generation=0;
+function animate(now,active){
+  if(!running || active!==generation)return;
+  if(!start)start=now;
+  const target=base+(now-start)/1000;
+  let i=Number($('slider').value);
+  while(i+1<frames.length && frames[i+1][0]<=target)i++;
+  draw(i);
+  if(i===frames.length-1){running=false;$('play').textContent='Replay';}
+  else requestAnimationFrame(time=>animate(time,active));
+}
+$('slider').addEventListener('input',()=>{running=false;$('play').textContent='Play';draw(Number($('slider').value));});
+$('play').addEventListener('click',()=>{
+  if(running){running=false;$('play').textContent='Play';return;}
+  let i=Number($('slider').value);
+  if(i===frames.length-1){i=0;draw(i);}
+  base=frames[i][0];start=0;running=true;$('play').textContent='Pause';
+  const active=++generation;requestAnimationFrame(time=>animate(time,active));
+});
+draw(0);
+</script>
+</html>

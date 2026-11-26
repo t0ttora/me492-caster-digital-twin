@@ -6,6 +6,7 @@ import hashlib
 import json
 from pathlib import Path
 import platform
+import sys
 
 import numpy as np
 
@@ -65,6 +66,16 @@ def plot_case(rows, path, title):
 
 
 def main():
+    args = sys.argv[1:]
+    janus_flags = {"--case", "--variant", "--output-dir", "--publish-commands", "--jobs"}
+    janus_groups = {"p0", "additional"}
+    group = next((arg.partition("=")[2] if "=" in arg else args[i+1]
+                  for i, arg in enumerate(args)
+                  if arg.startswith("--group=") or (arg == "--group" and i+1 < len(args))), None)
+    if any(arg.split("=")[0] in janus_flags for arg in args) or group in janus_groups:
+        from run_janus import main as run_janus
+        run_janus(args)
+        return
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--group", choices=("core", "design", "all"), default="core")
     parser.add_argument("--name", default=datetime.now(timezone.utc).strftime("study-%Y%m%dT%H%M%S%fZ"))

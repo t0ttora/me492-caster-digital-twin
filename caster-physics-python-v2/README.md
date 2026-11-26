@@ -159,3 +159,47 @@ Bu V2 klasörü tek başına taşınabilir bir wheel paketi değildir.
 ROS 2/Gazebo/Isaac kurulmadı, 3B temas/eğim/lastik shimmy modellenmedi.
 Bu arayüzler ve gerçek kalibrasyon, platform bilgisi ve deney erişimiyle
 tamamlanacak sonraki proje aşamalarıdır. GitHub'a yayın yapılmadı.
+
+## JANUS scenarios
+
+JANUS uses the same V2.3 parameters, fixed-step V1 M2 plant and bounded wheel
+PI as the legacy study. The task layer adds timestamped route gates, signed
+QR centering and safety interlocks. Inspect cases with `python run_janus.py
+--help`. The legacy `run_study.py --group core` interface is unchanged.
+
+From the JANUS Python lane root on the mounted SSD:
+
+```sh
+source env.sh
+cd checkout/caster-physics-python-v2
+../../.venv/bin/python run_study.py --case M04 M05 M06 Q02 Q03 Q06 \
+  --output-dir ../../outputs/runs/example --jobs 4
+../../.venv/bin/python -m pytest -q -p no:cacheprovider tests
+```
+
+`--group p0` runs the approved P0 list, `--group additional` runs P1 variants,
+and `--group all --output-dir NEW_DIRECTORY` runs the full configured Python
+catalog. `--variant` selects one variant. `--publish-commands DIRECTORY` exports
+replay inputs with their initial state and provenance per run. Use a fresh replay
+directory for a repeat. Cases can end in an expected safe abort and pass a
+scenario check. A failed scenario check remains in the index and metrics.
+
+- `commands.csv` holds the requested body twist, `executed_velocity.csv` holds
+  the limited twist sent to the wheel PI, and `applied_torque.csv` is the sampled
+  axle torque held ZOH through the solver stages. Actual axle velocity/yaw,
+  effort, caster and slip measurements are in `results.csv`.
+- Route, square and dock thresholds, event schedules, source hashes and exact
+  rerun arguments are in the manifest, config, scenario and metrics JSON.
+  Each run includes an overview figure and interactive offline motion HTML.
+- The 20 Hz QR fixture projects the physical marker corners from each current
+  axle pose, and the controller samples the latest valid arrival at 100 Hz.
+  Range uses the two vertical-edge heights with a level pinhole camera.
+  Mechanical pose acceptance uses a separate synthetic geometry check.
+  Contact and BMS are virtual events.
+- The optional OpenCV PNG decoder exercise has its own evidence scope and can be
+  run with `python janus_decode.py --output-dir NEW_DIRECTORY`. It decodes static
+  generated images. The projection controller's timing and optics are distinct.
+- `verify_janus.py --help` gives the audit interface. It checks shared CSV copies
+  and independently recomputes gating conditions. Selected constant-surface
+  runs can be fed back through the legacy `evaluate_recording.py` evaluator for
+  same-plant numerical replay.
