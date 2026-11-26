@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 import json
+import signal
 from time import monotonic
 
 import rclpy
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from rclpy.clock import Clock, ClockType
+from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
+from rclpy.signals import SignalHandlerOptions
 from rosgraph_msgs.msg import Clock as ClockMessage
 from std_msgs.msg import Bool, String
 
@@ -45,7 +48,7 @@ class GuardNode(Node):
             self.guard.odometry(stamp_s(msg.header.stamp))
 
     def request(self, msg):
-        self.guard.request(msg.linear.x, msg.angular.z)
+        self.guard.request(msg.linear.x, msg.angular.z, monotonic())
 
     def abort(self, msg):
         if msg.data:
@@ -64,15 +67,35 @@ class GuardNode(Node):
 
 
 def main():
-    rclpy.init()
-    node = GuardNode()
+    stopping = False
+
+    def stop(_signum, _frame):
+        nonlocal stopping
+        stopping = True
+
+    # Keep the publisher and ROS context alive through normal signal handling.
+    signals = (signal.SIGINT, signal.SIGTERM)
+    previous_handlers = {signum: signal.signal(signum, stop) for signum in signals}
+    node = None
     try:
-        rclpy.spin(node)
-    except KeyboardInterrupt:
+        rclpy.init(signal_handler_options=SignalHandlerOptions.NO)
+        node = GuardNode()
+        while node.context.ok() and not stopping:
+            rclpy.spin_once(node, timeout_sec=0.1)
+    except (KeyboardInterrupt, ExternalShutdownException):
         pass
     finally:
-        node.destroy_node()
-        rclpy.try_shutdown()
+        try:
+            if node is not None:
+                try:
+                    if node.context.ok():
+                        node.command.publish(Twist())
+                finally:
+                    node.destroy_node()
+        finally:
+            rclpy.try_shutdown()
+            for signum, handler in previous_handlers.items():
+                signal.signal(signum, handler)
 
 
 if __name__ == "__main__":

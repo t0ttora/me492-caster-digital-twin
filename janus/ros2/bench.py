@@ -204,6 +204,8 @@ def log_message_check(out, case, variant, fixture, summaries):
     write_csv(directory / "results.csv", rows)
     passed = sum(row["passed"] for row in rows)
     manifest["fixture_schedule"] = "source fixtures.py and event times captured in results.csv"
+    if case == "O08":
+        manifest["evidence_limit"] = "direct guard calls on synthetic inputs; no DDS, power cycle or operator authorization"
     finish(directory, manifest, {"message_rows": len(rows), "matched_rows": passed},
            passed == len(rows), ["results.csv", "metrics.json"], summaries)
 
@@ -281,13 +283,15 @@ def main():
         log_message_check(args.out, "Q13", "timestamps", timing_fixture(), summaries)
         log_message_check(args.out, "Q13", "centering-stream-cut", centering_fixture(), summaries)
         for case, variants in (("O04", ("command_timeout", "operator_abort")),
-                               ("O05", ("odom_timeout", "odom_regression", "clock_stall", "clock_reset"))):
+                               ("O05", ("odom_timeout", "odom_regression", "clock_stall", "clock_reset")),
+                               ("O08", ("clock_recovery", "odom_recovery", "restart_recovery"))):
             for variant in variants:
                 log_message_check(args.out, case, variant, guard_fixture(variant), summaries)
     python_inputs(args, summaries)
     if args.commands:
         replay_command(args.out, args.case, "provided-command", args.commands, summaries,
                        semantics="user-supplied; consult originating manifest")
+    trace_passed = False
     if args.trace:
         directory, manifest = run_file(args.out, args.case, "bag-trace", "gazebo_bag_export_input", args.commands)
         manifest.update(native_run_id=args.native_run_id, trace_path=str(args.trace.resolve()),
@@ -296,9 +300,12 @@ def main():
         if rows:
             write_csv(directory / "results.csv", rows)
             draw_xy(directory / "trajectory.svg", rows)
-        manifest["case_acceptance"] = "requires_case_specific_evaluation"
-        manifest["termination_reason"] = metrics.get("reason", "trace_overlap_measured")
-        finish(directory, manifest, metrics, bool(rows),
+        trace_passed = metrics.get("command_coverage_status") == "aligned"
+        if trace_passed:
+            manifest["case_acceptance"] = "requires_case_specific_evaluation"
+        manifest["termination_reason"] = metrics.get("reason") or (
+            "trace_state_and_command_samples_aligned" if trace_passed else "missing_command_overlap")
+        finish(directory, manifest, metrics, trace_passed,
                ["results.csv", "trajectory.svg", "metrics.json"] if rows else ["metrics.json"], summaries)
     planned = plan_rows(args.plan)
     if args.plan and set(planned) != set(CASES):
@@ -311,7 +318,7 @@ def main():
                       "status": "partial" if scoped else "blocked",
                       "checks_passed": sum(row["check_status"] == "passed" for row in scoped),
                       "checks_failed": sum(row["check_status"] == "failed" for row in scoped),
-                      "native_acceptance": "requires_case_evaluation" if args.trace and case == args.case
+                      "native_acceptance": "requires_case_evaluation" if trace_passed and case == args.case
                       else "blocked",
                       "required_evidence": requirement,
                       "evidence_run_ids": "|".join(row["run_id"] for row in scoped)})

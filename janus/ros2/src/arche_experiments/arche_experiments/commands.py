@@ -64,11 +64,16 @@ class CommandGuard:
         self.requested = Command()
 
     def clock(self, now, wall):
+        # Detect a wall-time stall even if the timer did not run during the gap.
+        if self._watchdog_reason(wall):
+            self.request_stamp = None
         if self.now is not None and now < self.now:
             self.fault = self.fault or "clock_reset"
         if self.now is None or now != self.now:
             self.clock_wall = wall
         self.now = now
+        if self._odom_watchdog_reason():
+            self.request_stamp = None
 
     def odometry(self, stamp, valid=True):
         if not valid or not math.isfinite(stamp) or stamp < 0:
@@ -78,10 +83,15 @@ class CommandGuard:
             self.fault = self.fault or "odom_regression"
             return
         self.odom_stamp = stamp
+        if self.now is not None and self._odom_watchdog_reason():
+            self.request_stamp = None
 
-    def request(self, v, yaw):
+    def request(self, v, yaw, wall):
         if not all(map(math.isfinite, (v, yaw))):
             self.fault = self.fault or "invalid_command"
+            return
+        if self.fault or self._watchdog_reason(wall):
+            self.request_stamp = None
             return
         self.requested = Command(v, yaw)
         self.request_stamp = self.now
@@ -89,19 +99,26 @@ class CommandGuard:
     def abort(self):
         self.fault = self.fault or "operator_abort"
 
+    def _odom_watchdog_reason(self):
+        if self.odom_stamp is None or self.now - self.odom_stamp > self.odom_timeout:
+            return "odom_timeout"
+        # Header stamps may lead the most recent clock sample due to DDS callback ordering.
+        if self.odom_stamp - self.now > 0.05:
+            return "future_odom"
+
+    def _watchdog_reason(self, wall):
+        if self.now is None:
+            return "no_clock"
+        if wall - self.clock_wall > self.clock_timeout:
+            return "clock_stall"
+        return self._odom_watchdog_reason()
+
     def output(self, wall):
         if self.fault:
             return Command(reason=self.fault)
-        if self.now is None:
-            return Command(reason="no_clock")
-        if wall - self.clock_wall > self.clock_timeout:
+        if reason := self._watchdog_reason(wall):
             self.request_stamp = None
-            return Command(reason="clock_stall")
-        # Header stamps may lead the most recent clock sample due to DDS callback ordering.
-        if self.odom_stamp is None or self.now - self.odom_stamp > self.odom_timeout:
-            return Command(reason="odom_timeout")
-        if self.odom_stamp - self.now > 0.05:
-            return Command(reason="future_odom")
+            return Command(reason=reason)
         if self.request_stamp is None or self.now - self.request_stamp > self.command_timeout:
             return Command(reason="command_timeout")
         return self.requested

@@ -116,7 +116,7 @@ class VisionTests(unittest.TestCase):
 class StateTests(unittest.TestCase):
     def test_guard_variants(self):
         for variant in ("command_timeout", "operator_abort", "odom_timeout", "odom_regression",
-                        "clock_stall", "clock_reset"):
+                        "clock_stall", "clock_reset", "clock_recovery", "odom_recovery", "restart_recovery"):
             with self.subTest(variant=variant):
                 self.assertTrue(all(row["passed"] for row in guard_fixture(variant)))
 

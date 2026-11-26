@@ -5,6 +5,7 @@ from pathlib import Path
 import unittest
 import xml.etree.ElementTree as ET
 
+import numpy as np
 import xacro
 import yaml
 
@@ -125,6 +126,29 @@ class StaticTests(unittest.TestCase):
         self.assertEqual(uv, (0, 1, 1, 1, 1, 0, 0, 0))
         position = floats(dae.findtext(".//c:float_array[@id='pos']", namespaces=ns))
         self.assertAlmostEqual(max(position) - min(position), self.config["marker"]["textured_placard_edge_m"])
+
+    def test_marker_triangles_face_configured_front(self):
+        mesh = SIM / "models/janus_dock/meshes/marker.dae"
+        dae = ET.parse(mesh).getroot()
+        positions = np.array(floats(dae.findtext(".//{*}float_array[@id='pos']"))).reshape(-1, 3)
+        normals = np.array(floats(dae.findtext(".//{*}float_array[@id='norm']"))).reshape(-1, 3)
+        triangles = dae.find(".//{*}triangles")
+        offsets = {item.get("semantic"): int(item.get("offset")) for item in triangles.findall("{*}input")}
+        index = np.fromstring(triangles.findtext("{*}p"), sep=" ", dtype=int)
+        index = index.reshape(int(triangles.get("count")), 3, max(offsets.values()) + 1)
+        front = np.array(self.config["marker"]["front_normal_in_map"])
+        # The dock include, link and visual are unrotated, so mesh and map normals agree.
+        include = self.world.find("include[uri='model://janus_dock']")
+        dock = ET.parse(SIM / "models/janus_dock/model.sdf").getroot()
+        for item in (include, dock.find("model"), dock.find("model/link"), dock.find("model/link/visual")):
+            self.assertEqual(floats(item.findtext("pose", "0 0 0 0 0 0"))[3:], (0, 0, 0))
+        for triangle in index:
+            a, b, c = positions[triangle[:, offsets["VERTEX"]]]
+            winding = np.cross(b - a, c - a)
+            self.assertGreater(float(winding @ front), 0)
+            np.testing.assert_allclose(winding / np.linalg.norm(winding), front)
+            np.testing.assert_allclose(normals[triangle[:, offsets["NORMAL"]]], np.tile(front, (3, 1)))
+            np.testing.assert_array_equal(triangle[:, offsets["VERTEX"]], triangle[:, offsets["TEXCOORD"]])
 
 
 if __name__ == "__main__":

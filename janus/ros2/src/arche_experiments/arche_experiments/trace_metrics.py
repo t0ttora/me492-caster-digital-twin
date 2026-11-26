@@ -7,6 +7,9 @@ import numpy as np
 
 
 def measure_trace(path, run_id, command_hash, grid_s):
+    if not math.isfinite(grid_s) or grid_s < 1e-9:
+        raise ValueError("grid period must be finite and at least one nanosecond")
+    grid_ns = round(grid_s * 1e9)
     command_topics = ("/janus/cmd_vel/request", "/cmd_vel")
     streams = {topic: [] for topic in ("/odom", "/janus/ground_truth", "/joint_states", "/clock",
                                         "/janus/replay/event", *command_topics)}
@@ -30,21 +33,34 @@ def measure_trace(path, run_id, command_hash, grid_s):
     if any(row["command_sha256"] != command_hash for row in (start[0], end[0])):
         return {**metrics, "reason": "command_hash_mismatch"}, []
     start_s, end_s = start[0]["sim_time_s"], end[0]["sim_time_s"]
-    if end_s <= start_s:
+    if not all(map(math.isfinite, (start_s, end_s))) or end_s <= start_s:
         return {**metrics, "reason": "invalid_run_duration"}, []
     clock = [row["time_s"] for row in streams["/clock"]]
-    if len(clock) < 2 or any(b < a for a, b in zip(clock, clock[1:])):
-        return {**metrics, "reason": "missing_or_reset_clock"}, []
+    if not all(map(math.isfinite, clock)) or any(b < a for a, b in zip(clock, clock[1:])):
+        return {**metrics, "reason": "invalid_or_reset_clock"}, []
+    interval_clock = [stamp for stamp in clock if start_s <= stamp <= end_s]
+    metrics["clock_interval_samples"] = len(interval_clock)
+    if len(interval_clock) < 2 or interval_clock[0] == interval_clock[-1]:
+        return {**metrics, "reason": "insufficient_clock_coverage"}, []
+    clock_start, clock_end = interval_clock[0], interval_clock[-1]
+    metrics.update(clock_observed_start_s=clock_start - start_s,
+                   clock_observed_end_s=clock_end - start_s,
+                   clock_max_gap_s=max(b - a for a, b in zip(interval_clock, interval_clock[1:])))
     groups = [streams[topic] for topic in ("/odom", "/janus/ground_truth", "/joint_states")]
     if any(len(group) < 2 for group in groups):
         return {**metrics, "reason": "missing_state_stream"}, []
     time = [np.array([row["time_s"] for row in group]) for group in groups]
     if any(np.any(np.diff(t) <= 0) for t in time):
         return {**metrics, "reason": "nonmonotonic_state_stream"}, []
-    lower = max(start_s, *(t[0] for t in time))
-    upper = min(end_s, *(t[-1] for t in time))
-    grid = start_s + np.arange(math.ceil((lower - start_s) / grid_s),
-                               math.floor((upper - start_s) / grid_s) + 1) * grid_s
+    lower = max(clock_start, *(t[0] for t in time))
+    upper = min(clock_end, *(t[-1] for t in time))
+    # Use integer nanoseconds to retain samples exactly on grid endpoints.
+    origin_ns = round(start_s * 1e9)
+    lower_ns = round(lower * 1e9) - origin_ns
+    upper_ns = round(upper * 1e9) - origin_ns
+    first_step = (lower_ns + grid_ns - 1) // grid_ns
+    last_step = upper_ns // grid_ns
+    grid = (origin_ns + np.arange(first_step, last_step + 1) * grid_ns) / 1e9
     if len(grid) < 2:
         return {**metrics, "reason": "no_overlapping_state"}, []
     columns = {}
@@ -61,12 +77,15 @@ def measure_trace(path, run_id, command_hash, grid_s):
     angle = np.arctan2(np.sin(angle), np.cos(angle))
     rows = [{"time_s": float(t - start_s), **{k: float(values[i]) for k, values in columns.items()}}
             for i, t in enumerate(grid)]
-    coverage = {}
+    coverage, command_counts = {}, {}
     for topic, prefix in zip(command_topics, ("requested_", "guard_output_")):
-        commands = streams[topic]
+        commands = [row for row in streams[topic] if start_s <= row["bag_time_ns"] / 1e9 <= end_s]
+        command_counts[topic] = len(commands)
         stamps = np.array([row["bag_time_ns"] / 1e9 for row in commands])
         if not len(stamps) or np.any(np.diff(stamps) < 0):
             coverage[topic] = 0
+            for row in rows:
+                row.update({prefix + "v_mps": None, prefix + "yaw_rate_radps": None})
             continue
         indexes = np.searchsorted(stamps, grid, side="right") - 1
         valid = (indexes >= 0) & (grid <= stamps[-1])
@@ -84,6 +103,8 @@ def measure_trace(path, run_id, command_hash, grid_s):
             "ground_truth_path_length_m": float(np.hypot(np.diff(columns["x_m"]), np.diff(columns["y_m"])).sum()),
             "ground_truth_max_displacement_m": float(np.hypot(
                 columns["x_m"] - columns["x_m"][0], columns["y_m"] - columns["y_m"][0]).max()),
-            "command_overlap_samples": coverage,
+            "command_interval_samples": command_counts, "command_overlap_samples": coverage,
+            "command_coverage_status": "aligned" if all(coverage.values()) else "missing_command_overlap",
             "command_time_source": "rosbag2 record --use-sim-time receive time",
+            "command_observation_scope": "recorded ROS topics; downstream delivery and application unverified",
             "applied_axle_effort": None, "caster_contact_force": None}, rows

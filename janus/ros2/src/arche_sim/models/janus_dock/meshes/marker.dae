@@ -24,7 +24,7 @@
     <vertices id="vertices"><input semantic="POSITION" source="#positions"/></vertices>
     <triangles material="qr" count="2">
       <input semantic="VERTEX" source="#vertices" offset="0"/><input semantic="NORMAL" source="#normals" offset="1"/>
-      <input semantic="TEXCOORD" source="#uvs" offset="2" set="0"/><p>0 0 0  1 0 1  2 0 2  0 0 0  2 0 2  3 0 3</p>
+      <input semantic="TEXCOORD" source="#uvs" offset="2" set="0"/><p>0 0 0  2 0 2  1 0 1  0 0 0  3 0 3  2 0 2</p>
     </triangles>
   </mesh></geometry></library_geometries>
   <library_visual_scenes><visual_scene id="scene"><node id="plate"><instance_geometry url="#placard"><bind_material><technique_common>

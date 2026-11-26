@@ -115,6 +115,7 @@ def centering_fixture():
 
 def guard_fixture(variant):
     guard = CommandGuard()
+    restart_at = None
     if variant in ("command_timeout", "odom_timeout"):
         steps = [
             (0, 0, True, True, False, "ready"),
@@ -130,20 +131,42 @@ def guard_fixture(variant):
     elif variant == "odom_regression":
         steps = [(0.4, 0, True, True, False, "ready"), (0.42, 0.02, True, True, False, variant),
                  (0.44, 0.04, True, True, False, variant)]
-    else:
+    elif variant == "clock_stall":
         steps = [(0.4, 0, True, True, False, "ready"), (0.4, 0.51, False, False, False, variant)]
-    for time_s, wall, odom, request, abort, expected in steps:
+    elif variant == "clock_recovery":
+        steps = [(0.4, 0, True, True, False, "ready"),
+                 (0.4, 0.51, False, True, False, "clock_stall"),
+                 (0.42, 0.53, True, False, False, "command_timeout"),
+                 (0.44, 0.55, True, True, False, "ready")]
+    elif variant == "odom_recovery":
+        steps = [(0, 0, True, True, False, "ready"),
+                 (0.26, 0.26, False, True, False, "odom_timeout"),
+                 (0.28, 0.28, True, False, False, "command_timeout"),
+                 (0.30, 0.30, True, True, False, "ready")]
+    elif variant == "restart_recovery":
+        steps = [(0.4, 0, True, True, False, "ready"),
+                 (0.42, 0.02, True, False, True, "operator_abort"),
+                 (0.44, 0.04, True, True, False, "operator_abort"),
+                 (0, 0.60, True, False, False, "command_timeout"),
+                 (0.02, 0.62, True, True, False, "ready")]
+        restart_at = 3
+    else:
+        raise ValueError(f"unknown guard fixture: {variant}")
+    for step, (time_s, wall, odom, request, abort, expected) in enumerate(steps):
+        if step == restart_at:
+            guard = CommandGuard()
         guard.clock(time_s, wall)
         if odom:
             stamp = time_s - 0.06 if variant == "odom_regression" and time_s == 0.42 else time_s
             guard.odometry(stamp)
         if request:
-            guard.request(0.1, 0.2)
+            guard.request(0.1, 0.2, wall)
         if abort:
             guard.abort()
         output = guard.output(wall)
         moving = (output.v_mps, output.yaw_rate_radps) == (0.1, 0.2)
-        yield {"time_s": time_s, "wall_s": wall, "odom_sent": odom, "request_sent": request,
+        restart_event = {"guard_restarted": step == restart_at} if restart_at is not None else {}
+        yield {"time_s": time_s, "wall_s": wall, **restart_event, "odom_sent": odom, "request_sent": request,
                "abort_requested": abort, "requested_v_mps": 0.1 if request else None,
                "requested_yaw_rate_radps": 0.2 if request else None, **vars(output),
                "expected_reason": expected, "passed": output.reason == expected and moving == (expected == "ready")
