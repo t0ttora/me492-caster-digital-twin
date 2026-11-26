@@ -85,7 +85,7 @@ def test_virtual_bms_needs_full_stop_dwell_contact_and_fresh_timestamp():
         assert not dock.contact and not dock.charge_confirmed
     dock.update(.96,obs,True,(0.,0.))
     assert dock.aligned and dock.contact and not dock.charge_confirmed
-    dock.update(1.25,obs,False,(0.,0.),bms_time_s=1.25)
+    dock.update(1.00,obs,True,(0.,0.),bms_time_s=.96)
     assert not dock.charge_confirmed
     dock.update(1.30,obs,True,(0.,0.),bms_time_s=.96)
     assert not dock.charge_confirmed

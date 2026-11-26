@@ -7,7 +7,7 @@ import numpy as np
 
 from qr_camera import Camera, DOCK_ID, Frame, Marker, estimate_marker, mechanical_errors, project
 from qr_docking import Dock, FrameGate
-from scenarios import Dwell, Route, axle_state, terminal_ok
+from scenarios import Dwell, Route, STOP_INTERLOCKS, axle_state, terminal_ok
 from twin import (State, Torques, TrackingController, case_parameters, evaluate_motion,
                   kinetic_energy, result_record, rk4_step, validate_parameters, wrap)
 
@@ -50,7 +50,8 @@ class CameraStream:
                 frame = replace(self.last, arrival_time_s=time_s)
             else:
                 identity = "JANUS-OTHER-99" if mode == "wrong" else DOCK_ID
-                candidates = () if mode == "loss" else (project(pose, self.camera, self.marker, identity, self.rng),)
+                candidate = None if mode == "loss" else project(pose, self.camera, self.marker, identity, self.rng)
+                candidates = (candidate,) if candidate and candidate.visible else ()
                 frame = Frame(time_s, round(time_s+delay, 9), candidates)
             self.queue.append(frame)
             self.last = frame
@@ -80,7 +81,8 @@ def simulate(fixture):
     camera_stream = CameraStream(camera, marker, fixture.seed, "delay_noise" in event_types)
     frame_gate = FrameGate(camera)
     observation = frame_gate.current
-    dock = Dock(camera, marker.side_m, fixture.qr_yaw_gain, fixture.search_sweep) if use_camera else None
+    dock = Dock(camera, marker.side_m, fixture.qr_yaw_gain, fixture.search_sweep,
+                search_enabled=fixture.case == "Q05") if use_camera else None
     wheel = TrackingController(p, "straight", "baseline")
     transition_events, rows = [], []
     schedule = sorted(fixture.events)
@@ -102,11 +104,12 @@ def simulate(fixture):
         stopped = terminal_ok((0., 0., hypot(v, lateral), abs(state.body_yaw_rate_radps)))
         while schedule and schedule[0][0] <= t+1e-10:
             _, event = schedule.pop(0)
-            transition_events.append(dict(time_s=t, event=event, reason="fixture"))
+            injection = fixture.case in {"O04", "O05"} and event in STOP_INTERLOCKS
+            transition_events.append(dict(time_s=t, event=event,
+                                          reason="injected_stop_trigger" if injection else "fixture"))
             if event in {"visible", "wrong", "loss", "stale", "duplicate", "stream_cut"}:
                 mode = event
-            elif event in {"obstacle", "command_timeout", "operator_cancel",
-                           "odometry_timeout", "odometry_clock_regression"}:
+            elif event in STOP_INTERLOCKS and interlock is None:
                 interlock = event
             elif event == "pedestrian":
                 pedestrian_hold = True
@@ -128,28 +131,34 @@ def simulate(fixture):
             if observation.valid:
                 estimator_range, estimator_heading = estimate_marker(observation.candidate, camera, marker.side_m)
             route_goal = np.array([marker.x_m-Dock.STANDOFF_AXLE_M, marker.y_m, marker.yaw_rad])
-        if interlock and not use_camera:
-            requested_v, requested_w, phase, why = 0., 0., "abort", interlock
+        if dock and not transit and interlock is None:
+            # An interrupted docking attempt must not resume a historical contact hold.
+            if pedestrian_hold:
+                interlock = "pedestrian_interlock_latched"
+            elif braking:
+                interlock = "brake_step"
+        if interlock:
+            requested_v, requested_w, why = dock.abort(t, interlock) if dock else (0., 0., interlock)
+            phase = "abort"
+        elif pedestrian_hold:
+            requested_v, requested_w, phase, why = 0., 0., "hold", "pedestrian_interlock_latched"
+        elif braking or (fixture.case == "O03" and pose[0] >= .54):
+            braking = True
+            why = "transit_target" if fixture.case == "O03" else "brake_step"
+            requested_v, requested_w, phase = 0., 0., "stop"
         elif route:
             requested_v, requested_w, route_goal, phase = route.update(t, pose, v, lateral, state.body_yaw_rate_radps)
             why = phase
         elif use_camera and not transit:
-            if ("virtual_charge" in event_types and dock.wait_s is not None and last_bms_s is None
+            if ("virtual_charge" in event_types and dock.phase == "wait_for_charge" and last_bms_s is None
                     and t-dock.wait_s >= .30-1e-10):
                 last_bms_s = current_bms_s = t
                 transition_events.append(dict(time_s=t, event="virtual_bms_frame", reason="synthetic_charge_source"))
-            requested_v, requested_w, why = dock.update(t, observation, stopped, mechanical, interlock, current_bms_s)
+            requested_v, requested_w, why = dock.update(t, observation, stopped, mechanical, bms_time_s=current_bms_s)
             phase = dock.phase
         elif fixture.case == "M01":
             requested_v, requested_w, phase = 0., 0., "idle"
             why = "zero_torque_fixture"
-        elif fixture.case == "O03" and pedestrian_hold:
-            requested_v, requested_w, phase, why = 0., 0., "hold", "pedestrian_interlock_latched"
-        elif fixture.case == "O03" and (pose[0] >= .54 or braking):
-            braking = True
-            requested_v, requested_w, phase, why = 0., 0., "stop", "transit_target"
-        elif braking:
-            requested_v, requested_w, phase, why = 0., 0., "stop", "brake_step"
         else:
             requested_v, requested_w, phase, why = .14, 0., "transit", "fixture_velocity_request"
         limited_v = float(np.clip(requested_v, -.25, .25))
@@ -184,16 +193,22 @@ def simulate(fixture):
                    charge_confirmed=dock.charge_confirmed if dock else False,
                    bms_capture_time_s=last_bms_s, retry_count=dock.retries if dock else 0)
         rows.append(row)
-        finished = (route and route.done) or (dock and dock.done) or phase in {"abort", "stop"} and not use_camera
+        if phase == "abort":
+            reason = why
+        finished = (phase in {"abort", "settled"} or (dock and dock.done)
+                    or (phase == "stop" and braking))
         if finished:
             if stop_phase_start is None:
                 stop_phase_start = t
             if motion_stop.update(t, stopped):
                 completed_s = t
-                reason = "route_gates_accepted" if route else why
+                reason = "route_gates_accepted" if phase == "settled" else why
                 break
+        else:
+            motion_stop.update(t, False)
+            stop_phase_start = None
         if tick == round(fixture.duration_s/dt):
-            if fixture.case == "M01":
+            if fixture.case == "M01" and phase == "idle":
                 reason = "idle_window_elapsed"
             break
         for _ in range(steps_per_command):

@@ -132,10 +132,17 @@ def observation_rows(frames, camera):
                    False, "missing", frame.source]+[""]*8
         for candidate in frame.candidates:
             corners = candidate.corners_px
-            center = candidate.center_px or ("", "")
-            valid = candidate.id == DOCK_ID and candidate.visible and candidate.quality >= .5
-            reason = "valid_candidate" if valid else ("wrong_id" if candidate.id != DOCK_ID else "not_visible")
-            yield [frame.capture_time_s, frame.arrival_time_s, width, height, candidate.id, *center,
+            center = candidate.center_px
+            valid = candidate.id == DOCK_ID and candidate.visible and candidate.quality >= .5 and center is not None
+            if not candidate.id:
+                reason = "undecoded"
+            elif candidate.id != DOCK_ID:
+                reason = "wrong_id"
+            elif not candidate.visible or candidate.quality < .5:
+                reason = "not_visible"
+            else:
+                reason = "valid_candidate" if valid else "invalid_corners"
+            yield [frame.capture_time_s, frame.arrival_time_s, width, height, candidate.id, *(center or ("", "")),
                    candidate.visible, candidate.quality, valid, reason, frame.source]+(
                        [v for point in corners for v in point] if corners else [""]*8)
 
@@ -201,7 +208,13 @@ def write_run(output, fixture, run, metrics, baseline):
                "center_dwell_s": .4, "freshness_s": camera["freshness_s"], "bms_freshness_s": Dock.BMS_FRESHNESS_S,
                "bms_source": "virtual_fixture" if any(e=="virtual_charge" for _,e in fixture.events) else "absent",
                "contact_source": "synthetic_standoff_and_pose_gate",
+               "mechanical_hold": {"position_m": Dock.POSITION_LIMIT_M, "yaw_rad": Dock.YAW_LIMIT_RAD,
+                                   "planar_speed_mps": .02, "yaw_rate_radps": .05,
+                                   "dwell_s": Dock.MECHANICAL_DWELL_S,
+                                   "settle_timeout_s": Dock.MECHANICAL_SETTLE_TIMEOUT_S},
                "center_timeout_s": Dock.CENTER_TIMEOUT_S, "image_yaw_gain_radps": fixture.qr_yaw_gain,
+               "search_enabled": fixture.case == "Q05",
+               "search_limit_s": Dock.SWEEP_SEARCH_LIMIT_S if fixture.search_sweep else Dock.SEARCH_LIMIT_S,
                "search_sweep": fixture.search_sweep} if camera else None,
         "reproduce_argv": [sys.executable, str(ROOT/"run_study.py"), "--case", fixture.case, "--variant", fixture.variant,
                            "--output-dir", str(output.with_name(output.name+"-repro"))],

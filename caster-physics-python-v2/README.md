@@ -193,9 +193,20 @@ scenario check. A failed scenario check remains in the index and metrics.
   Each run includes an overview figure and interactive offline motion HTML.
 - The 20 Hz QR fixture projects the physical marker corners from each current
   axle pose, and the controller samples the latest valid arrival at 100 Hz.
-  Range uses the two vertical-edge heights with a level pinhole camera.
-  Mechanical pose acceptance uses a separate synthetic geometry check.
-  Contact and BMS are virtual events.
+  The diagonal intersection gives the marker's physical center in the image.
+  Range uses the vertical-edge heights with a level pinhole camera. A second
+  undecoded candidate makes a frame with the expected ID ambiguous.
+- Q05 allows yaw-only search on fresh empty frames within 3.2 s for the one-way
+  variant or 5.2 s for the sweep. It checks bounded search, fresh target
+  acquisition and safe stopping independently. The one-way control can stop
+  safely and still fail acquisition.
+- Virtual contact requires 0.25 s continuously within 0.02 m, 3°, 0.02 m/s and
+  0.05 rad/s. The settle window after the range stop is 1.5 s. Pose and speed
+  must stay inside those limits through confirmation by a fresh post-contact
+  virtual BMS event. Loss of hold aborts the attempt.
+- O04/O05 report the scheduled stop reason and sampled post-trigger braking.
+  Their case status is partial because they use injected stop reasons and
+  leave timeout detection, encoder dropout and watchdog timing unmeasured.
 - The optional OpenCV PNG decoder exercise has its own evidence scope and can be
   run with `python janus_decode.py --output-dir NEW_DIRECTORY`. It decodes static
   generated images. The projection controller's timing and optics are distinct.

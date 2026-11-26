@@ -34,6 +34,10 @@ CORNER = Segment(.1*pi/2, pi/2, 1.7)
 ROUND_SQUARE = (Segment(.30, 0., 2.), CORNER)*4
 P0 = ("M01", "M02", "M04", "M05", "M08", "Q01", "Q02", "Q03", "Q06",
       "Q08", "Q13", "Q15", "Q16", "O04")
+STOP_INTERLOCKS = {"obstacle", "command_timeout", "operator_cancel",
+                   "odometry_timeout", "odometry_clock_regression"}
+INJECTED_STOP_SCOPE = ("Scheduled stop reason and sampled planar braking; request, odometry and encoder "
+                       "streams and watchdog detection timing are outside this fixture.")
 
 FIXTURES = (
     Fixture("M01", duration_s=2.),
@@ -52,8 +56,10 @@ FIXTURES = (
     Fixture("Q13", "stale-frame", events=((2., "stale"),)),
     Fixture("Q15"),
     Fixture("Q16", events=((0., "virtual_charge"),)),
-    Fixture("O04", "watchdog", events=((1.4, "command_timeout"),), duration_s=7.),
-    Fixture("O04", "operator", events=((1.4, "operator_cancel"),), duration_s=7.),
+    Fixture("O04", "watchdog", events=((1.4, "command_timeout"),), duration_s=7.,
+            hardware_scope=INJECTED_STOP_SCOPE),
+    Fixture("O04", "operator", events=((1.4, "operator_cancel"),), duration_s=7.,
+            hardware_scope=INJECTED_STOP_SCOPE),
     Fixture("M03", segments=MANEUVERS["arc_turn"], caster_deg=30),
     Fixture("M04", "equal-peak-quintic", 17., MANEUVERS["s_turn"], caster_deg=45, profile="quintic"),
     Fixture("M04", "equal-duration-baseline", 17., MANEUVERS["s_turn"], caster_deg=45,
@@ -89,8 +95,10 @@ FIXTURES = (
             hardware_scope="2D footprint/wall geometry proxy"),
     Fixture("O03", "resume", events=((1.4, "pedestrian"), (2.5, "clear"), (3., "authorized_resume")),
             hardware_scope="injected pedestrian state with geometry proxy"),
-    Fixture("O05", "odometry-cut", events=((1.4, "odometry_timeout"),), duration_s=7.),
-    Fixture("O05", "clock-reset", events=((1.4, "odometry_clock_regression"),), duration_s=7.),
+    Fixture("O05", "odometry-cut", events=((1.4, "odometry_timeout"),), duration_s=7.,
+            hardware_scope=INJECTED_STOP_SCOPE),
+    Fixture("O05", "clock-reset", events=((1.4, "odometry_clock_regression"),), duration_s=7.,
+            hardware_scope=INJECTED_STOP_SCOPE),
     Fixture("O06", "payload-4kg", segments=MANEUVERS["straight"], payload_kg=4),
     Fixture("O07", "low-soc", events=((0., "transit"), (1.4, "low_soc"), (0., "virtual_charge")),
             hardware_scope="injected SoC and virtual charge"),

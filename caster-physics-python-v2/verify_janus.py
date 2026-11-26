@@ -53,6 +53,8 @@ def audit(directory, shared):
     pose = table(body,"x_m","y_m","yaw_rad")
     assert np.allclose(pose[0], [manifest["initial_axle_pose"][k] for k in ("x_m","y_m","yaw_rad")])
     metrics = json.loads((directory/"metrics.json").read_text())
+    events = read_csv(directory/"events.csv")
+    phases = {e["event"]:float(e["time_s"]) for e in events}
     assert metrics["samples"] == len(time)
     assert math.isclose(time[-1],manifest["completed_time_s"])
     for gate in metrics["gates"]:
@@ -94,8 +96,6 @@ def audit(directory, shared):
             if valid and row["phase"] in ("center","advance","recenter"):
                 assert error*w <= 1e-12
             last_phase = row["phase"]
-        events = read_csv(directory/"events.csv")
-        phases = {e["event"]:float(e["time_s"]) for e in events}
         if body[-1]["charge_confirmed"] == "True":
             assert phases["aligned"] <= phases["contact"] <= phases["virtual_bms_frame"] <= phases["success"]
             mask = time >= phases["aligned"]
@@ -103,6 +103,51 @@ def audit(directory, shared):
             speeds = table(body,"axle_v_mps","axle_lateral_mps","body_yaw_rate_radps")
             assert np.max(np.linalg.norm(speeds[mask,:2],axis=1)) <= .02
             assert np.max(abs(speeds[mask,2])) <= .05
+    qr = manifest["qr"]
+    if qr and "mechanical_hold" in qr and "contact" in phases:
+        hold = qr["mechanical_hold"]
+        contact = phases["contact"]
+        assert phases["aligned"] == contact
+        dwell = (time >= contact-hold["dwell_s"]-1e-9) & (time <= contact)
+        assert np.count_nonzero(dwell) == round(hold["dwell_s"]/dt)+1
+        live = np.array([row["contact"] == "True" for row in body])
+        assert live[np.searchsorted(time, contact)] and not np.any(live & (time < contact))
+        pose_error = table(body, "dock_geometry_error_m", "dock_geometry_yaw_error_rad")
+        speeds = table(body, "axle_v_mps", "axle_lateral_mps", "body_yaw_rate_radps")
+        mask = dwell | live
+        assert np.all(pose_error[mask] <= [hold["position_m"], hold["yaw_rad"]])
+        assert np.all(np.linalg.norm(speeds[mask, :2], axis=1) <= hold["planar_speed_mps"])
+        assert np.all(abs(speeds[mask, 2]) <= hold["yaw_rate_radps"])
+        assert np.all(requested[mask, 1:] == 0.)
+        if "success" in phases:
+            assert live[time >= contact].all()
+            bms = float(body[-1]["bms_capture_time_s"])
+            assert contact < bms == phases["virtual_bms_frame"] <= phases["success"]
+            assert phases["success"]-bms <= qr["bms_freshness_s"]
+    if qr and qr.get("search_enabled"):
+        search = np.array([row["phase"] == "search" for row in body])
+        turning = search & (requested[:, 2] != 0.)
+        assert np.all(time[search] < qr["search_limit_s"])
+        assert np.all(requested[search, 1] == 0.)
+        for i in np.flatnonzero(turning):
+            row = body[i]
+            capture, arrival = float(row["qr_capture_time_s"]), float(row["qr_arrival_time_s"])
+            assert row["qr_reject_reason"] == "missing" and abs(requested[i, 2]) <= .55
+            assert 0. <= capture <= arrival <= time[i]+1e-9 and time[i]-capture <= qr["freshness_s"]+1e-9
+        if "acquired" in phases:
+            acquisition = phases["acquired"]
+            assert acquisition < qr["search_limit_s"] and body[np.searchsorted(time, acquisition)]["qr_valid"] == "True"
+    if "injected_stop_trigger_observed" in metrics["checks"]:
+        trigger, = (e for e in events if e["reason"] == "injected_stop_trigger")
+        trigger_at = float(trigger["time_s"])
+        assert manifest["status"] == "partial" and trigger["event"] == manifest["termination_reason"]
+        assert np.all(requested[time >= trigger_at, 1:] == 0.)
+        dwell_end = metrics["stop_dwell_verified_at_s"]
+        hold = (time >= dwell_end-.25-1e-9) & (time <= dwell_end)
+        assert metrics["stop_trigger_time_s"] == trigger_at and dwell_end-.25 >= trigger_at-1e-9
+        assert np.count_nonzero(hold) == round(.25/dt)+1
+        speeds = table(body, "axle_v_mps", "axle_lateral_mps", "body_yaw_rate_radps")
+        assert np.all(np.linalg.norm(speeds[hold, :2], axis=1) <= .02) and np.all(abs(speeds[hold, 2]) <= .05)
     return {"run_id":directory.name,"samples":len(time),"gates_recomputed":len(metrics["gates"]),
             "status":manifest["status"],"failed_acceptance_checks":[key for key,value in metrics["checks"].items() if not value]}
 

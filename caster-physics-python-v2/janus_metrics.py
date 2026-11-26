@@ -3,7 +3,8 @@ import math
 
 import numpy as np
 
-from scenarios import progress, segment_duration
+from qr_docking import Dock
+from scenarios import STOP_INTERLOCKS, progress, segment_duration
 from twin import advance_pose, wrap
 
 
@@ -41,6 +42,8 @@ def summarize(fixture, run):
     effort = np.column_stack([col("left_drive_torque_Nm"), col("right_drive_torque_Nm")])
     phase = col("phase")
     positive = col("requested_v_mps") > 0.
+    yaw_request = col("requested_yaw_rate_radps")
+    motion_requested = (col("requested_v_mps") != 0.) | (yaw_request != 0.)
     qr_valid = col("qr_valid")
     qr = np.array([r["qr_error"] if r["qr_error"] is not None else np.nan for r in rows])
     moving_qr = positive & (phase == "advance")
@@ -48,7 +51,7 @@ def summarize(fixture, run):
     braking_start_s = run["stop_phase_start_s"]
     if np.any(phase == "stop"):
         braking_start_s = float(time[np.flatnonzero(phase == "stop")[0]])
-    if fixture.case == "M02" and fixture.segments:
+    if fixture.case == "M02" and fixture.segments and phase[-1] != "abort":
         braking_start_s = run["scheduled_duration_s"]
     elif fixture.case in {"Q06", "Q13", "Q17"} and event("lost") is not None:
         braking_start_s = event("lost")
@@ -113,7 +116,8 @@ def summarize(fixture, run):
     reason = run["termination_reason"]
     metrics = {
         "duration_s": float(time[-1]), "scheduled_reference_duration_s": run["scheduled_duration_s"],
-        "completion_time_s": gates[-1]["time_s"] if gates else run["completed_s"],
+        "completion_time_s": (gates[-1]["time_s"] if gates and reason == "route_gates_accepted"
+                              else run["completed_s"]),
         "termination_reason": reason, "samples": len(rows), "gates": gates,
         "path_rmse_m": path_rmse, "final_position_error_m": rows[-1]["pose_error_m"],
         "final_yaw_error_rad": abs(rows[-1]["yaw_error_rad"]),
@@ -170,7 +174,8 @@ def summarize(fixture, run):
               "passive_dissipation": metrics["minimum_passive_dissipation_W"] >= -1e-10,
               "energy_balance": metrics["energy_balance_max_abs_J"] < 1e-5}
     if fixture.segments:
-        checks["terminal_gate"] = reason == "route_gates_accepted"
+        checks["terminal_gate"] = (reason == "route_gates_accepted" and phase[-1] == "settled"
+                                   and bool(gates) and gates[-1]["gate"] == len(fixture.segments))
     if fixture.case == "M01":
         checks.update(zero_torque=metrics["peak_torque_Nm"] == 0., drift_below_1mm=metrics["max_drift_m"] <= .001)
     elif fixture.case == "M02":
@@ -191,9 +196,21 @@ def summarize(fixture, run):
                       forward_within_outer_band=not np.any(moving_qr & (np.abs(qr)>.04)),
                       image_feedback_signed=not np.any(qr_valid & (np.abs(qr)>.001) &
                           np.isin(phase, ["center","advance","recenter"]) & (qr*col("requested_yaw_rate_radps")>1e-12)))
-    if fixture.case in {"Q01","Q02","Q03","Q05","Q15"}:
+    if fixture.case in {"Q01","Q02","Q03","Q15"}:
         checks.update(virtual_contact_without_charge=reason=="charge_timeout" and metrics["aligned"]
                       and metrics["contact"] and not metrics["charge_confirmed"])
+    if fixture.case == "Q05":
+        search_limit = Dock.SWEEP_SEARCH_LIMIT_S if fixture.search_sweep else Dock.SEARCH_LIMIT_S
+        search = phase == "search"
+        acquired_at = event("acquired")
+        checks.update(bounded_yaw_only_search=(not np.any(time[search] >= search_limit)
+                      and not np.any(col("requested_v_mps")[search])
+                      and np.all(np.abs(yaw_request[search]) <= .55)
+                      and not np.any(search & motion_requested & (col("qr_reject_reason") != "missing"))),
+                      fresh_detection_acquired_within_budget=(acquired_at is not None
+                          and acquired_at < search_limit and qr_valid[sample_at(acquired_at)]),
+                      safe_stop_verified=(stop_s is not None and run["completed_s"] is not None
+                          and stopped[-1] and not np.any(motion_requested & (phase == "abort"))))
     if fixture.case in {"Q02","Q03"}:
         initial = metrics["qr_first_error"]
         heading = metrics["qr_first_yaw_request_radps"]
@@ -210,8 +227,10 @@ def summarize(fixture, run):
         if fixture.case=="Q07":
             checks["reacquisition_recorded"] = metrics["retry_count"]==1
     if fixture.case=="Q14":
+        obstacle_at = event("obstacle")
         checks.update(obstacle_stop=reason=="obstacle" and stop_s is not None,
-                      no_motion_request_after_obstacle=not np.any(positive & (time >= event("obstacle"))))
+                      no_motion_request_after_obstacle=obstacle_at is not None
+                      and not np.any(motion_requested & (time >= obstacle_at)))
     if fixture.case=="Q17":
         checks["retry_budget_aborts"] = reason=="retry_budget" and metrics["retry_count"]==3
     if fixture.case in {"Q04","Q19","Q20"}:
@@ -226,7 +245,10 @@ def summarize(fixture, run):
     if clearance:
         checks["wall_geometry_clear"] = clearance["minimum_wall_clearance_m"] > 0.
     if fixture.case in {"O04","O05"}:
-        checks.update(fault_latched=reason in {"operator_cancel","command_timeout","odometry_timeout","odometry_clock_regression"},
-                      stopped=stop_s is not None and not np.any(positive & (phase == "abort")))
+        trigger = next((item for item in run["events"] if item["reason"] == "injected_stop_trigger"), None)
+        observed = trigger is not None and trigger["event"] in STOP_INTERLOCKS and reason == trigger["event"]
+        checks.update(injected_stop_trigger_observed=observed,
+                      post_trigger_braking_dwell=(observed and stop_s is not None
+                          and not np.any(motion_requested[time >= trigger["time_s"]])))
     metrics["checks"] = {k: bool(v) for k,v in checks.items()}
     return metrics

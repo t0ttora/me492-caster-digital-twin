@@ -36,16 +36,30 @@ class Marker:
 
 @dataclass(frozen=True)
 class Candidate:
-    id: str
+    id: str | None
     corners_px: tuple
     visible: bool
     quality: float
 
     @property
     def center_px(self):
-        if not self.corners_px:
+        # The diagonal intersection projects the physical center under perspective.
+        corners = np.asarray(self.corners_px, dtype=float)
+        if corners.shape != (4, 2) or not np.isfinite(corners).all():
             return None
-        return tuple(float(x) for x in np.mean(self.corners_px, axis=0))
+        tl, tr, br, bl = corners
+        a, b, offset = br-tl, bl-tr, tr-tl
+
+        def cross(u, v):
+            return u[0]*v[1]-u[1]*v[0]
+
+        determinant = cross(a, b)
+        if abs(determinant) < 1e-9:
+            return None
+        along_a, along_b = cross(offset, b)/determinant, cross(offset, a)/determinant
+        if not (0. < along_a < 1. and 0. < along_b < 1.):
+            return None
+        return tuple(map(float, tl+along_a*a))
 
 
 @dataclass(frozen=True)
