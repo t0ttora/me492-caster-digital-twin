@@ -1,0 +1,24 @@
+{
+  "case_id": "M04",
+  "run_id": "M04-simscape-s_contract_geometry",
+  "raw_sha256": "9d9ffa13522a4db69d646f5959e6125cb1fc57e3713e633d8f1fff0b517d6ebd",
+  "reference": "Two 0.30 m arcs (+60 then -60 deg), 45 deg initial caster",
+  "nearest_reference_point_step_m": 0.00015,
+  "initial_caster_deg": 45.0,
+  "xy_reference_endpoint_m": [
+    0.4961960058796128,
+    0.2864788975654116
+  ],
+  "cross_track_rmse_m": 0.001074970320728223,
+  "cross_track_window_s": [
+    0.5,
+    10.88
+  ],
+  "gate_reported_s": 10.88,
+  "terminal_dwell_verified_s": 10.89,
+  "final_position_error_m": 0.011248522909867326,
+  "final_yaw_error_rad": -3.7026260284685726e-05,
+  "final_speed_mps": -6.27931731175403e-06,
+  "final_yaw_rate_radps": 7.96998766376526e-06,
+  "all_conditions_held_after_first_dwell": true
+}

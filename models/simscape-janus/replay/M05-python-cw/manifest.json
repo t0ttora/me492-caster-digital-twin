@@ -1,0 +1,27 @@
+{
+  "run_id": "M05-python-cw",
+  "initial_solver_state": {
+    "body_x_m": -0.08,
+    "body_y_m": 0.0,
+    "body_yaw_rad": 0.0,
+    "caster_angle_relative_rad": 0.0,
+    "body_velocity_x_mps": 0.0,
+    "body_velocity_y_mps": 0.0,
+    "body_yaw_rate_radps": 0.0,
+    "caster_relative_rate_radps": 0.0,
+    "left_wheel_rate_radps": 0.0,
+    "right_wheel_rate_radps": 0.0,
+    "caster_roll_rate_radps": 0.0,
+    "motor_work_J": 0.0,
+    "dissipated_energy_J": 0.0
+  },
+  "initial_axle_pose": {
+    "x_m": 0.0,
+    "y_m": 0.0,
+    "yaw_rad": 0.0
+  },
+  "files": {
+    "applied_torque.csv": "1b0b8ebc458627cbca5c1ff3bce0dff744d9f5786be6eccd22dc537c336b61d0"
+  },
+  "source_manifest_sha256": "91c6b1b49528085eb60af78678288d3c52116f839cb77257e2fad6dec066cec6"
+}

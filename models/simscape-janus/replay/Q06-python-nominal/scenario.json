@@ -1,0 +1,22 @@
+{
+  "case": "Q06",
+  "variant": "nominal",
+  "duration_s": 14.0,
+  "segments": [],
+  "gate_each": false,
+  "caster_deg": 0.0,
+  "profile": "baseline",
+  "comparison": "equal_peak",
+  "surface": "reference_synthetic",
+  "payload_kg": 0.0,
+  "yaw_deg": 0.0,
+  "y_m": 0.0,
+  "seed": 492,
+  "events": [
+    [
+      2.0,
+      "loss"
+    ]
+  ],
+  "hardware_scope": ""
+}

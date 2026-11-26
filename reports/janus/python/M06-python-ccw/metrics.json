@@ -1,0 +1,202 @@
+{
+  "duration_s": 32.75,
+  "scheduled_reference_duration_s": 19.6,
+  "completion_time_s": 32.5,
+  "termination_reason": "route_gates_accepted",
+  "samples": 3276,
+  "gates": [
+    {
+      "time_s": 3.34,
+      "gate": 1,
+      "kind": "edge",
+      "dwell_start_s": 3.09,
+      "position_error_m": 0.0018044441984666482,
+      "yaw_error_rad": 0.0,
+      "planar_speed_mps": 0.013365432804349849,
+      "yaw_rate_radps": 0.0,
+      "position_limit_m": 0.05,
+      "yaw_limit_rad": 0.08726646259971647,
+      "target_pose": [
+        0.5,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "time_s": 7.33,
+      "gate": 2,
+      "kind": "turn",
+      "dwell_start_s": 7.08,
+      "position_error_m": 0.008980231922994488,
+      "yaw_error_rad": 0.009047889553689625,
+      "planar_speed_mps": 0.0005253183680676881,
+      "yaw_rate_radps": 0.0003803173641627099,
+      "position_limit_m": 0.05,
+      "yaw_limit_rad": 0.08726646259971647,
+      "target_pose": [
+        0.5,
+        0.0,
+        1.5707963267948966
+      ]
+    },
+    {
+      "time_s": 11.53,
+      "gate": 3,
+      "kind": "edge",
+      "dwell_start_s": 11.28,
+      "position_error_m": 0.010344815215078022,
+      "yaw_error_rad": 0.004642796900995449,
+      "planar_speed_mps": 0.011114528449948636,
+      "yaw_rate_radps": 0.012537676819243854,
+      "position_limit_m": 0.05,
+      "yaw_limit_rad": 0.08726646259971647,
+      "target_pose": [
+        0.5,
+        0.5,
+        1.5707963267948966
+      ]
+    },
+    {
+      "time_s": 15.52,
+      "gate": 4,
+      "kind": "turn",
+      "dwell_start_s": 15.27,
+      "position_error_m": 0.007228666346513229,
+      "yaw_error_rad": 0.00974729287050913,
+      "planar_speed_mps": 0.0006554406675123902,
+      "yaw_rate_radps": 0.0027085232474020966,
+      "position_limit_m": 0.05,
+      "yaw_limit_rad": 0.08726646259971647,
+      "target_pose": [
+        0.5,
+        0.5,
+        3.141592653589793
+      ]
+    },
+    {
+      "time_s": 20.33,
+      "gate": 5,
+      "kind": "edge",
+      "dwell_start_s": 20.08,
+      "position_error_m": 0.0024755063474826747,
+      "yaw_error_rad": 0.006849583276420379,
+      "planar_speed_mps": 0.00019377081495849848,
+      "yaw_rate_radps": 0.002683054123129855,
+      "position_limit_m": 0.05,
+      "yaw_limit_rad": 0.08726646259971647,
+      "target_pose": [
+        0.0,
+        0.5000000000000001,
+        3.141592653589793
+      ]
+    },
+    {
+      "time_s": 24.31,
+      "gate": 6,
+      "kind": "turn",
+      "dwell_start_s": 24.06,
+      "position_error_m": 0.009241523283999799,
+      "yaw_error_rad": 0.008728639375499723,
+      "planar_speed_mps": 0.00045873784199426996,
+      "yaw_rate_radps": 0.0014052900893835646,
+      "position_limit_m": 0.05,
+      "yaw_limit_rad": 0.08726646259971647,
+      "target_pose": [
+        0.0,
+        0.5000000000000001,
+        4.71238898038469
+      ]
+    },
+    {
+      "time_s": 28.51,
+      "gate": 7,
+      "kind": "edge",
+      "dwell_start_s": 28.26,
+      "position_error_m": 0.010270570644874572,
+      "yaw_error_rad": 0.0037680232806325265,
+      "planar_speed_mps": 0.010938432819506835,
+      "yaw_rate_radps": 0.011417036344831386,
+      "position_limit_m": 0.05,
+      "yaw_limit_rad": 0.08726646259971647,
+      "target_pose": [
+        -9.184850993605148e-17,
+        1.1102230246251565e-16,
+        4.71238898038469
+      ]
+    },
+    {
+      "time_s": 32.5,
+      "gate": 8,
+      "kind": "turn",
+      "dwell_start_s": 32.25,
+      "position_error_m": 0.00722459773054636,
+      "yaw_error_rad": 0.00979525818120397,
+      "planar_speed_mps": 0.0006640874530787123,
+      "yaw_rate_radps": 0.0028642400227997336,
+      "position_limit_m": 0.02,
+      "yaw_limit_rad": 0.05,
+      "target_pose": [
+        -9.184850993605148e-17,
+        1.1102230246251565e-16,
+        6.283185307179586
+      ]
+    }
+  ],
+  "path_rmse_m": 0.005594130133529144,
+  "final_position_error_m": 0.007255827885716144,
+  "final_yaw_error_rad": 0.00961018758660881,
+  "synchronized_position_rmse_m": 0.01292575273087751,
+  "synchronized_yaw_rmse_rad": 0.03858108460379798,
+  "yaw_travel_rad": 7.408966226570004,
+  "max_axle_speed_mps": 0.34037384215578714,
+  "final_axle_speed_mps": 3.0740530235008184e-05,
+  "stop_trigger_time_s": 32.5,
+  "stop_duration_s": 0.0,
+  "stop_distance_m": 0.0,
+  "stop_dwell_verified_at_s": 32.75,
+  "peak_torque_Nm": 0.49991916276590964,
+  "rms_left_torque_Nm": 0.2451695530340515,
+  "rms_right_torque_Nm": 0.22221784048621301,
+  "torque_saturated_sample_fraction": 0.0,
+  "caster_peak_abs_swivel_rate_radps": 2.6797132028144306,
+  "caster_final_angle_rad": -1.9736045066716368,
+  "caster_realign_10deg_dwell_0_25s_after_motion_s": 0.0,
+  "caster_realign_status": "reached",
+  "caster_lateral_slip_rms_mps": 0.03879197026004633,
+  "drive_long_slip_rms_mps": 0.009995494660177618,
+  "mechanical_axle_work_J": 9.454734543871135,
+  "energy_balance_max_abs_J": 4.197679876583038e-06,
+  "minimum_passive_dissipation_W": 0.0,
+  "quasistatic_normal_load_N_at_final": [
+    29.86165880159124,
+    48.8139711870188,
+    84.17037001138999
+  ],
+  "axle_displacement_m": 0.007255827885716141,
+  "max_drift_m": 0.7219592509603984,
+  "qr_first_error": null,
+  "qr_first_yaw_request_radps": null,
+  "qr_first_advance_s": null,
+  "qr_advance_peak_abs_error": null,
+  "qr_invalid_forward_samples": null,
+  "qr_frame_rejections": {},
+  "aligned": false,
+  "contact": false,
+  "charge_confirmed": false,
+  "retry_count": 0,
+  "dock_final_position_error_m": null,
+  "dock_final_yaw_error_rad": null,
+  "qr_yaw_sign_changes": 0,
+  "clearance_geometry_proxy": {},
+  "reference_peak_speed_mps": 0.2,
+  "reference_peak_yaw_rate_radps": 0.6544984694978736,
+  "checks": {
+    "finite_numeric": true,
+    "torque_limit": true,
+    "passive_dissipation": true,
+    "energy_balance": true,
+    "terminal_gate": true,
+    "gate_order": true,
+    "signed_90deg_turns": true
+  }
+}

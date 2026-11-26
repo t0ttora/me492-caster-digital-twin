@@ -1,0 +1,28 @@
+{
+  "case": "M04",
+  "variant": "nominal",
+  "duration_s": 13.0,
+  "segments": [
+    {
+      "distance_m": 0.3,
+      "yaw_change_rad": 1.0471975511965976,
+      "duration_s": 2.0
+    },
+    {
+      "distance_m": 0.3,
+      "yaw_change_rad": -1.0471975511965976,
+      "duration_s": 2.0
+    }
+  ],
+  "gate_each": false,
+  "caster_deg": 45,
+  "profile": "baseline",
+  "comparison": "equal_peak",
+  "surface": "reference_synthetic",
+  "payload_kg": 0.0,
+  "yaw_deg": 0.0,
+  "y_m": 0.0,
+  "seed": 492,
+  "events": [],
+  "hardware_scope": ""
+}

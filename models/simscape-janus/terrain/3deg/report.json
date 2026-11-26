@@ -1,0 +1,24 @@
+{
+  "completed": true,
+  "case_id": "M12",
+  "scope": "NATIVE_3D_INFINITE_SLOPE_FEASIBILITY_NOT_THRESHOLD",
+  "slope_deg": 3,
+  "step_s": 2.5E-5,
+  "sensor_log_s": 0.001,
+  "error": "",
+  "model_sha256": "197282d20c8ecbf6c13b0164fbcf8a81f17577fc07bbbb3613308f678543b411",
+  "command_sha256": "77fee7f9e3492cb7ceb9813e1566b756870be07ed010c2675051837fb5f57937",
+  "end_s": 3,
+  "initial_x_m": 0,
+  "final_x_m": -0.073609373106842346,
+  "initial_z_m": 0.079897215106593047,
+  "final_z_m": 0.0707327594727962,
+  "final_pitch_deg": -3.022657999599982,
+  "max_penetration_m": [
+    0.0017809885265941004,
+    0.0017809868840363845,
+    0.0019527451571588906
+  ],
+  "wall_s": 16.5325085,
+  "threshold_status": "NOT_IMPLEMENTED: Infinite Plane has no edge or height discontinuity. A finite threshold requires explicit solid/grid-surface geometry and additional wheel/obstacle contact pairs, plus corner/contact convergence validation. No traversal claim."
+}

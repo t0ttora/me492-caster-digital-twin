@@ -1,0 +1,41 @@
+case_id,scenario_tr,priority,planned_evidence_and_acceptance_tr
+M01,"Boşta bekleme, sıfır tork",P0,"Python/Simscape. Kısa düz zemin beklemesinde sentetik kayma ≤1 mm hedefi, sonlu log."
+M02,"Düz kalkış, düşük hız, fren ve duruş",P0,"Üç ortam. Poz ve teker işaretleri, durma süresi ve mesafesi."
+M03,Sabit yarıçaplı yay ve koridor köşesine giriş,P1,"Python/Simscape. Eğrilik, çapraz hata, caster hizalanması."
+M04,S yolu ve art arda ters eğrilikler,P0,Python/Simscape. Çapraz iz RMSE ≤3 cm önerisi ve terminal kapısı.
+M05,"Saat yönünde 0,50 m kare, köşede dur ve dön",P0,"Python/Simscape. Dört kenar, dört 90° dönüş, köşede 5 cm/5° ve terminal kapısı."
+M06,Saat yönünün tersine aynı kare,P1,Python/Simscape. Aynı metriklerle ters dönüş ve kapı sırası.
+M07,Yuvarlatılmış köşeli kare,P1,Python/Gazebo. Kendi referans yoluna göre izleme ve açıklık.
+M08,"İleri–geri, ±30° caster aynası",P0,"Python/Simscape. Duruş, ayna farkı ve caster toparlanma zamanı."
+M09,"90°/180° caster kalkışı, yerinde dönüş",P1,"Python/Simscape. Kayma, yerleşme ve tork doygunluğu."
+M10,Nominal ve ek yükle aynı dönüş,P1,"Python/Simscape. Kütle/COM, destek ve hata farkı."
+M11,İki zemin ve yüzey sınırı geçişi,P1,"Üç ortam. Kayma, duruş ve yüzey bazlı rapor."
+M12,"Rampa, eşik ve ağırlık transferi",P2,"3B ortamlar. Açıklık, temas kaybı ve kuvvet."
+Q01,"QR merkezde, nominal yaklaşım",P0,"Python/Simscape. Merkez bandı, yaklaşım ve duruş."
+Q02,"QR solda, sola düzelt ve ilerle",P0,"Python/Simscape. İşaret doğru, ilerleme merkez kapısını bekler."
+Q03,"QR sağda, sağa düzelt ve ilerle",P0,Python/Simscape. Q02 aynası.
+Q04,Yanal ofset ile ters işaretli başlangıç yaw,P1,Python/Gazebo. Merkezleme ve mekanik hizanın ayrımı.
+Q05,QR başlangıçta görüş dışında,P1,"Python/Gazebo. Arama sınırı, güvenli duruş ve yeni tespit."
+Q06,İlerlerken QR görüş kaybı,P0,"Python/Simscape. Eski gözlemle ileri komut yok, sebep raporlanır."
+Q07,"QR geri gelir, yeniden merkezle",P1,"Python/Gazebo. Kimlik, geçerlilik ve retry sayısı."
+Q08,Yalnız yanlış istasyon QR’ı,P0,Python/Gazebo. İlerlememe ve kimlik reddi.
+Q09,Aynı karede iki istasyon QR’ı,P1,Gazebo/video. Doğru kimlik seçimi veya belirsiz durumda ret.
+Q10,"Parlama, yansıma, aşırı pozlama",P1,"Gazebo/video. Algı kaybı ölçümü, yanlış onay yok."
+Q11,Düşük ışık ve hareket bulanıklığı,P1,"Gazebo/video. Kalite, gecikme ve duruş."
+Q12,"Kısmi örtülme, yakında kadrajdan kesilme",P1,Gazebo/video. Geçersiz gözlem ve onaylı bitiş koşulu.
+Q13,"Geç, tekrarlı kare veya kesilen kamera akışı",P0,Python/ROS 2. Eski timestamp ile yeni ilerleme yok.
+Q14,Dock koridoru engelli,P1,Gazebo. Duruş ve yetkili yeniden başlatma.
+Q15,"Hizalandı, şarj onayı gelmedi",P0,Python/Gazebo. Hizalı ve şarj durumu ayrı; timeout.
+Q16,Sanal BMS şarj onayı geldi,P0,"Python/Gazebo. Sıfır hareket, teyit olayı, başarı."
+Q17,Yeniden deneme bütçesi doldu,P1,"Python/Gazebo. Sayı, abort ve açık neden."
+Q18,Dock’tan geri ayrılma,P1,"Gazebo. Şarjın kesilmesi, çıkış açıklığı, caster toparlanması."
+Q19,Kamera ofseti veya QR montaj açısı değişti,P1,Python/Gazebo. Hedef sütun ve mekanik dönüşüm etkisi.
+Q20,Sağ-sol aşırı düzeltme ve salınım,P1,"Python/Simscape. İşaret çevrimleri, tekrar sayısı ve yerleşme."
+O01,"A → B → A, ardışık görev",P1,Gazebo. Varış ve görevler arası durum sıfırlama.
+O02,Dar koridorda dön ve geri çık,P1,"Gazebo/Python mekanik alt testi. Footprint, açıklık, toparlanma."
+O03,"Yaya geçişinde dur, alan açılınca devam",P1,"Gazebo. Temassız duruş, bekleme ve yetkili devam."
+O04,Komut yayını kesilir veya operatör iptal eder,P0,Python/Gazebo. Timeout ve duruş komutu kayıtlı.
+O05,Odom/encoder kopması veya zaman gerilemesi,P1,"Python/ROS 2. Geçersiz veri, tanılama ve duruş."
+O06,Yükle servis noktasına park,P1,Python/Gazebo. Yük konfigürasyonu ve hassas son poz.
+O07,Düşük bataryada görevi kes ve dock’a dön,P1,Gazebo. Görev önceliği ve dock zinciri; SoC sentetik.
+O08,Güç/bağlantı geri gelir,P2,ROS 2/Gazebo. Açık yetkiyle yeniden başlatma.

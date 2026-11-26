@@ -1,0 +1,238 @@
+{
+  "applied_torque_replay": [
+    {
+      "source_run_id": "M01-python-nominal",
+      "model_sha256": "d62abdae86932a5e5f48e66ef5d8090b56ba2baa9bc9d6b4d7b420be8463d459",
+      "command_sha256": "1ebdc61ee4864214ffc5eff4eb106ffc42d2a12423435792309fd9757a8c617e",
+      "initial_caster_deg": 0,
+      "end_s": 2,
+      "applied_command_equivalence_pass": true
+    },
+    {
+      "source_run_id": "M04-python-nominal",
+      "model_sha256": "124ee299045cd696436ee35623fc9c40c2667583a5dbdd5acca72ce6d89beb6d",
+      "command_sha256": "d702ab77758708d8dfb78f30a86e3f222174cb80cf18d13ff90ed8b95c2631fa",
+      "initial_caster_deg": 45,
+      "end_s": 10.13,
+      "applied_command_equivalence_pass": true
+    },
+    {
+      "source_run_id": "M05-python-cw",
+      "model_sha256": "d1740ed162eaafa0478f7ba52460291979d9365481e891ec6d39c763fe26ae8c",
+      "command_sha256": "1b0b8ebc458627cbca5c1ff3bce0dff744d9f5786be6eccd22dc537c336b61d0",
+      "initial_caster_deg": 0,
+      "end_s": 32.75,
+      "applied_command_equivalence_pass": true
+    },
+    {
+      "source_run_id": "M08-python-caster-minus30",
+      "model_sha256": "082a191642b97cb5c693c7e2d9eaceb1426ff42bd793371ea499669a1e7452d3",
+      "command_sha256": "6352693863344ea7bd59de87f222d0774999d6a974714b8d36d0cc84f1633996",
+      "initial_caster_deg": -30,
+      "end_s": 9.96,
+      "applied_command_equivalence_pass": true
+    },
+    {
+      "source_run_id": "M08-python-caster-plus30",
+      "model_sha256": "becd68422b1df3d706b40b5730bc47606f6be02183270549086eca9f39b10553",
+      "command_sha256": "fb8973693304950af26df0066a3b4ff997727e6ba825b161784d5e9ace2fed6e",
+      "initial_caster_deg": 30,
+      "end_s": 9.96,
+      "applied_command_equivalence_pass": true
+    },
+    {
+      "source_run_id": "Q01-python-nominal",
+      "model_sha256": "59e0ebc57e39542e3603b8628828232ecd165331ed1d65ea906cd6d32c2bf7cc",
+      "command_sha256": "90fb0f590ceb8b4f7530a8a9e4fafb57e79cdef33f75e25cfbcfe40bf1c77d8b",
+      "initial_caster_deg": 0,
+      "end_s": 8.540000000000001,
+      "applied_command_equivalence_pass": true
+    },
+    {
+      "source_run_id": "Q02-python-left",
+      "model_sha256": "33f408c5f14b44d1c908c9f3cfaa6c3f2a7a5709fa5367bce9b5666a495b29b2",
+      "command_sha256": "5c753e6b3362ef8f162e5172256b8e83df187e00066494609b288e62086dde2f",
+      "initial_caster_deg": 0,
+      "end_s": 15.14,
+      "applied_command_equivalence_pass": true
+    },
+    {
+      "source_run_id": "Q06-python-nominal",
+      "model_sha256": "bbba9415a4a3dd205830f612d466fd8486a6bd8a37df084702853aab1c1fc696",
+      "command_sha256": "a51fa04e672258b7c53aa59590ad366ef2fd09444f3de5136d028914721a57aa",
+      "initial_caster_deg": 0,
+      "end_s": 3.85,
+      "applied_command_equivalence_pass": true
+    }
+  ],
+  "closed_loop": [
+    {
+      "scenario": "s_contract_geometry",
+      "mode": 8,
+      "model_sha256": "b87d1f3f1f783d5993172fb8901f8947312a2c0291170e84bab75a63015a0873",
+      "controller_file": "native_s_contract_geometry_controller.m",
+      "controller_sha256": "696787cde113aece5ec7792ec8268f277bb5d76694032a8b676bda2f4cb2caaa",
+      "end_s": 30,
+      "controller_internal_gate_count": 1,
+      "controller_internal_terminal_flag": true
+    },
+    {
+      "scenario": "s_curve",
+      "mode": 1,
+      "model_sha256": "45fdfddad189745af7b3fab814536dc12e03af5051952989dd791561c8fabfc0",
+      "controller_file": "native_pose_controller.m",
+      "controller_sha256": "a7e3af1ed8640f4399b96bd8cd09c3a5b5fd54713fc30a467593f23a0d60f4e3",
+      "end_s": 25,
+      "controller_internal_gate_count": 0,
+      "controller_internal_terminal_flag": false
+    },
+    {
+      "scenario": "s_curve_v2",
+      "mode": 1,
+      "model_sha256": "1b595afa6e9ce1905c57f49067d83904d70fead252ea0cb96e158f4d4f56dd90",
+      "controller_file": "native_s_curve_v2_controller.m",
+      "controller_sha256": "7009f28665e03b2c3e9ccf9349859f458ef861fe34df8a2d202ec1fcd7abc4d2",
+      "end_s": 25,
+      "controller_internal_gate_count": 1,
+      "controller_internal_terminal_flag": true
+    },
+    {
+      "scenario": "square",
+      "mode": 2,
+      "model_sha256": "078aa0767924f15b8c9531f6a5d7f20ecc913d9f5b3493c5faa8fd4080843ec6",
+      "controller_file": "native_square_controller.m",
+      "controller_sha256": "5f090f88f8aed2e82720e7e61a7b61424e34c8809f9f27c6b1c4e7808fc79333",
+      "end_s": 80,
+      "controller_internal_gate_count": 1,
+      "controller_internal_terminal_flag": false
+    },
+    {
+      "scenario": "square_ccw",
+      "mode": 7,
+      "model_sha256": "72fb7877af1e206e693dec390650bcda1f57fa0385f20779d767c7abc7bf85fa",
+      "controller_file": "native_square_ccw_controller.m",
+      "controller_sha256": "e3155fc38de5d3ab915d208db27ab9c928862c7f96ba9dcc9af574b07b018090",
+      "end_s": 80,
+      "controller_internal_gate_count": 8,
+      "controller_internal_terminal_flag": true
+    },
+    {
+      "scenario": "qr_centered",
+      "mode": 3,
+      "model_sha256": "8e8b1fea33ad639cb8c228fb2f0674add6cc59598540261903e8a0245de02950",
+      "controller_file": "native_pose_controller.m",
+      "controller_sha256": "a7e3af1ed8640f4399b96bd8cd09c3a5b5fd54713fc30a467593f23a0d60f4e3",
+      "end_s": 18,
+      "controller_internal_gate_count": 1,
+      "controller_internal_terminal_flag": true
+    },
+    {
+      "scenario": "qr_left",
+      "mode": 4,
+      "model_sha256": "57677f518b46dde027a694b8ce48f78466cb95f32fc4b117958858d131c2c83d",
+      "controller_file": "native_qr_left_controller.m",
+      "controller_sha256": "cb8a1357fbdae7a834412358ac8b28546922c8723d958e95733ecb72053b4ea8",
+      "end_s": 18,
+      "controller_internal_gate_count": 1,
+      "controller_internal_terminal_flag": true
+    },
+    {
+      "scenario": "qr_right",
+      "mode": 5,
+      "model_sha256": "b213e53854fc5c9662064a678427a7994831a81e94f91b580c99ae5e07ef172f",
+      "controller_file": "native_qr_right_controller.m",
+      "controller_sha256": "33568d0bf04ad39e941bb4cdbc7b9e52f3f0cb75a6f218941acad33304caf9d6",
+      "end_s": 18,
+      "controller_internal_gate_count": 1,
+      "controller_internal_terminal_flag": true
+    },
+    {
+      "scenario": "qr_view_loss",
+      "mode": 6,
+      "model_sha256": "95af252c9eb495a77c69cde2c778fb9fe45f79170ac9cb2b4d42efdb84031f58",
+      "controller_file": "native_qr_view_loss_controller.m",
+      "controller_sha256": "4c1b494dd97fbd2d42ee914f4b0c9666b7963f3ca9d7a384a52bee27e90cc653",
+      "end_s": 18,
+      "controller_internal_gate_count": 1,
+      "controller_internal_terminal_flag": true
+    },
+    {
+      "scenario": "s_curve_v3",
+      "mode": 1,
+      "model_sha256": "e54eb04e56ed411f03083be965b054a6c1b73ea2084289b57df6dfe2e1da2237",
+      "controller_file": "native_s_curve_v3_controller.m",
+      "controller_sha256": "03e0977af06e0829ff4faf13deb195de724529c435be7bf878289518405a5919",
+      "end_s": 40,
+      "controller_internal_gate_count": 1,
+      "controller_internal_terminal_flag": true
+    },
+    {
+      "scenario": "square_v2",
+      "mode": 2,
+      "model_sha256": "2a198947a88a654559da0c069465a7a4ab8c9b57f0a929a69f1f0800e213fd82",
+      "controller_file": "native_square_v2_controller.m",
+      "controller_sha256": "b93b9c3dae4a300b03c5ae333ec2edf2627a6d5bc7221634b9856ebaf523daa8",
+      "end_s": 80,
+      "controller_internal_gate_count": 8,
+      "controller_internal_terminal_flag": true
+    },
+    {
+      "scenario": "qr_centered_v4",
+      "mode": 3,
+      "model_sha256": "f4188ee44aadf70cd9bd7089d08527219e76e84b1a217148886212fca09ddec2",
+      "controller_file": "native_qr_centered_v4_controller.m",
+      "controller_sha256": "b8fe0c1b95f95a7632b89e8e67bc772640f5fb6d64174aa5551b2127318c188d",
+      "end_s": 18,
+      "controller_internal_gate_count": 1,
+      "controller_internal_terminal_flag": true
+    },
+    {
+      "scenario": "qr_left_v4",
+      "mode": 4,
+      "model_sha256": "cdef93a8910f24c23ee9728c67e179cf887fb03ab90a39e0e724e24c705de2a0",
+      "controller_file": "native_qr_left_v4_controller.m",
+      "controller_sha256": "11f2ac9f7afea38bd3d282d4e2cf28b98decc158363f9a8c775fabbbcddb06bc",
+      "end_s": 18,
+      "controller_internal_gate_count": 1,
+      "controller_internal_terminal_flag": true
+    },
+    {
+      "scenario": "qr_right_v4",
+      "mode": 5,
+      "model_sha256": "0ebf2613cda036373ecfd14e8adcfcc01eb77782e4b0ce27b17e82fb578d5729",
+      "controller_file": "native_qr_right_v4_controller.m",
+      "controller_sha256": "891bfd7933ff4ca1abda862445dd44ec851c7308e3acfdd47960bba21927b2d8",
+      "end_s": 18,
+      "controller_internal_gate_count": 1,
+      "controller_internal_terminal_flag": true
+    },
+    {
+      "scenario": "qr_view_loss_v4",
+      "mode": 6,
+      "model_sha256": "292ea929e36f514974f08962a5cb8cf51061d14adfa10eea069aee9c514ef426",
+      "controller_file": "native_qr_view_loss_v4_controller.m",
+      "controller_sha256": "7e4a63d6c7308cdef2926f4e132a32edade7bb78226e56dacfec92cc2f57f8a5",
+      "end_s": 18,
+      "controller_internal_gate_count": 1,
+      "controller_internal_terminal_flag": true
+    }
+  ],
+  "reviewed_qr_replay": [
+    {
+      "source_run_id": "Q01-python-nominal",
+      "model_sha256": "6774d559486016140b18e1de08fcb5a0090713c77ff7431ffb23f55e7626d24d",
+      "command_sha256": "0839efee9427285d13af2cf2a3ec0dad5b8637580bc8f81df1ba6f10a2937122",
+      "initial_caster_deg": 0,
+      "end_s": 8.540000000000001,
+      "applied_command_equivalence_pass": true
+    },
+    {
+      "source_run_id": "Q02-python-left",
+      "model_sha256": "b55574abad93f248b462fea566016065334e3e989164a51e345a1f6363bc781a",
+      "command_sha256": "cf412ecc90fa159b4672880cc84969411208a41a1e18aa29956f631adc8b5222",
+      "initial_caster_deg": 0,
+      "end_s": 15.09,
+      "applied_command_equivalence_pass": true
+    }
+  ]
+}

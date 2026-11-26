@@ -1,5 +1,7 @@
 # Progress history
 
+[27 November 2026 - JANUS motion and QR docking experiments](2026-11-27-janus-experiments.md)
+
 [27 November 2026 - MATLAB, Simscape and Python simulation update](2026-11-27-simulation-and-source.md)
 
 [7 October 2026 - pre-visit modelling direction and Friday roadmap](2026-10-07-pre-visit-roadmap.md)

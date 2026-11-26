@@ -37,24 +37,26 @@ On normal SIGINT or SIGTERM, the guard attempts one final zero on `/cmd_vel` bef
 
 ## Mac offline reproduction
 
-Run on the verified SSD lane with the prepared Python environment. The test command requires Xacro, PyYAML, NumPy, OpenCV, qrcode and Pillow. The bench package makes synthetic PNGs and decodes those files through the application decoder. The station texture test exercises the build-generated QR asset as a PNG. Mac timings are warm per-image CPU decode wall times and exclude Gazebo rendering, ROS transit and camera capture. The source fixture choices and acceptance checks live in `fixtures.py`.
+Use a writable work directory on the external SSD and a Python environment with Xacro, PyYAML, NumPy, OpenCV, qrcode and Pillow. The bench package makes synthetic PNGs and decodes those files through the application decoder. The station texture test exercises the build-generated QR asset as a PNG. Mac timings are warm per-image CPU decode wall times and exclude Gazebo rendering, ROS transit and camera capture. The source fixture choices and acceptance checks live in `fixtures.py`.
 
 ```sh
-# Run from the Gazebo lane directory.
-lane="$(pwd)"
-shared="$lane/../../outputs"
-plan=/Users/tora/Documents/ChatGPT/arche/docs/superpowers/plans/2026-11-27-arche-janus-ziyaret-ve-simulasyon.md
-test "$(stat -f %d /Volumes/depo)" != "$(stat -f %d /Volumes)" || exit 1
-df -h /System/Volumes/Data /Volumes/depo
-export TMPDIR="$lane/tmp/" XDG_CACHE_HOME="$lane/cache"
-export PYTHONPYCACHEPREFIX="$lane/cache/pycache" PYTHONDONTWRITEBYTECODE=1
-cd "$lane/checkout/janus/ros2" || exit 1
-PYTHONPATH="$PWD/src/arche_experiments" "$lane/deps/bin/python" -B -m unittest discover -s tests -v
-"$lane/deps/bin/python" -B bench.py --suite \
+# Run from the repository root. Point the variables at the mounted SSD,
+# the JANUS delivery outputs and the prepared Python environment.
+ssd=/Volumes/your-external-ssd
+work="$ssd/janus-ros2-offline"
+shared=/absolute/path/to/janus-delivery/outputs
+python=/absolute/path/to/venv/bin/python
+test "$(stat -f %d "$ssd")" != "$(stat -f %d /Volumes)" || exit 1
+mkdir -p "$work/tmp" "$work/cache"
+export TMPDIR="$work/tmp/" XDG_CACHE_HOME="$work/cache"
+export PYTHONPYCACHEPREFIX="$work/cache/pycache" PYTHONDONTWRITEBYTECODE=1
+cd janus/ros2 || exit 1
+PYTHONPATH="$PWD/src/arche_experiments" "$python" -B -m unittest discover -s tests -v
+"$python" -B bench.py --suite \
   --fixtures "$shared/scenarios/commands" \
   --python-dir "$shared/scenarios/commands/python" \
-  --plan "$plan" --contract "$shared/scenarios/contract.md" \
-  --out "$lane/outputs/reproduction" --repeats 30
+  --plan "$shared/report-source/approved-plan.md" --contract "$shared/scenarios/contract.md" \
+  --out "$work/reproduction" --repeats 30
 ```
 
 The benchmark can run against the M01 fixtures immediately. Omit `--python-dir` for that pass. On import, it checks each Python producer CSV against its manifest, retains its declared initial pose and records each stream by role. It integrates velocity at 20 ms plus exact command edges using zero-order hold and analytic no-slip kinematics. Requested velocity and limited wheel-PI reference are run independently. Torque streams are checked for schema, time, finite values and checksum. Effort comparison requires a native effort-actuated model and applied-effort logging.

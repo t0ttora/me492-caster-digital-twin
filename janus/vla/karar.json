@@ -1,0 +1,534 @@
+{
+  "audit": "Arche JANUS second primary-source audit",
+  "date": "2026-11-27",
+  "schema_version": 1,
+  "first_experimental_candidate": "ViNT",
+  "lower_cost_learned_baseline": "GNM",
+  "decision_baseline": "Nav2 to mapped staging pose + classical QR final approach",
+  "language_candidate": "OmniVLA-Edge",
+  "janus_gain": "unknown",
+  "deployment_decision": "retain classical authority",
+  "models": [
+    {
+      "name": "ViNT",
+      "role": "first_challenger",
+      "code_revision": "dca79815b704e5aa9c6bdc3082351f9e3b2848c2",
+      "code_url": "https://github.com/robodhruv/visualnav-transformer/blob/dca79815b704e5aa9c6bdc3082351f9e3b2848c2/deployment/src/navigate.py",
+      "code_access": "anonymous GET 200",
+      "code_license": "MIT",
+      "code_license_url": "https://github.com/robodhruv/visualnav-transformer/blob/dca79815b704e5aa9c6bdc3082351f9e3b2848c2/LICENSE",
+      "weights": {
+        "filename": "vint.pth",
+        "url": "https://drive.google.com/file/d/1ckrceGb5m_uUtq3pD8KHwnqtJgPl6kF5/view",
+        "file_id": "1ckrceGb5m_uUtq3pD8KHwnqtJgPl6kF5",
+        "bytes": 430167114,
+        "last_modified_utc": "2023-10-13T06:06:14Z",
+        "weight_revision": null,
+        "publisher_sha256": null,
+        "weight_license": null,
+        "access": "anonymous HTML confirmation then HEAD 200 attachment"
+      },
+      "inputs": "6 front RGB frames, 85x64; taught RGB subgoal",
+      "output": "temporal distance in sampled steps; 5x4 body-local normalized x,y,cos(yaw),sin(yaw)",
+      "compatibility": "EfficientNet-B0, 512-D early fusion; checkpoint expected to contain model object; strict=False does not establish coverage",
+      "local_forward_verified": false,
+      "peak_vram_mib": null,
+      "host_latency_ms": null
+    },
+    {
+      "name": "GNM",
+      "role": "lower_cost_learned_baseline",
+      "code_revision": "dca79815b704e5aa9c6bdc3082351f9e3b2848c2",
+      "code_url": "https://github.com/robodhruv/visualnav-transformer/blob/dca79815b704e5aa9c6bdc3082351f9e3b2848c2/deployment/src/navigate.py",
+      "code_access": "anonymous GET 200",
+      "code_license": "MIT",
+      "code_license_url": "https://github.com/robodhruv/visualnav-transformer/blob/dca79815b704e5aa9c6bdc3082351f9e3b2848c2/LICENSE",
+      "weights": {
+        "filename": "gnm.pth",
+        "url": "https://drive.google.com/file/d/1bzCPd_OsXjS2aGPTQladbI8ImxLZwrQh/view",
+        "file_id": "1bzCPd_OsXjS2aGPTQladbI8ImxLZwrQh",
+        "bytes": 104806886,
+        "last_modified_utc": "2023-11-02T23:37:42Z",
+        "weight_revision": null,
+        "publisher_sha256": null,
+        "weight_license": null,
+        "access": "anonymous HTML confirmation then HEAD 200 attachment"
+      },
+      "inputs": "6 front RGB frames, 85x64; taught RGB subgoal",
+      "output": "temporal distance in sampled steps; 5x4 body-local normalized x,y,cos(yaw),sin(yaw)",
+      "compatibility": "MobileNet, two 1024-D embeddings; manifest calls gnm_large.pth; checkpoint expected to contain model object; strict=False does not establish coverage",
+      "local_forward_verified": false,
+      "peak_vram_mib": null,
+      "host_latency_ms": null
+    },
+    {
+      "name": "NoMaD",
+      "role": "reserve",
+      "code_revision": "dca79815b704e5aa9c6bdc3082351f9e3b2848c2",
+      "code_url": "https://github.com/robodhruv/visualnav-transformer/blob/dca79815b704e5aa9c6bdc3082351f9e3b2848c2/deployment/src/navigate.py",
+      "code_access": "anonymous GET 200",
+      "code_license": "MIT",
+      "code_license_url": "https://github.com/robodhruv/visualnav-transformer/blob/dca79815b704e5aa9c6bdc3082351f9e3b2848c2/LICENSE",
+      "weights": {
+        "filename": "nomad.pth",
+        "url": "https://drive.google.com/file/d/1YJhkkMJAYOiKNyCaelbS_alpUpAJsOUb/view",
+        "file_id": "1YJhkkMJAYOiKNyCaelbS_alpUpAJsOUb",
+        "bytes": 76473631,
+        "last_modified_utc": "2023-10-13T06:05:42Z",
+        "weight_revision": null,
+        "publisher_sha256": null,
+        "weight_license": null,
+        "access": "anonymous HTML confirmation then HEAD 200 attachment"
+      },
+      "inputs": "4 RGB 96x96; goal image with mask=0",
+      "output": "temporal distance and sampled 8x2 body-local normalized XY",
+      "compatibility": "10 denoising iterations; default eight samples, downstream chooses sample zero",
+      "local_forward_verified": false,
+      "peak_vram_mib": null,
+      "host_latency_ms": null
+    },
+    {
+      "name": "OmniVLA-Edge",
+      "role": "first_language_challenger",
+      "code_revision": "5182600cb4a9ee07684e17cdd2a6cbafc56b8a68",
+      "code_url": "https://github.com/NHirose/OmniVLA/blob/5182600cb4a9ee07684e17cdd2a6cbafc56b8a68/inference/run_omnivla_edge.py",
+      "code_access": "anonymous GET 200",
+      "code_license": "MIT",
+      "code_license_url": "https://github.com/NHirose/OmniVLA/blob/5182600cb4a9ee07684e17cdd2a6cbafc56b8a68/LICENSE",
+      "weights": {
+        "url": "https://huggingface.co/NHirose/omnivla-edge/resolve/b1361b7e24f101edea795a98b00a826b61a97394/omnivla-edge.pth",
+        "metadata_url": "https://huggingface.co/api/models/NHirose/omnivla-edge/revision/b1361b7e24f101edea795a98b00a826b61a97394?blobs=true",
+        "filename": "omnivla-edge.pth",
+        "weight_revision": "b1361b7e24f101edea795a98b00a826b61a97394",
+        "publisher_sha256": "f93b056f124380899fce3e087a5c2b41ce4d8c07e211daad52b6ebf02e80d04d",
+        "bytes": 434276465,
+        "access": "anonymous HEAD 200 binary; gated=false",
+        "weight_license": "mit"
+      },
+      "inputs": "6 RGB 96x96, current 224x224; text and/or image goal, placeholders for masked modalities",
+      "output": "8x4 local normalized x,y,cos(yaw),sin(yaw); demo scale 0.1 m/unit",
+      "compatibility": "strict policy state dict and separate CLIP required; stock CPU mask device path unverified",
+      "local_forward_verified": false,
+      "peak_vram_mib": null,
+      "host_latency_ms": null,
+      "auxiliary_weight": {
+        "filename": "ViT-B-32.pt",
+        "url": "https://openaipublic.azureedge.net/clip/models/40d365715913c9da98579312b702a82c18be219cc2a73407c4526f58eba950af/ViT-B-32.pt",
+        "publisher_sha256": "40d365715913c9da98579312b702a82c18be219cc2a73407c4526f58eba950af",
+        "bytes": 353976522,
+        "access": "anonymous HEAD 200 binary",
+        "distinct_weight_terms": null
+      }
+    },
+    {
+      "name": "LeLaN",
+      "role": "defer_access",
+      "code_revision": "a41d478cb966eabce78af2b79e6cbfef3aebd589",
+      "code_url": "https://github.com/NHirose/learning-language-navigation/blob/a41d478cb966eabce78af2b79e6cbfef3aebd589/deployment/src/lelan_policy_col.py",
+      "code_access": "anonymous GET 200",
+      "code_license": "MIT",
+      "code_license_url": "https://github.com/NHirose/learning-language-navigation/blob/a41d478cb966eabce78af2b79e6cbfef3aebd589/LICENSE",
+      "weights": {
+        "filename": "with_col_loss.pth",
+        "url": "https://drive.google.com/drive/folders/19yJcSJvGmpGlo0X-0owQKrrkPFmPKVt8?hl=en",
+        "weight_revision": null,
+        "publisher_sha256": null,
+        "bytes": null,
+        "weight_license": null,
+        "access": "author folder redirects anonymous reader to Google sign-in; authenticated access unknown"
+      },
+      "inputs": "224x224 current + history near 1s for temporal configuration; CLIP object phrase",
+      "output": "24 pairs of body forward m/s and yaw rad/s; 0.333 s integration in training",
+      "compatibility": "current-only default uses different weights; sample text-cache flag does not advance on first branch",
+      "local_forward_verified": false,
+      "peak_vram_mib": null,
+      "host_latency_ms": null
+    },
+    {
+      "name": "MBRA",
+      "role": "reserve_velocity_comparator",
+      "code_revision": "c39384a7e9c963e2a47055cd8f964d1cb74820e4",
+      "code_url": "https://github.com/NHirose/Learning-to-Drive-Anywhere-with-MBRA/blob/c39384a7e9c963e2a47055cd8f964d1cb74820e4/train/vint_train/models/exaug/exaug.py",
+      "code_access": "anonymous GET 200",
+      "code_license": "MIT",
+      "code_license_url": "https://github.com/NHirose/Learning-to-Drive-Anywhere-with-MBRA/blob/c39384a7e9c963e2a47055cd8f964d1cb74820e4/LICENSE",
+      "weights": {
+        "url": "https://huggingface.co/NHirose/MBRA/resolve/2b396d501e4b4c8b199a02a8e9e4c1e2772c1a2d/mbra.pth",
+        "metadata_url": "https://huggingface.co/api/models/NHirose/MBRA/revision/2b396d501e4b4c8b199a02a8e9e4c1e2772c1a2d?blobs=true",
+        "filename": "mbra.pth",
+        "weight_revision": "2b396d501e4b4c8b199a02a8e9e4c1e2772c1a2d",
+        "publisher_sha256": "1c61f83a83c5288fc82bd71e8b36e099e5b53650815c8ce2e55d774e6d6edd92",
+        "bytes": 394751761,
+        "access": "anonymous HEAD 200 binary; gated=false",
+        "weight_license": "mit"
+      },
+      "inputs": "6 RGB 96x96; goal RGB, robot size, delay, previous velocity tokens",
+      "output": "8 pairs of forward m/s and yaw rad/s plus distance head in released architecture",
+      "compatibility": "deployment examples for LogoNav; standalone image expert replay adapter unverified",
+      "local_forward_verified": false,
+      "peak_vram_mib": null,
+      "host_latency_ms": null
+    },
+    {
+      "name": "FlowNav",
+      "role": "reserve_depth_ablation",
+      "code_revision": "d7756ea31f43d95e60e3fdd5401a016849dee6aa",
+      "code_url": "https://github.com/utn-air/flownav/blob/d7756ea31f43d95e60e3fdd5401a016849dee6aa/deployment/src/navigation/navigate.py",
+      "code_access": "anonymous GET 200",
+      "code_license": "MIT",
+      "code_license_url": "https://github.com/utn-air/flownav/blob/d7756ea31f43d95e60e3fdd5401a016849dee6aa/LICENSE",
+      "weights": {
+        "filename": "flownav_weights.pth",
+        "url": "https://github.com/utn-air/flownav/releases/download/v1.0.0/flownav_weights.pth",
+        "bytes": 189942540,
+        "weight_revision": "v1.0.0",
+        "publisher_sha256": "980c7f1645522f9adcf76df5139876e6a50e48d88938b5fc15f2dff1baad3b44",
+        "weight_license": null,
+        "access": "anonymous HEAD 200 binary"
+      },
+      "inputs": "4 RGB frames 96x96 + goal RGB; monocular depth features",
+      "output": "8 normalized local XY waypoints per sample and distance; deployment metre scale unverified",
+      "compatibility": "requires independent Depth Anything V2 Small artifact and solver",
+      "local_forward_verified": false,
+      "peak_vram_mib": null,
+      "host_latency_ms": null,
+      "auxiliary_weight": {
+        "url": "https://huggingface.co/depth-anything/Depth-Anything-V2-Small/resolve/03876f8651c73a60fe4c2c48294e09fcb6838fcf/depth_anything_v2_vits.pth",
+        "metadata_url": "https://huggingface.co/api/models/depth-anything/Depth-Anything-V2-Small/revision/03876f8651c73a60fe4c2c48294e09fcb6838fcf?blobs=true",
+        "filename": "depth_anything_v2_vits.pth",
+        "weight_revision": "03876f8651c73a60fe4c2c48294e09fcb6838fcf",
+        "publisher_sha256": "715fade13be8f229f8a70cc02066f656f2423a59effd0579197bbf57860e1378",
+        "bytes": 99218434,
+        "access": "anonymous HEAD 200 binary; gated=false",
+        "weight_license": "apache-2.0"
+      }
+    }
+  ],
+  "dependency_license_samples": {
+    "torch": {
+      "code_license": "BSD-3-Clause with notices",
+      "inspected_revision": "8ac9b20d4b090c213799e81acf48a55ea8d437d6",
+      "url": "https://github.com/pytorch/pytorch/blob/8ac9b20d4b090c213799e81acf48a55ea8d437d6/LICENSE"
+    },
+    "vision": {
+      "code_license": "BSD-3-Clause",
+      "inspected_revision": "b2383d44751bf85e58cfb9223bbf4e5961c09fa1",
+      "url": "https://github.com/pytorch/vision/blob/b2383d44751bf85e58cfb9223bbf4e5961c09fa1/LICENSE"
+    },
+    "efficient": {
+      "code_license": "Apache-2.0",
+      "inspected_revision": "7e8b0d312162f335785fb5dcfa1df29a75a1783a",
+      "url": "https://github.com/lukemelas/EfficientNet-PyTorch/blob/7e8b0d312162f335785fb5dcfa1df29a75a1783a/LICENSE"
+    },
+    "clip": {
+      "code_license": "MIT",
+      "inspected_revision": "d05afc436d78f1c48dc0dbf8e5980a9d471f35f6",
+      "url": "https://github.com/openai/CLIP/blob/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/LICENSE"
+    },
+    "dp": {
+      "code_license": "MIT",
+      "inspected_revision": "5ba07ac6661db573af695b419a7947ecb704690f",
+      "url": "https://github.com/real-stanford/diffusion_policy/blob/5ba07ac6661db573af695b419a7947ecb704690f/LICENSE"
+    },
+    "diff": {
+      "code_license": "Apache-2.0",
+      "inspected_revision": "f7bb9cae114575b5ce2b94c122332114a0def106",
+      "url": "https://github.com/huggingface/diffusers/blob/f7bb9cae114575b5ce2b94c122332114a0def106/LICENSE"
+    },
+    "numpy": {
+      "code_license": "BSD-3-Clause",
+      "inspected_revision": "9815c16f449e12915ef35a8255329ba26dacd5c0",
+      "url": "https://github.com/numpy/numpy/blob/9815c16f449e12915ef35a8255329ba26dacd5c0/LICENSE.txt"
+    },
+    "pillow": {
+      "code_license": "HPND-style PIL/Pillow notices",
+      "inspected_revision": "6956d0b2853f5c7ec5f6ec4c60725c5a7ee73aeb",
+      "url": "https://github.com/python-pillow/Pillow/blob/6956d0b2853f5c7ec5f6ec4c60725c5a7ee73aeb/LICENSE"
+    },
+    "rosmsgs": {
+      "code_license": "BSD as declared",
+      "inspected_revision": "092bc230c8153dd4cfee0c84c9796cc7e6b09fdb",
+      "url": "https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/geometry_msgs/package.xml"
+    },
+    "utm": {
+      "code_license": "MIT",
+      "inspected_revision": "fb7dae6482678700626c5e4078ce1f5089068a46",
+      "url": "https://github.com/Turbo87/utm/blob/fb7dae6482678700626c5e4078ce1f5089068a46/LICENSE"
+    },
+    "torchdiffeq": {
+      "code_license": "MIT",
+      "inspected_revision": "657943acefa826ef04c025ebeb1ff5e9d60dc268",
+      "url": "https://github.com/rtqichen/torchdiffeq/blob/657943acefa826ef04c025ebeb1ff5e9d60dc268/LICENSE"
+    }
+  },
+  "smoke": {
+    "decision": "withheld",
+    "install": false,
+    "weight_body_download": false,
+    "inference_executed": false,
+    "elo_contact_this_audit": false,
+    "elo_supplied": {
+      "os": "Windows",
+      "gpu": "RTX 3050 Ti Laptop",
+      "vram_total_mib": 4096,
+      "vram_free_mib_approx": 3835,
+      "driver_cuda_report": "13.4",
+      "default_python": "3.14",
+      "torch_in_default": false
+    },
+    "mac_default": {
+      "os": "Darwin",
+      "arch": "arm64",
+      "python": "3.9.6",
+      "find_spec_torch": false,
+      "find_spec_torchvision": false
+    },
+    "reason": "No established paired runtime, weights and route capture on either host. Ongoing MATLAB workload. Source/geometry checks only.",
+    "suggested_model_command": null
+  },
+  "local_evidence": {
+    "inputs_sha256": {
+      "handoff": "149826e2d9dcc6fd6806e9e94f08f060db77eb052b564256874bb2aaca37f59f",
+      "scenario_contract": "fdf3fced2f82a48eaad6bc759dcb347d3e621a79e195073e98ba4a9e6c0d9df2",
+      "dataset_contract": "23ecdd21ce7d72090cfe6fbc5fb40831890cd961656bbf3f00634d4fe92becf5"
+    },
+    "synthetic_png_checks": {
+      "Q01-gazebo-nominal": {
+        "sha256": "62ace92835fc6ecaa72d93f89d981cce3de41b9c34d6be243676ab3da8198f4e",
+        "width": 640,
+        "height": 480,
+        "color": "8-bit grayscale",
+        "candidates": 1,
+        "reason": "accepted",
+        "error": -0.00078125
+      },
+      "Q08-gazebo-wrong_id": {
+        "sha256": "ee1feeaf79d8b311be2c476b5eec2a86928f018063e9fe505ef9f80d453128d0",
+        "width": 640,
+        "height": 480,
+        "color": "8-bit grayscale",
+        "candidates": 1,
+        "reason": "wrong_id",
+        "error": null
+      },
+      "Q09-gazebo-mixed_ids": {
+        "sha256": "c15bfc5beccf8ed69666da7a7d7b54cf1f755ced132617471aa25be6b71eb613",
+        "width": 640,
+        "height": 480,
+        "color": "8-bit grayscale",
+        "candidates": 2,
+        "reason": "accepted",
+        "error": -0.21875
+      }
+    },
+    "q07_velocity_rows": 845,
+    "q07_torque_rows": 845,
+    "q07_end_s": 8.44,
+    "source_blobs_ast_checked": {
+      "berkeley": 9,
+      "edge": 4,
+      "lelan": 3
+    },
+    "standalone_reference_pd_v_w": {
+      "straight": [
+        0.2,
+        0
+      ],
+      "left": [
+        0.2,
+        0.4
+      ],
+      "right": [
+        0.2,
+        -0.4
+      ],
+      "turn_in_place": [
+        0,
+        0.4
+      ],
+      "hold": [
+        0,
+        0
+      ],
+      "reverse": [
+        0,
+        0
+      ]
+    },
+    "eligible_navigation_episode_verified": false,
+    "locators": {
+      "synthetic_qr": "../gazebo/outputs/integrated-pass/",
+      "q07": "../../outputs/scenarios/commands/python/Q07-python-nominal/",
+      "contracts": [
+        "../../outputs/scenarios/contract.md",
+        "../../repo/janus/dataset-contract.md"
+      ]
+    }
+  },
+  "proposed_test": {
+    "status": "design_only",
+    "arms": [
+      "Nav2+QR",
+      "ViNT+same guard/QR",
+      "GNM+same guard/QR"
+    ],
+    "primary_replay_endpoint": "correct branch or hold at one prespecified junction per episode",
+    "held_out_design": {
+      "layouts": 12,
+      "episodes_per_layout": 4,
+      "total": 48,
+      "paired": true
+    },
+    "minimum_delta_percentage_points_vs_nav2": 10,
+    "minimum_95pct_lower_bound_vs_nav2_exclusive": 0,
+    "cluster_unit": "layout with paired episodes intact",
+    "zero_tolerance": [
+      "wrong_station_handoff",
+      "learned_motion_after_handoff",
+      "forward_drive_on_invalid_QR_during_docking",
+      "charge_authorized_by_policy"
+    ],
+    "proposed_deadline_ms": 200,
+    "next_gate": "restored-state matched closed-loop simulation measuring actual QR staging before any physical inference claim",
+    "closed_loop_confirmation": "Fresh correct-ID acquisition inside frozen staging envelope within timeout and without contact or intervention; compare paired actual staging success using the same gain and uncertainty gates."
+  },
+  "sources": {
+    "bdoc": "https://github.com/robodhruv/visualnav-transformer/blob/dca79815b704e5aa9c6bdc3082351f9e3b2848c2/README.md",
+    "blic": "https://github.com/robodhruv/visualnav-transformer/blob/dca79815b704e5aa9c6bdc3082351f9e3b2848c2/LICENSE",
+    "benv": "https://github.com/robodhruv/visualnav-transformer/blob/dca79815b704e5aa9c6bdc3082351f9e3b2848c2/deployment/deployment_environment.yaml",
+    "bmanifest": "https://github.com/robodhruv/visualnav-transformer/blob/dca79815b704e5aa9c6bdc3082351f9e3b2848c2/deployment/config/models.yaml",
+    "bgnm": "https://github.com/robodhruv/visualnav-transformer/blob/dca79815b704e5aa9c6bdc3082351f9e3b2848c2/train/config/gnm.yaml",
+    "bvint": "https://github.com/robodhruv/visualnav-transformer/blob/dca79815b704e5aa9c6bdc3082351f9e3b2848c2/train/config/vint.yaml",
+    "bnomad": "https://github.com/robodhruv/visualnav-transformer/blob/dca79815b704e5aa9c6bdc3082351f9e3b2848c2/train/config/nomad.yaml",
+    "bG": "https://github.com/robodhruv/visualnav-transformer/blob/dca79815b704e5aa9c6bdc3082351f9e3b2848c2/train/vint_train/models/gnm/gnm.py",
+    "bV": "https://github.com/robodhruv/visualnav-transformer/blob/dca79815b704e5aa9c6bdc3082351f9e3b2848c2/train/vint_train/models/vint/vint.py",
+    "bload": "https://github.com/robodhruv/visualnav-transformer/blob/dca79815b704e5aa9c6bdc3082351f9e3b2848c2/deployment/src/utils.py",
+    "bnav": "https://github.com/robodhruv/visualnav-transformer/blob/dca79815b704e5aa9c6bdc3082351f9e3b2848c2/deployment/src/navigate.py",
+    "brobot": "https://github.com/robodhruv/visualnav-transformer/blob/dca79815b704e5aa9c6bdc3082351f9e3b2848c2/deployment/config/robot.yaml",
+    "bpd": "https://github.com/robodhruv/visualnav-transformer/blob/dca79815b704e5aa9c6bdc3082351f9e3b2848c2/deployment/src/pd_controller.py",
+    "bdata": "https://github.com/robodhruv/visualnav-transformer/blob/dca79815b704e5aa9c6bdc3082351f9e3b2848c2/train/vint_train/data/vint_dataset.py",
+    "bframe": "https://github.com/robodhruv/visualnav-transformer/blob/dca79815b704e5aa9c6bdc3082351f9e3b2848c2/train/vint_train/data/data_utils.py",
+    "erun": "https://github.com/NHirose/OmniVLA/blob/5182600cb4a9ee07684e17cdd2a6cbafc56b8a68/inference/run_omnivla_edge.py",
+    "enet": "https://github.com/NHirose/OmniVLA/blob/5182600cb4a9ee07684e17cdd2a6cbafc56b8a68/inference/model_omnivla_edge.py",
+    "eload": "https://github.com/NHirose/OmniVLA/blob/5182600cb4a9ee07684e17cdd2a6cbafc56b8a68/inference/utils_policy.py",
+    "eenv": "https://github.com/NHirose/OmniVLA/blob/5182600cb4a9ee07684e17cdd2a6cbafc56b8a68/SETUP.md",
+    "elic": "https://github.com/NHirose/OmniVLA/blob/5182600cb4a9ee07684e17cdd2a6cbafc56b8a68/LICENSE",
+    "ldoc": "https://github.com/NHirose/learning-language-navigation/blob/a41d478cb966eabce78af2b79e6cbfef3aebd589/README.md",
+    "lrun": "https://github.com/NHirose/learning-language-navigation/blob/a41d478cb966eabce78af2b79e6cbfef3aebd589/deployment/src/lelan_policy_col.py",
+    "lcfg": "https://github.com/NHirose/learning-language-navigation/blob/a41d478cb966eabce78af2b79e6cbfef3aebd589/train/config/lelan_col.yaml",
+    "ltime": "https://github.com/NHirose/learning-language-navigation/blob/a41d478cb966eabce78af2b79e6cbfef3aebd589/train/vint_train/training/train_utils.py",
+    "llic": "https://github.com/NHirose/learning-language-navigation/blob/a41d478cb966eabce78af2b79e6cbfef3aebd589/LICENSE",
+    "lload": "https://github.com/NHirose/learning-language-navigation/blob/a41d478cb966eabce78af2b79e6cbfef3aebd589/deployment/src/utils.py",
+    "mdoc": "https://github.com/NHirose/Learning-to-Drive-Anywhere-with-MBRA/blob/c39384a7e9c963e2a47055cd8f964d1cb74820e4/README.md",
+    "mcfg": "https://github.com/NHirose/Learning-to-Drive-Anywhere-with-MBRA/blob/c39384a7e9c963e2a47055cd8f964d1cb74820e4/train/config/MBRA.yaml",
+    "mnet": "https://github.com/NHirose/Learning-to-Drive-Anywhere-with-MBRA/blob/c39384a7e9c963e2a47055cd8f964d1cb74820e4/train/vint_train/models/exaug/exaug.py",
+    "mlic": "https://github.com/NHirose/Learning-to-Drive-Anywhere-with-MBRA/blob/c39384a7e9c963e2a47055cd8f964d1cb74820e4/LICENSE",
+    "fdoc": "https://github.com/utn-air/flownav/blob/d7756ea31f43d95e60e3fdd5401a016849dee6aa/README.md",
+    "fcfg": "https://github.com/utn-air/flownav/blob/d7756ea31f43d95e60e3fdd5401a016849dee6aa/flownav/config/flownav.yaml",
+    "frun": "https://github.com/utn-air/flownav/blob/d7756ea31f43d95e60e3fdd5401a016849dee6aa/deployment/src/navigation/navigate.py",
+    "fload": "https://github.com/utn-air/flownav/blob/d7756ea31f43d95e60e3fdd5401a016849dee6aa/deployment/src/utils.py",
+    "flic": "https://github.com/utn-air/flownav/blob/d7756ea31f43d95e60e3fdd5401a016849dee6aa/LICENSE",
+    "office": "https://arxiv.org/html/2603.25937v1",
+    "causal": "https://arxiv.org/html/2601.01872v1",
+    "vpaper": "https://proceedings.mlr.press/v229/shah23a/shah23a.pdf",
+    "epaper": "https://arxiv.org/html/2509.19480v1",
+    "asyncp": "https://arxiv.org/html/2602.13476v1",
+    "lelp": "https://raw.githubusercontent.com/mlresearch/v270/main/assets/hirose25b/hirose25b.pdf",
+    "mbp": "https://arxiv.org/html/2505.05592v1",
+    "flowp": "https://arxiv.org/html/2411.09524v2",
+    "costp": "https://arxiv.org/html/2511.20216v7",
+    "costfiles": "https://huggingface.co/maum-ai/CostNav_baseline/tree/b6ef2753dd3259b66a244fb58e7f08652e4d1337",
+    "bdrive": "https://drive.google.com/drive/folders/1a9yWR2iooXFAqjQHetz263--4_2FFggg?hl=en",
+    "ldrive": "https://drive.google.com/drive/folders/19yJcSJvGmpGlo0X-0owQKrrkPFmPKVt8?hl=en",
+    "orig": "https://github.com/robodhruv/drive-any-robot/blob/94dd70b02744030d9ed28bb7f5c9fbd241793944/README.md",
+    "flowrel": "https://api.github.com/repos/utn-air/flownav/releases/tags/v1.0.0",
+    "torchw": "https://pypi.org/pypi/torch/2.2.0/json",
+    "torch": "https://github.com/pytorch/pytorch/blob/8ac9b20d4b090c213799e81acf48a55ea8d437d6/LICENSE",
+    "vision": "https://github.com/pytorch/vision/blob/b2383d44751bf85e58cfb9223bbf4e5961c09fa1/LICENSE",
+    "efficient": "https://github.com/lukemelas/EfficientNet-PyTorch/blob/7e8b0d312162f335785fb5dcfa1df29a75a1783a/LICENSE",
+    "clip": "https://github.com/openai/CLIP/blob/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/LICENSE",
+    "dp": "https://github.com/real-stanford/diffusion_policy/blob/5ba07ac6661db573af695b419a7947ecb704690f/LICENSE",
+    "diff": "https://github.com/huggingface/diffusers/blob/f7bb9cae114575b5ce2b94c122332114a0def106/LICENSE",
+    "numpy": "https://github.com/numpy/numpy/blob/9815c16f449e12915ef35a8255329ba26dacd5c0/LICENSE.txt",
+    "pillow": "https://github.com/python-pillow/Pillow/blob/6956d0b2853f5c7ec5f6ec4c60725c5a7ee73aeb/LICENSE",
+    "rosmsgs": "https://github.com/ros/common_msgs/blob/092bc230c8153dd4cfee0c84c9796cc7e6b09fdb/geometry_msgs/package.xml",
+    "utm": "https://github.com/Turbo87/utm/blob/fb7dae6482678700626c5e4078ce1f5089068a46/LICENSE",
+    "cloader": "https://github.com/openai/CLIP/blob/d05afc436d78f1c48dc0dbf8e5980a9d471f35f6/clip/clip.py",
+    "cweights": "https://openaipublic.azureedge.net/clip/models/40d365715913c9da98579312b702a82c18be219cc2a73407c4526f58eba950af/ViT-B-32.pt",
+    "gnmfile": "https://drive.google.com/file/d/1bzCPd_OsXjS2aGPTQladbI8ImxLZwrQh/view",
+    "vintfile": "https://drive.google.com/file/d/1ckrceGb5m_uUtq3pD8KHwnqtJgPl6kF5/view",
+    "nomadfile": "https://drive.google.com/file/d/1YJhkkMJAYOiKNyCaelbS_alpUpAJsOUb/view",
+    "ehf": "https://huggingface.co/api/models/NHirose/omnivla-edge/revision/b1361b7e24f101edea795a98b00a826b61a97394?blobs=true",
+    "mhf": "https://huggingface.co/api/models/NHirose/MBRA/revision/2b396d501e4b4c8b199a02a8e9e4c1e2772c1a2d?blobs=true",
+    "depthhf": "https://huggingface.co/api/models/depth-anything/Depth-Anything-V2-Small/revision/03876f8651c73a60fe4c2c48294e09fcb6838fcf?blobs=true",
+    "ode": "https://github.com/rtqichen/torchdiffeq/blob/657943acefa826ef04c025ebeb1ff5e9d60dc268/LICENSE"
+  },
+  "rationale": {
+    "ViNT": "Same front-camera history, taught subgoal and waypoint tracker as GNM, with a better observed office-loop collision count on an independent robot. Test it at ambiguous pre-dock branches.",
+    "GNM": "Smaller author artifact and smaller published parameter count with the same task and output interface. Verify the gnm.pth-to-gnm_large.pth pairing.",
+    "Nav2+QR": "A known station has a mapped staging pose and an authoritative QR identity. No local comparative evidence justifies changing this baseline.",
+    "OmniVLA-Edge": "First separate language experiment only when varying a goal phrase should change the action. Pinned ungated weights, extra CLIP dependency and source-level CPU portability issue."
+  },
+  "external_measurements": [
+    {
+      "study": "https://arxiv.org/html/2603.25937v1",
+      "endpoint": "office-loop collision trials",
+      "ViNT": [
+        1,
+        10
+      ],
+      "GNM": [
+        5,
+        10
+      ],
+      "NoMaD": [
+        2,
+        10
+      ],
+      "janus": false
+    },
+    {
+      "study": "https://arxiv.org/html/2511.20216v7",
+      "endpoint": "simulated outdoor delivery SLA compliance fraction",
+      "ViNT": 0.1,
+      "GNM": 0,
+      "NoMaD": 0.01,
+      "Nav2_AMCL": 0.43,
+      "Nav2_GPS": 0.46,
+      "learned_models_finetuned": true,
+      "matched_sensors": false
+    },
+    {
+      "study": "https://arxiv.org/html/2601.01872v1",
+      "endpoint": "mean cycle ms",
+      "hardware": "i9-13900H / RTX 4070 real-environment setup",
+      "ViNT": 150,
+      "GNM": 110,
+      "NoMaD": 95
+    },
+    {
+      "study": "https://arxiv.org/html/2602.13476v1",
+      "model": "OmniVLA-Edge",
+      "endpoint": "edge operating rate Hz",
+      "hardware": "Jetson Orin",
+      "value": 6.0
+    },
+    {
+      "study": "https://raw.githubusercontent.com/mlresearch/v270/main/assets/hirose25b/hirose25b.pdf",
+      "model": "LeLaN",
+      "endpoint": "action calculation ms, cached text, current image",
+      "hardware": "Jetson AGX Orin",
+      "value": 54
+    },
+    {
+      "study": "https://arxiv.org/html/2411.09524v2",
+      "model": "FlowNav",
+      "endpoint": "inference ms, 2 / 10 steps",
+      "hardware": "RTX A500 Laptop",
+      "values": [
+        19.0,
+        48.6
+      ]
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "run_id": "Q01-python-nominal",
+  "initial_solver_state": {
+    "body_x_m": -0.08,
+    "body_y_m": 0.0,
+    "body_yaw_rad": 0.0,
+    "caster_angle_relative_rad": 0.0,
+    "body_velocity_x_mps": 0.0,
+    "body_velocity_y_mps": 0.0,
+    "body_yaw_rate_radps": 0.0,
+    "caster_relative_rate_radps": 0.0,
+    "left_wheel_rate_radps": 0.0,
+    "right_wheel_rate_radps": 0.0,
+    "caster_roll_rate_radps": 0.0,
+    "motor_work_J": 0.0,
+    "dissipated_energy_J": 0.0
+  },
+  "initial_axle_pose": {
+    "x_m": 0.0,
+    "y_m": 0.0,
+    "yaw_rad": 0.0
+  },
+  "files": {
+    "applied_torque.csv": "90fb0f590ceb8b4f7530a8a9e4fafb57e79cdef33f75e25cfbcfe40bf1c77d8b"
+  },
+  "source_manifest_sha256": "eae77708c07b601143ded465928bf273e5d7a350e77cd13077634fff1284c09c"
+}

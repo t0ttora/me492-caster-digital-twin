@@ -10,7 +10,7 @@ Progress, weekly tasks, semester roadmap, decisions and reports in one public re
 
 This project investigates how passive caster wheels affect mobile-robot motion and whether accounting for their dynamics can improve simulation fidelity and trajectory tracking. The intended outcome is a calibrated digital twin, a repeatable comparison of conventional and smoother motion profiles, and engineering conclusions supported by measured evidence.
 
-The study is being prepared around an Arche Robotics platform. Its actual configuration, available telemetry and permitted experiments must be confirmed with the company. This repository is the public project record: research methods, execution plans, decisions, progress and permitted reports. It currently contains documentation; simulation software and experimental results have not yet been published.
+The study is being prepared around an Arche Robotics platform. Its actual configuration, available telemetry and permitted experiments must be confirmed with the company. This repository is the public project record: research methods, execution plans, decisions, progress and permitted reports. It includes simulation software, synthetic results and native Simscape records. Company calibration requires operator-assisted measurements.
 
 ## The engineering problem
 
@@ -83,7 +83,7 @@ Physical validation depends on suitable robot access, logs and reference measure
 
 ## Project status and participation
 
-The [27 November update](docs/progress/2026-11-27-simulation-and-source.md) links the MATLAB, Simscape and Python models and recorded simulation evidence. Physical calibration and company access remain open in the public record. Dated updates belong in the [progress history](docs/progress/README.md); live task status belongs in [issues](https://github.com/t0ttora/me492-caster-digital-twin/issues) and [milestones](https://github.com/t0ttora/me492-caster-digital-twin/milestones).
+The [JANUS experiments](docs/progress/2026-11-27-janus-experiments.md) track the new motion and QR evidence. The [modelling update](docs/progress/2026-11-27-simulation-and-source.md) links the MATLAB, Simscape and Python models and recorded simulation evidence. Physical calibration and company access remain open in the public record. Dated updates belong in the [progress history](docs/progress/README.md); live task status belongs in [issues](https://github.com/t0ttora/me492-caster-digital-twin/issues) and [milestones](https://github.com/t0ttora/me492-caster-digital-twin/milestones).
 
 The semester plan allocates 252 working hours plus 32 contingency hours. Academic deadlines and weekly acceptance evidence are maintained in the [timetable](docs/planning/timetable.md). Completing an issue records task progress; it does not establish research validity or company approval.
 

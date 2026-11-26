@@ -1,0 +1,27 @@
+{
+  "run_id": "M08-python-caster-plus30",
+  "initial_solver_state": {
+    "body_x_m": -0.08,
+    "body_y_m": 0.0,
+    "body_yaw_rad": 0.0,
+    "caster_angle_relative_rad": 0.5235987755982988,
+    "body_velocity_x_mps": 0.0,
+    "body_velocity_y_mps": 0.0,
+    "body_yaw_rate_radps": 0.0,
+    "caster_relative_rate_radps": 0.0,
+    "left_wheel_rate_radps": 0.0,
+    "right_wheel_rate_radps": 0.0,
+    "caster_roll_rate_radps": 0.0,
+    "motor_work_J": 0.0,
+    "dissipated_energy_J": 0.0
+  },
+  "initial_axle_pose": {
+    "x_m": 0.0,
+    "y_m": 0.0,
+    "yaw_rad": 0.0
+  },
+  "files": {
+    "applied_torque.csv": "fb8973693304950af26df0066a3b4ff997727e6ba825b161784d5e9ace2fed6e"
+  },
+  "source_manifest_sha256": "998aa5946f62d79458b57514c87b3527134d1a331bceb85ed98141ae439b7a5a"
+}

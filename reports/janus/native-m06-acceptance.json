@@ -1,0 +1,169 @@
+{
+  "raw_sha256": "fb386115d736f5ae70e0204bb30f44b1aa104f38ef8b0197fb4d74d871696b8f",
+  "direction": "ccw",
+  "observed_gate_count": 8,
+  "independent_gate_passes": 8,
+  "criteria": "0.25 s raw dwell, edge/turn pose \u22645 cm/5\u00b0, terminal \u22642 cm/0.05 rad, planar speed \u22640.02 m/s and yaw rate \u22640.05 rad/s",
+  "gates": [
+    {
+      "gate": 1,
+      "kind": "edge",
+      "time_s": 7.73,
+      "window_rows": 251,
+      "target_xy_m": [
+        0.5,
+        0.0
+      ],
+      "target_yaw_rad": 0.0,
+      "peak_abs": {
+        "position_m": 0.017624519990648055,
+        "yaw_rad": 5.993071994225829e-08,
+        "planar_speed_mps": 0.014430142611982695,
+        "yaw_rate_radps": 2.9796418043488096e-08
+      },
+      "executed": true,
+      "passed": true
+    },
+    {
+      "gate": 2,
+      "kind": "turn",
+      "time_s": 11.22,
+      "window_rows": 251,
+      "target_xy_m": [
+        0.5,
+        0.0
+      ],
+      "target_yaw_rad": 1.5707963267948966,
+      "peak_abs": {
+        "position_m": 0.042358897345534344,
+        "yaw_rad": 0.0033134865474053754,
+        "planar_speed_mps": 0.0008659410088983549,
+        "yaw_rate_radps": 0.014098736259109934
+      },
+      "executed": true,
+      "passed": true
+    },
+    {
+      "gate": 3,
+      "kind": "edge",
+      "time_s": 18.74,
+      "window_rows": 251,
+      "target_xy_m": [
+        0.5,
+        0.5
+      ],
+      "target_yaw_rad": 1.5707963267948966,
+      "peak_abs": {
+        "position_m": 0.017559919258658924,
+        "yaw_rad": 0.009271091446015234,
+        "planar_speed_mps": 0.014623846981009834,
+        "yaw_rate_radps": 0.004276527433298957
+      },
+      "executed": true,
+      "passed": true
+    },
+    {
+      "gate": 4,
+      "kind": "turn",
+      "time_s": 22.21,
+      "window_rows": 251,
+      "target_xy_m": [
+        0.5,
+        0.5
+      ],
+      "target_yaw_rad": 3.141592653589793,
+      "peak_abs": {
+        "position_m": 0.042003095654430264,
+        "yaw_rad": 0.004322175959251329,
+        "planar_speed_mps": 0.0009341283730156048,
+        "yaw_rate_radps": 0.014558914620081935
+      },
+      "executed": true,
+      "passed": true
+    },
+    {
+      "gate": 5,
+      "kind": "edge",
+      "time_s": 29.73,
+      "window_rows": 251,
+      "target_xy_m": [
+        0.0,
+        0.5
+      ],
+      "target_yaw_rad": 3.141592653589793,
+      "peak_abs": {
+        "position_m": 0.017481074908500795,
+        "yaw_rad": 0.009168272279113765,
+        "planar_speed_mps": 0.014545930021335229,
+        "yaw_rate_radps": 0.004228958835556345
+      },
+      "executed": true,
+      "passed": true
+    },
+    {
+      "gate": 6,
+      "kind": "turn",
+      "time_s": 33.2,
+      "window_rows": 251,
+      "target_xy_m": [
+        0.0,
+        0.5
+      ],
+      "target_yaw_rad": 4.71238898038469,
+      "peak_abs": {
+        "position_m": 0.041988161358582486,
+        "yaw_rad": 0.004156203817452742,
+        "planar_speed_mps": 0.0008842030045304691,
+        "yaw_rate_radps": 0.014459234255179492
+      },
+      "executed": true,
+      "passed": true
+    },
+    {
+      "gate": 7,
+      "kind": "edge",
+      "time_s": 40.72,
+      "window_rows": 251,
+      "target_xy_m": [
+        0.0,
+        0.0
+      ],
+      "target_yaw_rad": 4.71238898038469,
+      "peak_abs": {
+        "position_m": 0.017521110946670426,
+        "yaw_rad": 0.009136782415386513,
+        "planar_speed_mps": 0.014578915080982635,
+        "yaw_rate_radps": 0.004211365099325671
+      },
+      "executed": true,
+      "passed": true
+    },
+    {
+      "gate": 8,
+      "kind": "turn",
+      "time_s": 59.82,
+      "window_rows": 251,
+      "target_xy_m": [
+        0.0,
+        0.0
+      ],
+      "target_yaw_rad": 6.283185307179586,
+      "peak_abs": {
+        "position_m": 0.012705123130444623,
+        "yaw_rad": 0.02691116148604955,
+        "planar_speed_mps": 0.00032409194784028465,
+        "yaw_rate_radps": 0.03654742153100434
+      },
+      "executed": true,
+      "passed": true
+    }
+  ],
+  "terminal_hold": {
+    "final_in_bounds": true,
+    "remained_in_bounds_after_gate": true,
+    "final_position_m": 0.01122998922421302,
+    "final_yaw_rad": -1.8886718006427827e-05,
+    "final_planar_speed_mps": 2.1379702581059645e-05,
+    "final_yaw_rate_radps": 5.3096655960617905e-06
+  }
+}

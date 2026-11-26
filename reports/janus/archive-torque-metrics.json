@@ -1,0 +1,66 @@
+{
+  "run_id": "V6-20261116-v23-archive-torque-comparison",
+  "scope": "New Python replay compared to a native archive dated 2026-11-16",
+  "plant_limitations": [
+    "Native is 3D penalty contact with SmoothStickSlip. Python is planar with quasi-static support loads.",
+    "Native displacement is from the archived World-to-body signal. Python displacement is from the drive axle.",
+    "Neither parameter set is hardware-calibrated. Position difference can include measurement-frame effects.",
+    "This is not a solver-step refinement test. Swivel-rate differences compare different plant formulations."
+  ],
+  "input": {
+    "left_axle_Nm": 0.01,
+    "right_axle_Nm": 0.01,
+    "initial_caster_deg": 30.0
+  },
+  "native_archive_rows": 30001,
+  "native_archive_csv_sha256": "6749ceabcf940131a9f70874e8179a6155d86cbd6152e9fc88423cc27d182436",
+  "native_archive_model_sha256": "fdfe99a480c8fa4b5ecf3e2aef08b160b564ad6bf86ffd7b92bf8798429fdb5f",
+  "native_archive_executed_at": "2026-11-16 01:51:12 +0300",
+  "native_archive_fixed_step_s": 2.5e-05,
+  "comparison_grid_s": 0.01,
+  "python_solver_step_s": 0.0005,
+  "original_retained_interval_s": [
+    2.750025,
+    3.0
+  ],
+  "full_reconstructed_window": {
+    "samples": 301,
+    "position_rmse_m": 0.02901625519718647,
+    "position_max_m": 0.06546541173933615,
+    "endpoint_error_m": 0.06546541173933615,
+    "yaw_rmse_rad": 0.003134334919531101,
+    "caster_angle_rmse_rad": 0.18970337369164605,
+    "swivel_rate_rmse_radps": 0.13096738486310996,
+    "swivel_rate_max_abs_delta_radps": 0.16709884636575084,
+    "left_wheel_rate_rmse_radps": 0.3441571562484121,
+    "right_wheel_rate_rmse_radps": 0.33607885629712947,
+    "caster_roll_rate_rmse_radps": 0.666623407306941,
+    "simscape_mean_total_support_N": 162.0431915916938,
+    "python_mean_total_support_N": 162.84600000000003
+  },
+  "overlap_with_original_retained_window": {
+    "samples": 25,
+    "position_rmse_m": 0.060326752616116905,
+    "position_max_m": 0.06546541173933615,
+    "endpoint_error_m": 0.06546541173933615,
+    "yaw_rmse_rad": 0.005104042442135486,
+    "caster_angle_rmse_rad": 0.3480919171498989,
+    "swivel_rate_rmse_radps": 0.13162843775789998,
+    "swivel_rate_max_abs_delta_radps": 0.1389545824363472,
+    "left_wheel_rate_rmse_radps": 0.5746034036837641,
+    "right_wheel_rate_rmse_radps": 0.5688630314139699,
+    "caster_roll_rate_rmse_radps": 1.1175729525921183,
+    "simscape_mean_total_support_N": 162.84587719850526,
+    "python_mean_total_support_N": 162.84600000000003
+  },
+  "endpoint": {
+    "simscape_x_m": 0.0688539271150841,
+    "python_x_m": 0.003389252803567777,
+    "simscape_caster_deg": 8.37235207327272,
+    "python_caster_deg": 29.197041628845888
+  },
+  "v1_hashes": {
+    "passed": true,
+    "checked_files": 52
+  }
+}

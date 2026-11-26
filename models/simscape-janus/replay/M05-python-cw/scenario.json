@@ -1,0 +1,58 @@
+{
+  "case": "M05",
+  "variant": "cw",
+  "duration_s": 85.0,
+  "segments": [
+    {
+      "distance_m": 0.5,
+      "yaw_change_rad": 0.0,
+      "duration_s": 2.5
+    },
+    {
+      "distance_m": 0.0,
+      "yaw_change_rad": -1.5707963267948966,
+      "duration_s": 2.4
+    },
+    {
+      "distance_m": 0.5,
+      "yaw_change_rad": 0.0,
+      "duration_s": 2.5
+    },
+    {
+      "distance_m": 0.0,
+      "yaw_change_rad": -1.5707963267948966,
+      "duration_s": 2.4
+    },
+    {
+      "distance_m": 0.5,
+      "yaw_change_rad": 0.0,
+      "duration_s": 2.5
+    },
+    {
+      "distance_m": 0.0,
+      "yaw_change_rad": -1.5707963267948966,
+      "duration_s": 2.4
+    },
+    {
+      "distance_m": 0.5,
+      "yaw_change_rad": 0.0,
+      "duration_s": 2.5
+    },
+    {
+      "distance_m": 0.0,
+      "yaw_change_rad": -1.5707963267948966,
+      "duration_s": 2.4
+    }
+  ],
+  "gate_each": true,
+  "caster_deg": 0.0,
+  "profile": "baseline",
+  "comparison": "equal_peak",
+  "surface": "reference_synthetic",
+  "payload_kg": 0.0,
+  "yaw_deg": 0.0,
+  "y_m": 0.0,
+  "seed": 492,
+  "events": [],
+  "hardware_scope": ""
+}

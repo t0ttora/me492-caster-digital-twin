@@ -1,0 +1,28 @@
+{
+  "case": "M08",
+  "variant": "caster-minus30",
+  "duration_s": 26.0,
+  "segments": [
+    {
+      "distance_m": 0.3,
+      "yaw_change_rad": 0,
+      "duration_s": 2.0
+    },
+    {
+      "distance_m": -0.3,
+      "yaw_change_rad": 0,
+      "duration_s": 2.0
+    }
+  ],
+  "gate_each": true,
+  "caster_deg": -30,
+  "profile": "baseline",
+  "comparison": "equal_peak",
+  "surface": "reference_synthetic",
+  "payload_kg": 0.0,
+  "yaw_deg": 0.0,
+  "y_m": 0.0,
+  "seed": 492,
+  "events": [],
+  "hardware_scope": ""
+}
