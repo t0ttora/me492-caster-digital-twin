@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<robot name="arche" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- Display/TF model. The SDF is the physics authority. Origin is the axle midpoint. -->
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0.065"/>
+      <geometry><box size="0.50 0.32 0.08"/></geometry>
+    </visual>
+  </link>
+  <xacro:macro name="wheel" params="name parent xyz radius width">
+    <link name="${name}">
+      <visual>
+        <origin rpy="1.5707963267948966 0 0"/>
+        <geometry><cylinder radius="${radius}" length="${width}"/></geometry>
+      </visual>
+    </link>
+    <joint name="${name}_joint" type="continuous">
+      <parent link="${parent}"/><child link="${name}"/>
+      <origin xyz="${xyz}"/><axis xyz="0 1 0"/>
+    </joint>
+  </xacro:macro>
+  <xacro:wheel name="left_wheel" parent="base_link" xyz="0 0.19 0" radius="0.075" width="0.03"/>
+  <xacro:wheel name="right_wheel" parent="base_link" xyz="0 -0.19 0" radius="0.075" width="0.03"/>
+  <link name="caster_fork"/>
+  <joint name="caster_swivel_joint" type="continuous">
+    <parent link="base_link"/><child link="caster_fork"/>
+    <origin xyz="-0.18 0 0.025"/><axis xyz="0 0 1"/>
+  </joint>
+  <xacro:wheel name="caster_wheel" parent="caster_fork" xyz="-0.05 0 -0.06" radius="0.04" width="0.02"/>
+  <link name="camera_link"/>
+  <joint name="camera_mount_joint" type="fixed">
+    <parent link="base_link"/><child link="camera_link"/>
+    <origin xyz="0.25 0 0.235"/>
+  </joint>
+  <link name="camera_optical_frame"/>
+  <joint name="camera_optical_joint" type="fixed">
+    <parent link="camera_link"/><child link="camera_optical_frame"/>
+    <origin rpy="-1.5707963267948966 0 -1.5707963267948966"/>
+  </joint>
+</robot>

@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="arche" canonical_link="base_link">
+    <link name="base_link">
+      <inertial>
+        <pose>-0.08 0 0.045 0 0 0</pose><mass>15.2</mass>
+        <inertia><ixx>0.17</ixx><iyy>0.33</iyy><izz>0.45</izz></inertia>
+      </inertial>
+      <collision name="chassis"><pose>0 0 0.065 0 0 0</pose><geometry><box><size>0.50 0.32 0.08</size></box></geometry></collision>
+      <visual name="chassis"><pose>0 0 0.065 0 0 0</pose><geometry><box><size>0.50 0.32 0.08</size></box></geometry><material><diffuse>0.10 0.23 0.32 1</diffuse></material></visual>
+      <sensor name="front_camera" type="camera">
+        <pose>0.25 0 0.235 0 0 0</pose>
+        <topic>/janus/gz/image</topic><gz_frame_id>camera_optical_frame</gz_frame_id>
+        <always_on>true</always_on><update_rate>20</update_rate>
+        <camera>
+          <camera_info_topic>/janus/gz/camera_info</camera_info_topic>
+          <horizontal_fov>1.0471975512</horizontal_fov>
+          <image><width>640</width><height>480</height><format>R8G8B8</format></image>
+          <clip><near>0.05</near><far>12</far></clip>
+          <optical_frame_id>camera_optical_frame</optical_frame_id>
+        </camera>
+      </sensor>
+    </link>
+    <link name="left_wheel">
+      <pose relative_to="base_link">0 0.19 0 0 0 0</pose>
+      <inertial><mass>0.4</mass><inertia><ixx>0.0005925</ixx><iyy>0.001125</iyy><izz>0.0005925</izz></inertia></inertial>
+      <collision name="tire"><pose>0 0 0 1.57079632679 0 0</pose><geometry><cylinder><radius>0.075</radius><length>0.03</length></cylinder></geometry><surface><friction><ode><mu>0.6</mu><mu2>0.6</mu2></ode></friction></surface></collision>
+      <visual name="tire"><pose>0 0 0 1.57079632679 0 0</pose><geometry><cylinder><radius>0.075</radius><length>0.03</length></cylinder></geometry></visual>
+    </link>
+    <link name="right_wheel">
+      <pose relative_to="base_link">0 -0.19 0 0 0 0</pose>
+      <inertial><mass>0.4</mass><inertia><ixx>0.0005925</ixx><iyy>0.001125</iyy><izz>0.0005925</izz></inertia></inertial>
+      <collision name="tire"><pose>0 0 0 1.57079632679 0 0</pose><geometry><cylinder><radius>0.075</radius><length>0.03</length></cylinder></geometry><surface><friction><ode><mu>0.6</mu><mu2>0.6</mu2></ode></friction></surface></collision>
+      <visual name="tire"><pose>0 0 0 1.57079632679 0 0</pose><geometry><cylinder><radius>0.075</radius><length>0.03</length></cylinder></geometry></visual>
+    </link>
+    <link name="caster_fork">
+      <pose relative_to="base_link">-0.18 0 0.025 0 0 0</pose>
+      <inertial>
+        <pose>-0.025 0 -0.03 0 0 0</pose><mass>0.2</mass>
+        <inertia><ixx>0.00015</ixx><iyy>0.00020</iyy><izz>0.00015</izz></inertia>
+      </inertial>
+      <visual name="fork"><pose>-0.025 0 -0.03 0 0 0</pose><geometry><box><size>0.065 0.035 0.025</size></box></geometry></visual>
+    </link>
+    <link name="caster_wheel">
+      <pose relative_to="caster_fork">-0.05 0 -0.06 0 0 0</pose>
+      <inertial><mass>0.4</mass><inertia><ixx>0.0001733</ixx><iyy>0.00032</iyy><izz>0.0001733</izz></inertia></inertial>
+      <collision name="tire"><pose>0 0 0 1.57079632679 0 0</pose><geometry><cylinder><radius>0.04</radius><length>0.02</length></cylinder></geometry><surface><friction><ode><mu>0.6</mu><mu2>0.6</mu2></ode></friction></surface></collision>
+      <visual name="tire"><pose>0 0 0 1.57079632679 0 0</pose><geometry><cylinder><radius>0.04</radius><length>0.02</length></cylinder></geometry></visual>
+    </link>
+    <joint name="left_wheel_joint" type="revolute">
+      <parent>base_link</parent><child>left_wheel</child>
+      <axis><xyz>0 1 0</xyz><dynamics><damping>0.00025</damping></dynamics></axis>
+    </joint>
+    <joint name="right_wheel_joint" type="revolute">
+      <parent>base_link</parent><child>right_wheel</child>
+      <axis><xyz>0 1 0</xyz><dynamics><damping>0.00025</damping></dynamics></axis>
+    </joint>
+    <joint name="caster_swivel_joint" type="revolute">
+      <parent>base_link</parent><child>caster_fork</child>
+      <axis><xyz>0 0 1</xyz><dynamics><damping>0.004</damping></dynamics></axis>
+    </joint>
+    <joint name="caster_wheel_joint" type="revolute">
+      <parent>caster_fork</parent><child>caster_wheel</child>
+      <axis><xyz>0 1 0</xyz><dynamics><damping>0.0001</damping></dynamics></axis>
+    </joint>
+    <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
+      <left_joint>left_wheel_joint</left_joint><right_joint>right_wheel_joint</right_joint>
+      <wheel_separation>0.38</wheel_separation><wheel_radius>0.075</wheel_radius>
+      <topic>/janus/gz/cmd_vel</topic><odom_topic>/janus/gz/odom</odom_topic><tf_topic>/janus/gz/odom_tf</tf_topic>
+      <frame_id>odom</frame_id><child_frame_id>base_link</child_frame_id>
+      <odom_publish_frequency>50</odom_publish_frequency>
+    </plugin>
+    <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+      <topic>/janus/gz/joint_states</topic>
+      <joint_name>left_wheel_joint</joint_name><joint_name>right_wheel_joint</joint_name>
+      <joint_name>caster_swivel_joint</joint_name><joint_name>caster_wheel_joint</joint_name>
+    </plugin>
+    <plugin filename="gz-sim-odometry-publisher-system" name="gz::sim::systems::OdometryPublisher">
+      <dimensions>3</dimensions><odom_frame>map</odom_frame><robot_base_frame>base_link</robot_base_frame>
+      <odom_topic>/janus/gz/ground_truth</odom_topic><odom_publish_frequency>50</odom_publish_frequency>
+    </plugin>
+  </model>
+</sdf>

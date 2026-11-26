@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+"""Export selected decoded ROS bag messages as a streaming JSON lines trace."""
+import argparse
+import json
+
+from rclpy.serialization import deserialize_message
+from rosbag2_py import ConverterOptions, SequentialReader, StorageOptions
+from rosidl_runtime_py.utilities import get_message
+
+from arche_experiments.ros_fields import joint_fields, odometry_fields, stamp_s, twist_fields
+
+EXTRACTORS = {
+    "/odom": lambda msg: odometry_fields(msg, "odom"),
+    "/janus/ground_truth": lambda msg: odometry_fields(msg, "map"),
+    "/joint_states": joint_fields,
+    "/cmd_vel": twist_fields,
+    "/janus/cmd_vel/request": twist_fields,
+    "/clock": lambda msg: {"time_s": stamp_s(msg.clock)},
+    "/janus/abort": lambda msg: {"requested": msg.data},
+    "/janus/replay/event": lambda msg: json.loads(msg.data),
+    "/janus/command_guard/status": lambda msg: json.loads(msg.data),
+    "/janus/qr/observation": lambda msg: json.loads(msg.data),
+    "/janus/camera/image_raw": lambda msg: {
+        "time_s": stamp_s(msg.header.stamp), "frame_id": msg.header.frame_id,
+        "width_px": msg.width, "height_px": msg.height, "encoding": msg.encoding,
+    },
+    "/janus/camera/camera_info": lambda msg: {
+        "time_s": stamp_s(msg.header.stamp), "frame_id": msg.header.frame_id,
+        "width_px": msg.width, "height_px": msg.height,
+        "k": list(msg.k), "d": list(msg.d), "p": list(msg.p),
+    },
+}
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("bag")
+    parser.add_argument("output")
+    parser.add_argument("--storage", default="mcap")
+    args = parser.parse_args()
+    reader = SequentialReader()
+    reader.open(StorageOptions(uri=args.bag, storage_id=args.storage),
+                ConverterOptions(input_serialization_format="", output_serialization_format=""))
+    types = {topic.name: get_message(topic.type)
+             for topic in reader.get_all_topics_and_types() if topic.name in EXTRACTORS}
+    with open(args.output, "x") as stream:
+        while reader.has_next():
+            topic, payload, timestamp = reader.read_next()
+            if topic not in types:
+                continue
+            msg = deserialize_message(payload, types[topic])
+            row = {"topic": topic, "bag_time_ns": timestamp}
+            try:
+                row.update(EXTRACTORS[topic](msg))
+                encoded = json.dumps(row, allow_nan=False)
+            except (TypeError, ValueError) as error:
+                encoded = json.dumps({"topic": topic, "bag_time_ns": timestamp, "error": str(error)})
+            stream.write(encoded + "\n")
+
+
+if __name__ == "__main__":
+    main()

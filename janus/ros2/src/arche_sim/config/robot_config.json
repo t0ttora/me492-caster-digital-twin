@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "provenance": {
+    "baseline_git": "924f3a2",
+    "geometry": "caster-physics-python-v2/parameters/geometry_si.json",
+    "dynamics": "caster-physics-python-v2/parameters/dynamics_si.json",
+    "status": "provisional_synthetic",
+    "adjustments": "base_link at physical axle height; 16 kg body lump split into 15.2 kg chassis and two 0.4 kg drive wheels; 0.6 kg caster split into 0.2 kg fork and 0.4 kg rolling wheel; roll/pitch inertia and fork inertia assumed; friction is nominal Coulomb contact"
+  },
+  "base_frame": "base_link",
+  "world_frame": "map",
+  "drive_radius_m": 0.075,
+  "drive_track_m": 0.38,
+  "caster_radius_m": 0.04,
+  "caster_trail_m": 0.05,
+  "caster_pivot_from_axle_m": [-0.18, 0.0, 0.025],
+  "camera": {
+    "provenance": "nominal simulated pinhole, no physical calibration, default undistorted image",
+    "frame": "camera_optical_frame",
+    "xyz_from_base_link_m": [0.25, 0.0, 0.235],
+    "optical_rpy_from_camera_link_rad": [-1.5707963267948966, 0.0, -1.5707963267948966],
+    "width_px": 640, "height_px": 480, "horizontal_fov_rad": 1.0471975512,
+    "target_u_px": 320.0, "rate_hz": 20
+  },
+  "marker": {
+    "id": "JANUS-DOCK-01", "center_in_map_m": [1.50, 0.0, 0.31],
+    "front_normal_in_map": [-1.0, 0.0, 0.0],
+    "textured_placard_edge_m": 0.24, "border_modules": 4, "modules": 21,
+    "mechanical_dock_transform": null
+  }
+}

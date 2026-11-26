@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+import json
+from dataclasses import replace
+from time import perf_counter_ns
+
+import cv2
+import rclpy
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
+from rclpy.executors import MultiThreadedExecutor
+from rclpy.node import Node
+from rclpy.qos import QoSProfile, ReliabilityPolicy
+from sensor_msgs.msg import Image
+from std_msgs.msg import String
+
+from arche_experiments.ros_fields import stamp_s
+from arche_experiments.vision import Decoder, FrameTiming, Observation, OPTICAL_FRAME, TARGET_ID, unpack_image
+
+
+class QrObserver(Node):
+    def __init__(self):
+        super().__init__("janus_qr_observer")
+        self.decoder = Decoder()
+        self.timing = FrameTiming(self.declare_parameter("freshness_s", 0.20).value)
+        self.target_id = self.declare_parameter("target_id", TARGET_ID).value
+        self.target_u = self.declare_parameter("target_u_px", 320.0).value
+        self.publisher = self.create_publisher(String, "/janus/qr/observation", 10)
+        # One decode at a time. The default group can service /clock during a decode.
+        self.image_group = MutuallyExclusiveCallbackGroup()
+        self.subscription = self.create_subscription(
+            Image, "/janus/camera/image_raw", self.image,
+            QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT),
+            callback_group=self.image_group)
+
+    def image(self, msg):
+        arrival = self.get_clock().now().nanoseconds / 1e9
+        frame = Observation(stamp_s(msg.header.stamp), arrival, msg.width, msg.height,
+                            self.target_id, self.target_u, frame_id=msg.header.frame_id)
+        timing = self.timing.accept(frame)
+        decode_ms = None
+        if timing.reason != "no_qr":
+            frame = timing
+        elif msg.header.frame_id != OPTICAL_FRAME:
+            frame = replace(frame, reason="unexpected_optical_frame")
+        else:
+            start = perf_counter_ns()
+            try:
+                pixels = unpack_image(msg.data, msg.width, msg.height, msg.step, msg.encoding)
+                frame = self.decoder.decode(pixels, frame)
+                decode_ms = (perf_counter_ns() - start) / 1e6
+            except (ValueError, cv2.error) as error:
+                self.get_logger().warning(str(error))
+                frame = replace(frame, reason="invalid_image")
+        publish_s = self.get_clock().now().nanoseconds / 1e9
+        if publish_s < arrival:
+            self.timing.clock_reset = True
+            frame = replace(frame, valid=False, reason="clock_reset")
+        elif frame.valid and publish_s - frame.capture_time_s > self.timing.freshness_s:
+            frame = replace(frame, valid=False, reason="stale_at_publish")
+        row = {**frame.as_row(), "decode_ms": decode_ms, "publish_time_s": publish_s}
+        self.publisher.publish(String(data=json.dumps(row, allow_nan=False)))
+
+
+def main():
+    rclpy.init()
+    node = QrObserver()
+    executor = MultiThreadedExecutor(num_threads=2)
+    executor.add_node(node)
+    try:
+        executor.spin()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        executor.shutdown()
+        node.destroy_node()
+        rclpy.try_shutdown()
+
+
+if __name__ == "__main__":
+    main()
