@@ -1,0 +1,12 @@
+{
+  "artifact": "M2 v1 native Simulink review package",
+  "model": "models/Me492CasterM2V1.slx",
+  "builder_input_model": "models/Me492CasterM2.slx",
+  "synthetic_parameters": true,
+  "robot_validation": false,
+  "native_success_logs": [
+    "execution_transcript_v1.txt",
+    "workflow_transcript_v1_final.txt"
+  ],
+  "package_manifest": "file_manifest_sha256.json"
+}

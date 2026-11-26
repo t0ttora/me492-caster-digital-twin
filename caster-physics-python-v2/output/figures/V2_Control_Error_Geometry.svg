@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="700" viewBox="0 0 1000 700" role="img" aria-labelledby="title description">
+<title id="title">V2 tracking and terminal error geometry</title>
+<desc id="description">Top view. A is the drive axle midpoint. The target is P r. The target displacement is decomposed into positive body-frame errors e x and e y. Theta is body heading, theta r is reference heading, beta is the target bearing, alpha equals beta minus theta for the illustrated forward approach, and e theta is the heading error.</desc>
+<defs>
+ <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"/></marker>
+ <style>
+ text {fill:#17232c;font-family:Arial,Helvetica,sans-serif;font-size:18px;}
+ .math {font-family:'Times New Roman','STIX Two Math',serif;font-size:27px;font-style:italic;}
+ .axis {stroke:#202b33;stroke-width:2;marker-end:url(#arrow);}
+ .guide {stroke:#9aa6ae;stroke-width:1.6;stroke-dasharray:7 6;}
+ .error {stroke:#235d8d;stroke-width:2.6;marker-end:url(#arrow);}
+ .target {stroke:#202b33;stroke-width:2.3;marker-end:url(#arrow);}
+ .angle {stroke:#202b33;stroke-width:1.6;fill:none;}
+ .label-bg {fill:white;stroke:none;}
+ </style>
+</defs>
+<rect width="1000" height="700" fill="white"/>
+<text x="55" y="48" font-size="25" font-weight="600">Tracking and terminal error geometry</text>
+<text x="55" y="80" fill="#5c6870">Top view · forward approach (s = +1)</text>
+<g transform="translate(310.0 450.0) rotate(-15)">
+ <rect x="-155" y="-67" width="195" height="134" rx="12" fill="#f1f3f4" stroke="#202b33" stroke-width="2"/>
+ <rect x="-16" y="-86" width="32" height="19" rx="3" fill="#202b33"/>
+ <rect x="-16" y="67" width="32" height="19" rx="3" fill="#202b33"/>
+ <line x1="0" y1="-67" x2="0" y2="67" stroke="#7b8790" stroke-width="1.4"/>
+</g>
+<line x1="310.000" y1="450.000" x2="565.000" y2="450.000" class="guide"/>
+<line x1="310.000" y1="450.000" x2="413.284" y2="255.752" class="guide"/>
+<line x1="310.000" y1="450.000" x2="805.000" y2="317.365" class="axis"/>
+<line x1="310.000" y1="450.000" x2="251.766" y2="232.667" class="axis"/>
+<line x1="310.000" y1="450.000" x2="670.000" y2="150.000" class="target"/>
+<line x1="310.000" y1="450.000" x2="720.885" y2="339.904" class="error"/>
+<line x1="720.885" y1="339.904" x2="670.000" y2="150.000" class="error"/>
+<line x1="670.000" y1="150.000" x2="716.947" y2="61.705" class="axis"/>
+<path d="M 369.000,450.000 A 59,59 0 0 0 366.990,434.730" class="angle"/>
+<path d="M 408.524,423.600 A 102,102 0 0 0 357.886,359.939" class="angle"/>
+<path d="M 463.000,450.000 A 153,153 0 0 0 427.538,352.052" class="angle"/>
+<path d="M 515.742,394.872 A 213,213 0 0 0 473.631,313.641" class="angle"/>
+<circle cx="310.0" cy="450.0" r="5" fill="#202b33"/>
+<circle cx="670.0" cy="150.0" r="5" fill="#202b33"/>
+<circle cx="720.884572681199" cy="339.9038105676658" r="4" fill="#235d8d"/>
+<text x="293" y="484" class="math" >A</text>
+<text x="683" y="161" class="math" >P<tspan baseline-shift="sub" font-size="16">r</tspan></text>
+<text x="820" y="325" class="math" >x<tspan baseline-shift="sub" font-size="16">b</tspan></text>
+<text x="227" y="220" class="math" >y<tspan baseline-shift="sub" font-size="16">b</tspan></text>
+<text x="575" y="455" class="math" >X</text>
+<text x="371" y="467" class="math" >θ</text>
+<text x="401" y="393" class="math" >e<tspan baseline-shift="sub" font-size="16">θ</tspan></text>
+<text x="479" y="425" class="math" >β</text>
+<text x="505" y="345" class="math" >α</text>
+<text x="500" y="263" class="math" >ρ</text>
+<text x="503" y="427" class="math" fill="#235d8d">e<tspan baseline-shift="sub" font-size="16">x</tspan></text>
+<text x="736" y="253" class="math" fill="#235d8d">e<tspan baseline-shift="sub" font-size="16">y</tspan></text>
+<text x="737" y="88" class="math" >θ<tspan baseline-shift="sub" font-size="16">r</tspan></text>
+
+<g transform="translate(80 581)">
+ <line x1="0" y1="0" x2="67" y2="0" class="axis"/>
+ <line x1="0" y1="0" x2="0" y2="-67" class="axis"/>
+ <text x="76" y="7" class="math">X</text><text x="-9" y="-78" class="math">Y</text>
+</g>
+<line x1="245" y1="559" x2="930" y2="559" stroke="#d4dce1"/>
+<text x="260" y="601" class="math" >p<tspan baseline-shift="sub" font-size="16">r</tspan> − p<tspan baseline-shift="sub" font-size="16">A</tspan> = R(θ) [e<tspan baseline-shift="sub" font-size="16">x</tspan>, e<tspan baseline-shift="sub" font-size="16">y</tspan>]ᵀ</text>
+<text x="260" y="645" class="math" >e<tspan baseline-shift="sub" font-size="16">θ</tspan> = θ<tspan baseline-shift="sub" font-size="16">r</tspan> − θ</text>
+<text x="525" y="645" class="math" >ρ = ‖p<tspan baseline-shift="sub" font-size="16">r</tspan> − p<tspan baseline-shift="sub" font-size="16">A</tspan>‖</text>
+<text x="765" y="645" class="math" >α = β − θ</text>
+</svg>

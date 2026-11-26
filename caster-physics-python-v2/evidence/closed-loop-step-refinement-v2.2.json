@@ -1,0 +1,10 @@
+{
+  "max_errors": {
+    "x_m": 6.847998823555912e-08,
+    "y_m": 2.081073841031511e-08,
+    "yaw_rad": 4.985601711471332e-07,
+    "caster_angle_body_rad": 1.047641859819315e-06
+  },
+  "fine_completion_s": 3.66,
+  "all_passed": true
+}

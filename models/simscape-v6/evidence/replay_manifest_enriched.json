@@ -1,0 +1,75 @@
+{
+  "kind": "NEW_REPLAY_NOT_HISTORICAL",
+  "executed_at": "2026-11-16 01:51:12 +0300",
+  "basis": "Frozen saved V6 plus read-only snapshot of dirty live +30 degree configuration; Scope display parameters not applied.",
+  "solver": "ode4",
+  "fixed_step": "2.5e-05",
+  "stop_time": "3",
+  "parameters": {},
+  "wall_seconds": 22.6731911,
+  "end_time": 3,
+  "error": "",
+  "completed": true,
+  "signals": {
+    "robot_x": {
+      "units": "m",
+      "components": 1,
+      "frame": "World for robot position and ZYX orientation; caster angle is relative to chassis; normal vector as configured ContactFrame"
+    },
+    "robot_y": {
+      "units": "m",
+      "components": 1,
+      "frame": "World for robot position and ZYX orientation; caster angle is relative to chassis; normal vector as configured ContactFrame"
+    },
+    "robot_angles": {
+      "units": "deg",
+      "components": 3,
+      "frame": "World for robot position and ZYX orientation; caster angle is relative to chassis; normal vector as configured ContactFrame"
+    },
+    "caster_angle": {
+      "units": "deg",
+      "components": 1,
+      "frame": "World for robot position and ZYX orientation; caster angle is relative to chassis; normal vector as configured ContactFrame"
+    },
+    "swivel_speed": {
+      "units": "rad/s",
+      "components": 1,
+      "frame": "World for robot position and ZYX orientation; caster angle is relative to chassis; normal vector as configured ContactFrame"
+    },
+    "caster_roll_speed": {
+      "units": "rad/s",
+      "components": 1,
+      "frame": "World for robot position and ZYX orientation; caster angle is relative to chassis; normal vector as configured ContactFrame"
+    },
+    "left_speed": {
+      "units": "rad/s",
+      "components": 1,
+      "frame": "World for robot position and ZYX orientation; caster angle is relative to chassis; normal vector as configured ContactFrame"
+    },
+    "right_speed": {
+      "units": "rad/s",
+      "components": 1,
+      "frame": "World for robot position and ZYX orientation; caster angle is relative to chassis; normal vector as configured ContactFrame"
+    },
+    "normal_total": {
+      "units": "N",
+      "components": 3,
+      "frame": "World for robot position and ZYX orientation; caster angle is relative to chassis; normal vector as configured ContactFrame"
+    }
+  },
+  "source_snapshot_sha256": "f71cf2210a34261f8e2cd49d527276f2f0e07acfdba767ee5242ba230d77f71c",
+  "replay_model_sha256": "fdfe99a480c8fa4b5ecf3e2aef08b160b564ad6bf86ffd7b92bf8798429fdb5f",
+  "commands": {
+    "left_wheel_torque_Nm": "0.01",
+    "right_wheel_torque_Nm": "0.01"
+  },
+  "initial_caster_deg": "30",
+  "friction": "SmoothStickSlip",
+  "mu_static": "0.5",
+  "mu_dynamic": "0.3",
+  "critical_velocity_mps": "0.01",
+  "original_retained_interval_s": [
+    2.750025,
+    3.0
+  ]
+}

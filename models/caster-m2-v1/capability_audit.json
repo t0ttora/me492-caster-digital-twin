@@ -1,0 +1,63 @@
+{
+  "timestamp": "2026-10-07 22:14:14",
+  "matlab_version": "26.2.0.3386108 (R2026b)",
+  "matlab_root": "C:\\Program Files\\MATLAB\\R2026b",
+  "current_folder": "<windows-home>\\Documents\\Codex\\2026-10-03\\https-huggingface-co-strandsagents-strands-decider\\outputs\\caster_model_m2_v0\\models",
+  "toolboxes": [
+    {
+      "Name": "MATLAB",
+      "Version": "26.2",
+      "Release": "(R2026b)",
+      "Date": "22-May-2026"
+    },
+    {
+      "Name": "MATLAB Copilot",
+      "Version": "26.2",
+      "Release": "(R2026b)",
+      "Date": "22-May-2026"
+    },
+    {
+      "Name": "Simscape",
+      "Version": "26.2",
+      "Release": "(R2026b)",
+      "Date": "22-May-2026"
+    },
+    {
+      "Name": "Simscape Multibody",
+      "Version": "26.2",
+      "Release": "(R2026b)",
+      "Date": "22-May-2026"
+    },
+    {
+      "Name": "Simulink",
+      "Version": "26.2",
+      "Release": "(R2026b)",
+      "Date": "22-May-2026"
+    }
+  ],
+  "models": [
+    {
+      "name": "Me492CasterM2",
+      "file_before": "<windows-home>\\Documents\\Codex\\2026-10-03\\https-huggingface-co-strandsagents-strands-decider\\outputs\\caster_model_m2_v0\\models\\Me492CasterM2.slx",
+      "dirty_before": "off",
+      "simulation_status": "stopped",
+      "snapshot_file": "<windows-home>\\Documents\\Codex\\2026-10-03\\https-huggingface-co-strandsagents-strands-decider\\outputs\\preservation_20261007_221034\\desktop_session\\Me492CasterM2.slx",
+      "file_after": "<windows-home>\\Documents\\Codex\\2026-10-03\\https-huggingface-co-strandsagents-strands-decider\\outputs\\caster_model_m2_v0\\models\\Me492CasterM2.slx",
+      "block_count": 10
+    }
+  ],
+  "editors": [],
+  "backup_root": "<windows-home>\\Documents\\Codex\\2026-10-03\\https-huggingface-co-strandsagents-strands-decider\\outputs\\preservation_20261007_221034",
+  "license_simulink": 1,
+  "license_simscape": 1,
+  "license_multibody": 1,
+  "recording_capability": {
+    "OBS_installed": true,
+    "OBS_recording_not_tested": true,
+    "ffmpeg_on_path": false,
+    "local_SAPI_Turkish_voice": false,
+    "video_owner": "Mac coordinator; Windows exports native model images"
+  },
+  "native_baseline_clean_models_folder_run_exit_code": 1,
+  "native_baseline_log": "../../work/direct_run_baseline.txt"
+}

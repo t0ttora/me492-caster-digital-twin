@@ -1,0 +1,5 @@
+# Preserve archived checksums across Git clients.
+caster-physics-python/** -text
+models/** -text
+*.pdf binary
+*.slx binary

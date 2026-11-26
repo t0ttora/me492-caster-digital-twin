@@ -1,0 +1,28 @@
+{
+  "v1_preservation": {
+    "passed": true,
+    "checked_files": 60
+  },
+  "assumption": "0.4 kg uniform solid cylinders, wheel-only spin axes",
+  "drive_J_kgm2": 0.001125,
+  "caster_J_kgm2": 0.00032,
+  "old_drive_J_kgm2": 0.0045,
+  "wheel_only_upper_bound_kgm2": 0.00225,
+  "corrected_isolated_speed_radps": 1.777777777777778,
+  "old_isolated_speed_radps": 0.4444444444444445,
+  "pdf_sha256": "5384300500c8c6bcc710bed95a67b86a3bbcda33c8700d3c71f72dba91e990c4",
+  "pdf_pages_visually_checked": 3,
+  "full_study_checks": {
+    "v1_preserved": true,
+    "energy_balance_below_1e-5J": true,
+    "passive_contact": true,
+    "torque_limit_0.5Nm": true,
+    "all_runs_completed": true
+  },
+  "run_count": 40,
+  "test_count": 35,
+  "nominal_completed": 16,
+  "original_window_completed": 8,
+  "all_source_parameter_result_hashes_match": true,
+  "all_passed": true
+}

@@ -1,0 +1,17 @@
+clean_models_folder_direct_simulation: passed=1
+direct_simulation_has_13_states: passed=1
+aligned_forward h=0.0005: final pose=[0.846659 0.000000 0.000000], phi=0.000000, balance=2.01e-09 J
+M2 Simulink replays complete. Physical consistency still requires verify_m2.
+runner_keeps_open_saved_model: passed=1
+runner_preserves_saved_manual_description: passed=1
+runner_preserves_source_slx_bytes: passed=1
+commands_use_10ms_grid: passed=1
+results_use_independent_20ms_grid: passed=1
+runner_rejects_unsaved_edits: passed=1
+temporary_replay_copy_cleaned: passed=1
+Revised M2 saved: <windows-home>\Documents\Codex\2026-10-03\https-huggingface-co-strandsagents-strands-decider\outputs\caster_model_m2_v1\workflow_tests\tpb06298a4_9fe6_405b_b065_a563afeac52d\models\Me492CasterM2V1.slx
+builder_keeps_same_named_open_baseline: passed=1
+builder_preserves_unsaved_baseline_edit: passed=1
+builder_preserves_baseline_slx_bytes: passed=1
+rebuilt_model_compiles_and_simulates: passed=1
+Workflow verification: 13/13 checks passed.

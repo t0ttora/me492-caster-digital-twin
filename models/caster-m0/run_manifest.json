@@ -1,0 +1,167 @@
+{
+  "schema_version": "me492-caster-v0.1",
+  "parameter_status": "provisional_synthetic",
+  "model_level": "M0_ideal_drive_with_passive_caster_kinematic_tracking",
+  "physical_calibration": false,
+  "caster_forces_feed_back_to_body": false,
+  "H1_validated": false,
+  "simulation_engine": "Simulink",
+  "matlab_version": "26.2.0.3386108 (R2026b)",
+  "created_at_utc": "2026-10-07T16:41:36Z",
+  "input_interpolation": "zero_order_hold",
+  "solver": "ode4",
+  "parameters": {
+    "schema_version": "me492-caster-v0.1",
+    "parameter_status": "provisional_synthetic",
+    "units": "SI",
+    "body_origin": "drive_axle_midpoint_projected_to_ground",
+    "chassis_size_m": [
+      0.5,
+      0.32,
+      0.08
+    ],
+    "chassis_center_m": [
+      0,
+      0,
+      0.14
+    ],
+    "drive_radius_m": 0.075,
+    "drive_width_m": 0.03,
+    "drive_track_m": 0.38,
+    "caster_radius_m": 0.04,
+    "caster_width_m": 0.02,
+    "caster_trail_m": 0.05,
+    "caster_pivot_m": [
+      -0.18,
+      0,
+      0.1
+    ],
+    "fork_plate_thickness_m": 0.006,
+    "fork_yoke_gap_m": 0.026,
+    "fork_stem_radius_m": 0.008,
+    "command_sample_dt_s": 0.02,
+    "solver_step_s": 0.001
+  },
+  "runs": [
+    {
+      "scenario_id": "straight_aligned",
+      "duration_s": 4,
+      "initial_pose": {
+        "x_m": 0,
+        "y_m": 0,
+        "yaw_rad": 0
+      },
+      "initial_caster_angle_body_rad": 0,
+      "commands_csv": "commands/straight_aligned_commands.csv",
+      "states_csv": "results/straight_aligned_states.csv",
+      "plot_png": "plots/straight_aligned.png",
+      "row_count": 201,
+      "final_pose": [
+        0.79999999999994453,
+        0,
+        0
+      ],
+      "final_caster_angle_body_rad": 0
+    },
+    {
+      "scenario_id": "straight_misaligned",
+      "duration_s": 4,
+      "initial_pose": {
+        "x_m": 0,
+        "y_m": 0,
+        "yaw_rad": 0
+      },
+      "initial_caster_angle_body_rad": 0.78539816339744828,
+      "commands_csv": "commands/straight_misaligned_commands.csv",
+      "states_csv": "results/straight_misaligned_states.csv",
+      "plot_png": "plots/straight_misaligned.png",
+      "row_count": 201,
+      "final_pose": [
+        0.79999999999994453,
+        0,
+        0
+      ],
+      "final_caster_angle_body_rad": 9.3227191228648666E-8
+    },
+    {
+      "scenario_id": "reversal_perturbed",
+      "duration_s": 8,
+      "initial_pose": {
+        "x_m": 0,
+        "y_m": 0,
+        "yaw_rad": 0
+      },
+      "initial_caster_angle_body_rad": 0.017453292519943295,
+      "commands_csv": "commands/reversal_perturbed_commands.csv",
+      "states_csv": "results/reversal_perturbed_states.csv",
+      "plot_png": "plots/reversal_perturbed.png",
+      "row_count": 401,
+      "final_pose": [
+        -0.79999999999994453,
+        0,
+        0
+      ],
+      "final_caster_angle_body_rad": 3.1415668630822697
+    },
+    {
+      "scenario_id": "reversal_exact_aligned",
+      "duration_s": 8,
+      "initial_pose": {
+        "x_m": 0,
+        "y_m": 0,
+        "yaw_rad": 0
+      },
+      "initial_caster_angle_body_rad": 0,
+      "commands_csv": "commands/reversal_exact_aligned_commands.csv",
+      "states_csv": "results/reversal_exact_aligned_states.csv",
+      "plot_png": "plots/reversal_exact_aligned.png",
+      "row_count": 401,
+      "final_pose": [
+        -0.79999999999994453,
+        0,
+        0
+      ],
+      "final_caster_angle_body_rad": 0
+    },
+    {
+      "scenario_id": "turn_in_place",
+      "duration_s": 4,
+      "initial_pose": {
+        "x_m": 0,
+        "y_m": 0,
+        "yaw_rad": 0
+      },
+      "initial_caster_angle_body_rad": 0,
+      "commands_csv": "commands/turn_in_place_commands.csv",
+      "states_csv": "results/turn_in_place_states.csv",
+      "plot_png": "plots/turn_in_place.png",
+      "row_count": 201,
+      "final_pose": [
+        0,
+        0,
+        1.9999999999998352
+      ],
+      "final_caster_angle_body_rad": -1.8503715925202397
+    },
+    {
+      "scenario_id": "curved_turn",
+      "duration_s": 5,
+      "initial_pose": {
+        "x_m": 0,
+        "y_m": 0,
+        "yaw_rad": 0
+      },
+      "initial_caster_angle_body_rad": 0,
+      "commands_csv": "commands/curved_turn_commands.csv",
+      "states_csv": "results/curved_turn_states.csv",
+      "plot_png": "plots/curved_turn.png",
+      "row_count": 251,
+      "final_pose": [
+        0.4546487134128912,
+        0.7080734182735704,
+        1.999999999999845
+      ],
+      "final_caster_angle_body_rad": -0.43978370054477439
+    }
+  ]
+}

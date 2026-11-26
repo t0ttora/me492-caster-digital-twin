@@ -1,0 +1,50 @@
+{
+  "design_requirements": {
+    "tau_x_s": 0.5,
+    "lateral_zeta": 1.0,
+    "lateral_wn_radps": 1.0,
+    "design_speed_mps": 0.15,
+    "wheel_sampled_poles": [
+      0.8,
+      0.5
+    ],
+    "terminal_tau_rho_s": 0.5,
+    "terminal_tau_alpha_s": 0.3333333333333333,
+    "terminal_tau_heading_s": 0.3333333333333333,
+    "provenance": "newly selected design requirements; not physical measurements or a claim about the earlier manual gains"
+  },
+  "calculated_gains": {
+    "tracking_x": 2.0,
+    "tracking_y": 44.44444444444444,
+    "tracking_heading": 2.0,
+    "wheel_p": 0.06749999999999999,
+    "wheel_i": 1.1249999999999996,
+    "terminal_rho": 2.0,
+    "terminal_alpha": 3.0,
+    "terminal_heading": 3.0
+  },
+  "V1_preservation": {
+    "passed": true,
+    "checked_files": 60
+  },
+  "tests_passed": 37,
+  "pdf": {
+    "path": "output/pdf/Arche_V2_Controller_Design_EN.pdf",
+    "sha256": "5975d55401b0123424b7b0723fcdc9b471d86152e3b511cbcd5f0a492954571d",
+    "pages": 3,
+    "all_pages_visually_checked": true,
+    "all_inline_symbols_typeset": true,
+    "source_references_added": true,
+    "reference_style": "short arrow callouts"
+  },
+  "study_checks": {
+    "v1_preserved": true,
+    "energy_balance_below_1e-5J": true,
+    "passive_contact": true,
+    "torque_limit_0.5Nm": true,
+    "all_runs_completed": true
+  },
+  "study_runs": 40,
+  "source_parameter_result_hashes_match": true,
+  "all_passed": true
+}

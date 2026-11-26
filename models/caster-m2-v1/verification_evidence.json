@@ -1,0 +1,368 @@
+{
+  "stage": "all",
+  "all_passed": true,
+  "checks": [
+    {
+      "name": "rest_is_equilibrium",
+      "passed": true,
+      "value": 0,
+      "requirement": "<1e-12"
+    },
+    {
+      "name": "rest_has_no_tangential_force",
+      "passed": true,
+      "value": 0,
+      "requirement": "=0"
+    },
+    {
+      "name": "static_load_sums_to_weight",
+      "passed": true,
+      "value": 0,
+      "requirement": "<1e-10 N"
+    },
+    {
+      "name": "all_swivel_angles_have_positive_support_load",
+      "passed": true,
+      "value": 26.488261507245724,
+      "requirement": ">5 N"
+    },
+    {
+      "name": "mass_matrix_positive_definite",
+      "passed": true,
+      "value": 0.00045,
+      "requirement": ">1e-5 kg / kg m^2 (mixed coordinates)"
+    },
+    {
+      "name": "drive_spin_produces_forward_ground_force",
+      "passed": true,
+      "value": 30.706705222224873,
+      "requirement": ">0 N"
+    },
+    {
+      "name": "ground_reaction_slows_unpowered_spinning_wheel",
+      "passed": true,
+      "value": -524.15832375205707,
+      "requirement": "<0 rad/s^2"
+    },
+    {
+      "name": "force_inside_coulomb_circle",
+      "passed": true,
+      "value": -0.0028599951664425305,
+      "requirement": "<=0 N"
+    },
+    {
+      "name": "lateral_friction_opposes_positive_slip",
+      "passed": true,
+      "value": -29.75080188638627,
+      "requirement": "<0 N"
+    },
+    {
+      "name": "combined_contact_is_dissipative",
+      "passed": true,
+      "value": -5.9501603772772542,
+      "requirement": "<=0 W"
+    },
+    {
+      "name": "zero_slip_has_zero_traction",
+      "passed": true,
+      "value": 0,
+      "requirement": "<1e-10 N"
+    },
+    {
+      "name": "instantaneous_energy_power_balance",
+      "passed": true,
+      "value": 2.4112267738019E-11,
+      "requirement": "<1e-7 W"
+    },
+    {
+      "name": "reported_energy_matches_independent_expression",
+      "passed": true,
+      "value": 0,
+      "requirement": "<1e-12 J"
+    },
+    {
+      "name": "all_resistances_are_dissipative",
+      "passed": true,
+      "value": 15.541935768473184,
+      "requirement": ">=0 W"
+    },
+    {
+      "name": "caster_traction_and_bore_share_friction_budget",
+      "passed": true,
+      "value": -1.3024376971692675,
+      "requirement": "<=0 N equivalent combined patch load"
+    },
+    {
+      "name": "disabled_caster_has_no_ground_force_or_ground_resistance",
+      "passed": true,
+      "value": 0,
+      "requirement": "=0"
+    },
+    {
+      "name": "bearing_resistance_retained_in_ablation",
+      "passed": true,
+      "value": 0,
+      "requirement": "=0 Nm"
+    },
+    {
+      "name": "aligned_misaligned_identical_torque_inputs",
+      "passed": true,
+      "value": 0,
+      "requirement": "=0 differences"
+    },
+    {
+      "name": "enabled_disabled_identical_torque_inputs",
+      "passed": true,
+      "value": 0,
+      "requirement": "=0 differences"
+    },
+    {
+      "name": "symmetric_aligned_has_zero_yaw",
+      "passed": true,
+      "value": 0,
+      "requirement": "<1e-10 rad"
+    },
+    {
+      "name": "positive_equal_torque_moves_forward",
+      "passed": true,
+      "value": 0.846658702326214,
+      "requirement": ">0.1 m"
+    },
+    {
+      "name": "caster_angle_changes_yaw_meaningfully",
+      "passed": true,
+      "value": 1.74553470360096,
+      "requirement": ">0.001 rad"
+    },
+    {
+      "name": "caster_angle_changes_trajectory_meaningfully",
+      "passed": true,
+      "value": 0.4962090906721256,
+      "requirement": ">0.001 m"
+    },
+    {
+      "name": "caster_ground_force_ablation_changes_yaw",
+      "passed": true,
+      "value": 2.1629219045354393,
+      "requirement": ">0.001 rad"
+    },
+    {
+      "name": "caster_force_is_not_numeric_zero",
+      "passed": true,
+      "value": 1.8017213303633501,
+      "requirement": ">0.1 N"
+    },
+    {
+      "name": "mirror_yaw_sign_and_magnitude",
+      "passed": true,
+      "value": 0,
+      "requirement": "<1e-8 rad"
+    },
+    {
+      "name": "mirror_lateral_trajectory",
+      "passed": true,
+      "value": 0,
+      "requirement": "<1e-8 m"
+    },
+    {
+      "name": "greater_right_torque_turns_left",
+      "passed": true,
+      "value": 2.49160675372331,
+      "requirement": ">0.05 rad"
+    },
+    {
+      "name": "reverse_torque_eventually_moves_backward",
+      "passed": true,
+      "value": -1.34193405278568,
+      "requirement": "<-0.05 m/s"
+    },
+    {
+      "name": "reverse_caster_can_roll_backward",
+      "passed": true,
+      "value": -33.4333078134791,
+      "requirement": "<-1 rad/s"
+    },
+    {
+      "name": "reverse_sensitivity_uses_identical_torque_input",
+      "passed": true,
+      "value": 0,
+      "requirement": "=0 differences"
+    },
+    {
+      "name": "reverse_swivel_resistance_changes_response",
+      "passed": true,
+      "value": 3.1812583385971127,
+      "requirement": ">0.01 rad"
+    },
+    {
+      "name": "zero_torque_rest_simulation_stays_at_rest",
+      "passed": true,
+      "value": 0,
+      "requirement": "<1e-12 m"
+    },
+    {
+      "name": "passive_energy_never_increases",
+      "passed": true,
+      "value": -4.7287903375805E-15,
+      "requirement": "<1e-9 J per logged sample"
+    },
+    {
+      "name": "passive_energy_decays",
+      "passed": true,
+      "value": 1.6978673265636089E-14,
+      "requirement": "<0.1 initial energy"
+    },
+    {
+      "name": "force_free_energy_conserved",
+      "passed": true,
+      "value": 9.9920072216264089E-16,
+      "requirement": "<1e-8 J"
+    },
+    {
+      "name": "force_free_linear_and_angular_momentum_conserved",
+      "passed": true,
+      "value": 1.021405182655144E-14,
+      "requirement": "<1e-8 SI"
+    },
+    {
+      "name": "step_refinement_small_yaw_error",
+      "passed": true,
+      "value": 1.9689005981149421E-10,
+      "requirement": "<0.0001 rad"
+    },
+    {
+      "name": "step_refinement_converges",
+      "passed": true,
+      "value": 1.1449952097564164E-11,
+      "requirement": "<=0.3 coarse/fine error or 1e-10 rad"
+    },
+    {
+      "name": "step_refinement_trajectory",
+      "passed": true,
+      "value": 3.3377182028236282E-11,
+      "requirement": "<1e-4 m"
+    },
+    {
+      "name": "step_refinement_relative_caster_angle",
+      "passed": true,
+      "value": 6.4950045342015983E-11,
+      "requirement": "<1e-4 rad"
+    },
+    {
+      "name": "step_refinement_all_rotational_rates",
+      "passed": true,
+      "value": 1.0564412011859758E-7,
+      "requirement": "<1e-4 rad/s"
+    },
+    {
+      "name": "physical_influence_exceeds_step_error",
+      "passed": true,
+      "value": 8.8655298559620724E+9,
+      "requirement": ">100 times numerical step difference"
+    },
+    {
+      "name": "aligned_forward_finite",
+      "passed": true,
+      "value": 0,
+      "requirement": "=0 nonfinite"
+    },
+    {
+      "name": "misaligned_forward_finite",
+      "passed": true,
+      "value": 0,
+      "requirement": "=0 nonfinite"
+    },
+    {
+      "name": "mirror_misaligned_finite",
+      "passed": true,
+      "value": 0,
+      "requirement": "=0 nonfinite"
+    },
+    {
+      "name": "caster_contact_disabled_finite",
+      "passed": true,
+      "value": 0,
+      "requirement": "=0 nonfinite"
+    },
+    {
+      "name": "unequal_torque_finite",
+      "passed": true,
+      "value": 0,
+      "requirement": "=0 nonfinite"
+    },
+    {
+      "name": "reversal_perturbed_finite",
+      "passed": true,
+      "value": 0,
+      "requirement": "=0 nonfinite"
+    },
+    {
+      "name": "zero_rest_finite",
+      "passed": true,
+      "value": 0,
+      "requirement": "=0 nonfinite"
+    },
+    {
+      "name": "passive_coast_finite",
+      "passed": true,
+      "value": 0,
+      "requirement": "=0 nonfinite"
+    },
+    {
+      "name": "conservative_free_finite",
+      "passed": true,
+      "value": 0,
+      "requirement": "=0 nonfinite"
+    },
+    {
+      "name": "misaligned_fine_finite",
+      "passed": true,
+      "value": 0,
+      "requirement": "=0 nonfinite"
+    },
+    {
+      "name": "misaligned_finer_finite",
+      "passed": true,
+      "value": 0,
+      "requirement": "=0 nonfinite"
+    },
+    {
+      "name": "reversal_no_swivel_resistance_finite",
+      "passed": true,
+      "value": 0,
+      "requirement": "=0 nonfinite"
+    },
+    {
+      "name": "all_run_integrated_energy_balance",
+      "passed": true,
+      "value": 3.80194311810911E-7,
+      "requirement": "<1e-5 J"
+    },
+    {
+      "name": "all_run_dissipation_nonnegative",
+      "passed": true,
+      "value": 0,
+      "requirement": ">=-1e-10 W"
+    },
+    {
+      "name": "all_run_positive_support_loads",
+      "passed": true,
+      "value": 26.488763711274,
+      "requirement": ">5 N"
+    },
+    {
+      "name": "all_run_friction_circle_respected",
+      "passed": true,
+      "value": -6.0820052122272017,
+      "requirement": "<1e-8 N above limit"
+    },
+    {
+      "name": "all_run_shared_caster_patch_budget",
+      "passed": true,
+      "value": -0.07129241949517251,
+      "requirement": "<1e-8 N equivalent above limit"
+    }
+  ],
+  "scope": "Numerical/physical consistency of synthetic planar M2, not robot validation.",
+  "checked_at_utc": "2026-10-07T19:40:02Z"
+}

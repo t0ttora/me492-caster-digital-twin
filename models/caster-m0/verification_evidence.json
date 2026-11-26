@@ -1,0 +1,199 @@
+{
+  "all_passed": true,
+  "checks": [
+    {
+      "name": "straight_final_x",
+      "passed": true,
+      "error": 5.5067062021407764E-14,
+      "tolerance": 1E-7
+    },
+    {
+      "name": "straight_zero_yaw",
+      "passed": true,
+      "error": 0,
+      "tolerance": 1E-9
+    },
+    {
+      "name": "straight_aligned_caster",
+      "passed": true,
+      "error": 0,
+      "tolerance": 1E-9
+    },
+    {
+      "name": "drive_wheel_rate",
+      "passed": true,
+      "error": 3.5527136788005009E-15,
+      "tolerance": 1E-9
+    },
+    {
+      "name": "misaligned_exact_caster_solution",
+      "passed": true,
+      "error": 5.5866422599137877E-13,
+      "tolerance": 2E-7
+    },
+    {
+      "name": "no_caster_feedback_to_pose_M0",
+      "passed": true,
+      "error": 5.5067062021407764E-14,
+      "tolerance": 1E-7
+    },
+    {
+      "name": "circle_x",
+      "passed": true,
+      "error": 5.0126569561825818E-14,
+      "tolerance": 1E-7
+    },
+    {
+      "name": "circle_y",
+      "passed": true,
+      "error": 1.2212453270876722E-15,
+      "tolerance": 1E-7
+    },
+    {
+      "name": "circle_yaw",
+      "passed": true,
+      "error": 1.5010215292932116E-13,
+      "tolerance": 1E-8
+    },
+    {
+      "name": "body_relative_caster_rate",
+      "passed": true,
+      "error": 0,
+      "tolerance": 1E-9
+    },
+    {
+      "name": "turn_in_place_zero_translation",
+      "passed": true,
+      "error": 0,
+      "tolerance": 1E-9
+    },
+    {
+      "name": "turn_in_place_yaw",
+      "passed": true,
+      "error": 1.6009416015094757E-13,
+      "tolerance": 1E-8
+    },
+    {
+      "name": "reversal_signed_distance",
+      "passed": true,
+      "error": 5.5067062021407764E-14,
+      "tolerance": 0.0001
+    },
+    {
+      "name": "reversal_caster_solution",
+      "passed": true,
+      "error": 1.7763568394002505E-15,
+      "tolerance": 2E-6
+    },
+    {
+      "name": "reversal_documented_initial_perturbation",
+      "passed": true,
+      "error": 3.4694469519536142E-18,
+      "tolerance": 1E-12
+    },
+    {
+      "name": "reverse_unstable_equilibrium_is_not_hidden",
+      "passed": true,
+      "error": 0,
+      "tolerance": 1E-9
+    },
+    {
+      "name": "same_commands_different_initial_states",
+      "passed": true,
+      "error": 0,
+      "tolerance": 0
+    },
+    {
+      "name": "strictly_increasing_command_clock",
+      "passed": true,
+      "error": 0,
+      "tolerance": 0
+    },
+    {
+      "name": "same_result_clock_for_pose_comparison",
+      "passed": true,
+      "error": 0,
+      "tolerance": 0
+    },
+    {
+      "name": "entire_body_trajectory_independent_of_caster_M0",
+      "passed": true,
+      "error": 0,
+      "tolerance": 1E-12
+    },
+    {
+      "name": "straight_aligned_finite_states",
+      "passed": true,
+      "error": 0,
+      "tolerance": 0
+    },
+    {
+      "name": "straight_aligned_increasing_result_clock",
+      "passed": true,
+      "error": 0,
+      "tolerance": 0
+    },
+    {
+      "name": "straight_misaligned_finite_states",
+      "passed": true,
+      "error": 0,
+      "tolerance": 0
+    },
+    {
+      "name": "straight_misaligned_increasing_result_clock",
+      "passed": true,
+      "error": 0,
+      "tolerance": 0
+    },
+    {
+      "name": "reversal_perturbed_finite_states",
+      "passed": true,
+      "error": 0,
+      "tolerance": 0
+    },
+    {
+      "name": "reversal_perturbed_increasing_result_clock",
+      "passed": true,
+      "error": 0,
+      "tolerance": 0
+    },
+    {
+      "name": "reversal_exact_aligned_finite_states",
+      "passed": true,
+      "error": 0,
+      "tolerance": 0
+    },
+    {
+      "name": "reversal_exact_aligned_increasing_result_clock",
+      "passed": true,
+      "error": 0,
+      "tolerance": 0
+    },
+    {
+      "name": "turn_in_place_finite_states",
+      "passed": true,
+      "error": 0,
+      "tolerance": 0
+    },
+    {
+      "name": "turn_in_place_increasing_result_clock",
+      "passed": true,
+      "error": 0,
+      "tolerance": 0
+    },
+    {
+      "name": "curved_turn_finite_states",
+      "passed": true,
+      "error": 0,
+      "tolerance": 0
+    },
+    {
+      "name": "curved_turn_increasing_result_clock",
+      "passed": true,
+      "error": 0,
+      "tolerance": 0
+    }
+  ],
+  "scope": "Numerical verification of M0 kinematics only. No physical calibration or H1 validation.",
+  "checked_at_utc": "2026-10-07T16:42:06Z"
+}

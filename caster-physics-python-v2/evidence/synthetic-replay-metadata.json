@@ -1,0 +1,28 @@
+{
+  "run_id": "synthetic-arc-turn",
+  "session_id": "synthetic-development",
+  "split": "development",
+  "data_kind": "synthetic",
+  "surface_id": "reference_synthetic",
+  "robot_revision": "v1-synthetic",
+  "pose_source": "synthetic_m2_export",
+  "pose_frame": "drive_axle_midpoint_world_SI",
+  "torque_units": "axle_Nm",
+  "torque_source": "synthetic_servo_export",
+  "initial_state": [
+    -0.08,
+    0.0,
+    0.0,
+    0.7853981633974483,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "parameter_provenance": "V1 provisional synthetic defaults"
+}

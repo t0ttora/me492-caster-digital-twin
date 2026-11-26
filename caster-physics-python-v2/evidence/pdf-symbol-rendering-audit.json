@@ -1,0 +1,13 @@
+{
+  "pages": 3,
+  "inline_and_display_math_rendered_with_STIX": true,
+  "image_counts_per_page": [
+    25,
+    27,
+    20
+  ],
+  "no_raw_math_delimiters_underscores_or_replacement_characters": true,
+  "sha256": "5975d55401b0123424b7b0723fcdc9b471d86152e3b511cbcd5f0a492954571d",
+  "all_pages_visually_reviewed_at_1200px": true,
+  "reference_style": "short arrow callouts"
+}

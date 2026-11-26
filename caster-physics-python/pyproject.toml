@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "arche-caster-physics"
+version = "0.1.0"
+description = "Readable planar caster dynamics, checked against recorded MATLAB M2 runs"
+requires-python = ">=3.10"
+dependencies = ["numpy>=2,<3", "matplotlib>=3.8,<4"]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<10", "pytest-cov>=5,<8"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["caster_physics"]
+
+[tool.coverage.report]
+show_missing = true

@@ -1,0 +1,62 @@
+{
+  "model": "Me492CasterM2V1",
+  "execution_host": "Windows",
+  "matlab_version": "26.2.0.3386108 (R2026b)",
+  "final_batch_command": "verify_m2('kernel'); run_m2; verify_m2; export_m2_results;",
+  "final_batch_exit_code": 0,
+  "execution_log": "execution_transcript_v1.txt",
+  "workflow_batch_exit_code": 0,
+  "workflow_execution_log": "workflow_transcript_v1_final.txt",
+  "scenario_count": 12,
+  "verification_passed": 60,
+  "verification_total": 60,
+  "kernel_passed": 17,
+  "kernel_total": 17,
+  "workflow_passed": 13,
+  "workflow_total": 13,
+  "parameter_status": "provisional_synthetic",
+  "real_robot_validated": false,
+  "physical_states": 11,
+  "energy_integrals": 2,
+  "integrated_states": 13,
+  "m0_and_m2_v0_files_preserved": true,
+  "original_files_checked": 115,
+  "default_results_numeric_identical_to_v0": true,
+  "csv_pose_origin": "drive_axle_midpoint_projected_to_ground",
+  "integrator_translation_origin": "body_lumped_COM",
+  "command_sample_dt_s": 0.01,
+  "result_sample_dt_s": 0.01,
+  "workflow_sample_test": {
+    "command_dt_s": 0.01,
+    "result_dt_s": 0.02,
+    "command_rows": 401,
+    "result_rows": 201
+  },
+  "mass_kg": 16.6,
+  "body_com_m": [
+    -0.08,
+    0,
+    0.12
+  ],
+  "max_caster_angle_yaw_influence_rad": 1.74553470360096,
+  "max_caster_angle_trajectory_influence_m": 0.4962090906721256,
+  "max_tangential_contact_ablation_yaw_difference_rad": 2.1629219045354393,
+  "max_caster_force_N": 1.8017213303633501,
+  "solver_steps_s": [
+    0.0005,
+    0.00025,
+    0.000125
+  ],
+  "max_h_vs_h2_yaw_difference_rad": 1.968900598114942e-10,
+  "max_energy_balance_error_J": 3.80194311810911e-07,
+  "conservative_energy_error_J": 9.992007221626409e-16,
+  "conservative_momentum_error_SI": 1.021405182655144e-14,
+  "limits": [
+    "planar fixed height/roll/pitch",
+    "quasistatic normal loads without acceleration transfer",
+    "regularized slip/bore/bearing friction without exact stiction",
+    "lumped caster mass and inertias",
+    "open-loop wheel torque input; no motor electrical or robot speed controller"
+  ],
+  "checked_at_utc": "2026-10-07T19:41:13.776164+00:00"
+}

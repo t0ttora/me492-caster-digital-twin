@@ -1,0 +1,20 @@
+{
+  "schema_version": "me492-caster-v0.1",
+  "parameter_status": "provisional_synthetic",
+  "units": "SI",
+  "body_origin": "drive_axle_midpoint_projected_to_ground",
+  "chassis_size_m": [0.50, 0.32, 0.08],
+  "chassis_center_m": [0.0, 0.0, 0.14],
+  "drive_radius_m": 0.075,
+  "drive_width_m": 0.030,
+  "drive_track_m": 0.380,
+  "caster_radius_m": 0.040,
+  "caster_width_m": 0.020,
+  "caster_trail_m": 0.050,
+  "caster_pivot_m": [-0.180, 0.0, 0.100],
+  "fork_plate_thickness_m": 0.006,
+  "fork_yoke_gap_m": 0.026,
+  "fork_stem_radius_m": 0.008,
+  "command_sample_dt_s": 0.020,
+  "solver_step_s": 0.001
+}

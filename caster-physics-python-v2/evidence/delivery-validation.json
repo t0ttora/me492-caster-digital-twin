@@ -1,0 +1,13 @@
+{
+  "v1_preservation": true,
+  "study_all_checks_passed": true,
+  "study_has_40_runs": true,
+  "csv_hashes_match": true,
+  "study_source_hashes_match": true,
+  "all_40_figures_present": true,
+  "synthetic_torque_replay_exact": true,
+  "archive_all_60_hashes_match": true,
+  "v1_tests_no_failures": true,
+  "v2_tests_no_failures": true,
+  "all_passed": true
+}

@@ -1,0 +1,72 @@
+{
+  "all_passed": true,
+  "checks": [
+    {
+      "name": "clean_models_folder_direct_simulation",
+      "passed": true,
+      "value": 8001
+    },
+    {
+      "name": "direct_simulation_has_13_states",
+      "passed": true,
+      "value": 13
+    },
+    {
+      "name": "runner_keeps_open_saved_model",
+      "passed": true,
+      "value": 1
+    },
+    {
+      "name": "runner_preserves_saved_manual_description",
+      "passed": true,
+      "value": "Saved manual edit is preserved by replay"
+    },
+    {
+      "name": "runner_preserves_source_slx_bytes",
+      "passed": true,
+      "value": "17c1f5fec846a611ab0628cb97ec1da1"
+    },
+    {
+      "name": "commands_use_10ms_grid",
+      "passed": true,
+      "value": 401
+    },
+    {
+      "name": "results_use_independent_20ms_grid",
+      "passed": true,
+      "value": 201
+    },
+    {
+      "name": "runner_rejects_unsaved_edits",
+      "passed": true,
+      "value": 1
+    },
+    {
+      "name": "temporary_replay_copy_cleaned",
+      "passed": true,
+      "value": 0
+    },
+    {
+      "name": "builder_keeps_same_named_open_baseline",
+      "passed": true,
+      "value": 1
+    },
+    {
+      "name": "builder_preserves_unsaved_baseline_edit",
+      "passed": true,
+      "value": "Unsaved baseline edit must survive build"
+    },
+    {
+      "name": "builder_preserves_baseline_slx_bytes",
+      "passed": true,
+      "value": "5014e46dbb1e2c597311b588534f84a4"
+    },
+    {
+      "name": "rebuilt_model_compiles_and_simulates",
+      "passed": true,
+      "value": 13
+    }
+  ],
+  "test_package": "<windows-home>\\Documents\\Codex\\2026-10-03\\https-huggingface-co-strandsagents-strands-decider\\outputs\\caster_model_m2_v1\\workflow_tests\\tpb06298a4_9fe6_405b_b065_a563afeac52d",
+  "scope": "Workflow and synthetic model execution; not robot validation."
+}

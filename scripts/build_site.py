@@ -19,7 +19,9 @@ OUT = ROOT / '_site'
 REPO = 't0ttora/me492-caster-digital-twin'
 GH = f'https://github.com/{REPO}'
 PAGES = [('index', 'Overview'), ('progress', 'Progress'), ('vision', 'Vision'), ('manifesto', 'Manifesto'), ('tasks', 'Tasks'), ('roadmap', 'Roadmap'), ('decisions', 'Decisions'), ('library', 'Library'), ('about', 'About')]
-REPORTS = [('ME492_Final_Roadmap_and_Arche_Visit_EN', 'Execution baseline & Arche visit'), ('ME492_Timetable_EN', 'Semester timetable')]
+REPORTS = [('ME492_Final_Roadmap_and_Arche_Visit_EN', 'Execution baseline & Arche visit'), ('ME492_Timetable_EN', 'Semester timetable'),
+           ('Arche_Academic_Report_Typeset_EN_2026-11-16', 'Academic simulation progress report'),
+           ('Arche_V2_Controller_Design_EN', 'Python V2 controller calculations')]
 STATUS = {'planned': 'Planned', 'in-progress': 'In progress', 'blocked': 'Blocked', 'verified': 'Verified', 'closed': 'Closed · unverified', 'unclassified': 'Unclassified', 'conflicting': 'Conflicting labels'}
 
 

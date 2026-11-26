@@ -1,0 +1,210 @@
+[
+  {
+    "run_id": "reference_synthetic__straight__baseline__nominal",
+    "completion": null,
+    "end_ex_m": 0.0001242612588971165,
+    "end_ey_m": 0.011226906415043406,
+    "end_yaw_error_rad": 0.04925723917760795,
+    "final_gates": {
+      "position": true,
+      "yaw": true,
+      "speed": true,
+      "yaw_rate": true
+    }
+  },
+  {
+    "run_id": "reference_synthetic__straight__smooth__nominal",
+    "completion": 3.8000000000000003,
+    "end_ex_m": 0.005029598671412279,
+    "end_ey_m": 0.010903064316275803,
+    "end_yaw_error_rad": 0.03426862895282854,
+    "final_gates": {
+      "position": true,
+      "yaw": true,
+      "speed": true,
+      "yaw_rate": true
+    }
+  },
+  {
+    "run_id": "reference_synthetic__arc_turn__baseline__nominal",
+    "completion": null,
+    "end_ex_m": 0.00431631143160806,
+    "end_ey_m": -0.028367666244945303,
+    "end_yaw_error_rad": -0.11753743659732474,
+    "final_gates": {
+      "position": false,
+      "yaw": false,
+      "speed": true,
+      "yaw_rate": false
+    }
+  },
+  {
+    "run_id": "reference_synthetic__arc_turn__smooth__nominal",
+    "completion": null,
+    "end_ex_m": 0.009780249145243775,
+    "end_ey_m": -0.0271858425839903,
+    "end_yaw_error_rad": -0.061143514400444854,
+    "final_gates": {
+      "position": false,
+      "yaw": false,
+      "speed": true,
+      "yaw_rate": true
+    }
+  },
+  {
+    "run_id": "reference_synthetic__reversal__baseline__nominal",
+    "completion": 4.5600000000000005,
+    "end_ex_m": 0.0038032904599828526,
+    "end_ey_m": 0.005272950180021275,
+    "end_yaw_error_rad": -0.009074822853521897,
+    "final_gates": {
+      "position": true,
+      "yaw": true,
+      "speed": true,
+      "yaw_rate": true
+    }
+  },
+  {
+    "run_id": "reference_synthetic__reversal__smooth__nominal",
+    "completion": 7.5,
+    "end_ex_m": -0.0017701919589624081,
+    "end_ey_m": 0.00099234499642819,
+    "end_yaw_error_rad": 0.022993288896831145,
+    "final_gates": {
+      "position": true,
+      "yaw": true,
+      "speed": true,
+      "yaw_rate": true
+    }
+  },
+  {
+    "run_id": "reference_synthetic__s_turn__baseline__nominal",
+    "completion": null,
+    "end_ex_m": 0.01733642421666431,
+    "end_ey_m": 0.003064169384667177,
+    "end_yaw_error_rad": 0.12478419451617423,
+    "final_gates": {
+      "position": true,
+      "yaw": false,
+      "speed": true,
+      "yaw_rate": false
+    }
+  },
+  {
+    "run_id": "reference_synthetic__s_turn__smooth__nominal",
+    "completion": null,
+    "end_ex_m": 0.014959622085211125,
+    "end_ey_m": 0.014426458330130955,
+    "end_yaw_error_rad": 0.06372961011851898,
+    "final_gates": {
+      "position": false,
+      "yaw": false,
+      "speed": true,
+      "yaw_rate": true
+    }
+  },
+  {
+    "run_id": "high_drag_synthetic__straight__baseline__nominal",
+    "completion": null,
+    "end_ex_m": 0.027319069168267894,
+    "end_ey_m": 0.00398933748671028,
+    "end_yaw_error_rad": 0.03067785586176996,
+    "final_gates": {
+      "position": false,
+      "yaw": true,
+      "speed": true,
+      "yaw_rate": true
+    }
+  },
+  {
+    "run_id": "high_drag_synthetic__straight__smooth__nominal",
+    "completion": null,
+    "end_ex_m": 0.030542149867256934,
+    "end_ey_m": 0.0034823330631775793,
+    "end_yaw_error_rad": 0.02078683337472358,
+    "final_gates": {
+      "position": false,
+      "yaw": true,
+      "speed": true,
+      "yaw_rate": true
+    }
+  },
+  {
+    "run_id": "high_drag_synthetic__arc_turn__baseline__nominal",
+    "completion": null,
+    "end_ex_m": 0.02074482025225214,
+    "end_ey_m": -0.03786055746119535,
+    "end_yaw_error_rad": -0.07931901387283836,
+    "final_gates": {
+      "position": false,
+      "yaw": false,
+      "speed": true,
+      "yaw_rate": true
+    }
+  },
+  {
+    "run_id": "high_drag_synthetic__arc_turn__smooth__nominal",
+    "completion": null,
+    "end_ex_m": 0.02602815894080051,
+    "end_ey_m": -0.0366985390454421,
+    "end_yaw_error_rad": -0.03157826833623467,
+    "final_gates": {
+      "position": false,
+      "yaw": true,
+      "speed": true,
+      "yaw_rate": true
+    }
+  },
+  {
+    "run_id": "high_drag_synthetic__reversal__baseline__nominal",
+    "completion": null,
+    "end_ex_m": -0.02639933329842306,
+    "end_ey_m": 0.005153267458394764,
+    "end_yaw_error_rad": -0.02815829880561039,
+    "final_gates": {
+      "position": false,
+      "yaw": true,
+      "speed": true,
+      "yaw_rate": true
+    }
+  },
+  {
+    "run_id": "high_drag_synthetic__reversal__smooth__nominal",
+    "completion": null,
+    "end_ex_m": -0.028402303054251024,
+    "end_ey_m": 0.0051597784224910416,
+    "end_yaw_error_rad": -0.01403166564490679,
+    "final_gates": {
+      "position": false,
+      "yaw": true,
+      "speed": true,
+      "yaw_rate": true
+    }
+  },
+  {
+    "run_id": "high_drag_synthetic__s_turn__baseline__nominal",
+    "completion": null,
+    "end_ex_m": 0.03042862768206108,
+    "end_ey_m": 0.019855506717313592,
+    "end_yaw_error_rad": 0.08510348515214085,
+    "final_gates": {
+      "position": false,
+      "yaw": false,
+      "speed": true,
+      "yaw_rate": true
+    }
+  },
+  {
+    "run_id": "high_drag_synthetic__s_turn__smooth__nominal",
+    "completion": null,
+    "end_ex_m": 0.031096419215802182,
+    "end_ey_m": 0.026455575762737563,
+    "end_yaw_error_rad": 0.03561797023230919,
+    "final_gates": {
+      "position": false,
+      "yaw": true,
+      "speed": true,
+      "yaw_rate": true
+    }
+  }
+]

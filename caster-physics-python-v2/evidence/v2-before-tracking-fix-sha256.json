@@ -1,0 +1,10 @@
+{
+  "README.md": "74122210ec6cbe073f9f6617978dd8dd346b93e102e34432e709a1a46129e696",
+  "docs/implementation-status.md": "f9fd5ea1a1d0f4345c814302fef8537a48f8391ac790befacddd373e8aa4ab92",
+  "docs/recording-contract.md": "27dc5dd53cac2683269ea2dab5e32068859de6039d1a04769ef1fe2b1069f23e",
+  "docs/validation-and-scope.md": "8a7576f9159c398e9ae4e45ebf74707a3275e85aea27e7719e2b896cc7211509",
+  "evaluate_recording.py": "6a4cbf35c0c18ebb1bcf2f7c75034951840d1a0d74795c18c65ad040469e545c",
+  "run_study.py": "fc48bac2fbad948764e58d91506b3af3be51e511d7390f66ef7fb3809ada31e9",
+  "tests/test_v2.py": "36cdfd4b924a99f6e226ec15e3f3143da0fdd764dacd8737b1445dc5e0433d9c",
+  "twin.py": "3bbfd680c6c69ffdb5dfb379de575a7e758ae7dbdf19138793b6c714088e59ce"
+}

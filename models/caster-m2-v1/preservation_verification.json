@@ -1,0 +1,11 @@
+{
+  "checked_at_utc": "2026-10-07T19:41:13.518152+00:00",
+  "original_files_checked": 115,
+  "all_original_files_unchanged": true,
+  "backup_folder": "<windows-home>\\Documents\\Codex\\2026-10-03\\https-huggingface-co-strandsagents-strands-decider\\outputs\\preservation_20261007_221034",
+  "m0_slx_sha256": "cfa28da0dfdd4f7acd1e54ba5614ff14b8c48be72f5bbe85d5f3de2a2c45fc9f",
+  "m2_v0_slx_sha256": "7728d8e99f402d15731fa0c40eac7dc26497cf17902ea75f6260a91d0c3812df",
+  "canonical_geometry_sha256": "4fa1974851c566698eef117e09e8578c09d043d7c9a9269fada0d721301c2f77",
+  "geometry_matches_v0": true,
+  "dynamics_parameters_match_v0": true
+}

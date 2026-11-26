@@ -1,0 +1,56 @@
+{
+  "v1_preservation": {
+    "passed": true,
+    "checked_files": 60
+  },
+  "all_study_checks_passed": true,
+  "forty_runs_completed": true,
+  "source_hashes_match": true,
+  "all_csv_hashes_match": true,
+  "old_v2_archive_intact": true,
+  "v1_tests": {
+    "count": 54,
+    "failures": 0
+  },
+  "v2.1_tests": {
+    "count": 31,
+    "failures": 0
+  },
+  "closed_loop_refinement": {
+    "case": "high_drag_synthetic/arc_turn/baseline/nominal",
+    "coarse_step_s": 0.0005,
+    "fine_step_s": 0.00025,
+    "max_errors": {
+      "x_m": 3.555510816322105e-10,
+      "y_m": 1.8443332971962434e-10,
+      "yaw_rad": 5.570769623375327e-09,
+      "caster_angle_body_rad": 8.3558573393816e-09
+    },
+    "fine_completion_time_s": 4.45,
+    "all_passed": true
+  },
+  "comparison": {
+    "old_nominal_completion_count": 3,
+    "old_under_new_rule_count": 3,
+    "new_original_window_count": 8,
+    "new_extended_window_count": 16
+  },
+  "all_passed": true,
+  "pdf": {
+    "path": "/Users/tora/Documents/ChatGPT/arche/caster-physics-python-v2/output/pdf/Arche_V2_Matematiksel_Turetim_ve_Dogrulama_TR.pdf",
+    "sha256": "63f769b82cfd4288a816ed4da4dda65cb6d720c9dd7b94fc7a32c8f4966d4323",
+    "pages": 20,
+    "equation_count": 69,
+    "all_20_pages_visually_reviewed": true,
+    "final_render_matches_reviewed_images": true,
+    "page_geometry_checks_passed": true
+  },
+  "hand_example_checks": {
+    "tracking_numeric_literals_passed": true,
+    "nominal_discrete_PI_poles": [
+      0.7102429763775147,
+      0.9386459125113742
+    ],
+    "nominal_discrete_PI_schur_stable": true
+  }
+}

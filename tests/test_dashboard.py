@@ -37,7 +37,10 @@ class DashboardTests(unittest.TestCase):
     def test_links_and_public_artifact(self):
         build_site.validate_links()
         files = [p for p in (ROOT / '_site').rglob('*') if p.is_file()]
-        self.assertEqual(len(list((ROOT / '_site/reports').glob('*.pdf'))), 2)
+        self.assertEqual(
+            {path.stem for path in (ROOT / '_site/reports').glob('*.pdf')},
+            {name for name, _ in build_site.REPORTS},
+        )
         self.assertFalse(any('.git' in p.parts or p.suffix in {'.py', '.md', '.env'} for p in files))
         self.assertTrue((ROOT / '_site/.nojekyll').exists())
 

@@ -1,5 +1,9 @@
 # Progress history
 
+[27 November 2026 - MATLAB, Simscape and Python simulation update](2026-11-27-simulation-and-source.md)
+
+[7 October 2026 - pre-visit modelling direction and Friday roadmap](2026-10-07-pre-visit-roadmap.md)
+
 [1 October 2026 - separate research pages and removal of illustrative visuals](2026-10-01-multipage.md)
 
 [30 September 2026 - research website publication and UI verification](2026-09-30-website.md)

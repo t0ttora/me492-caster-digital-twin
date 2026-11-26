@@ -1,0 +1,184 @@
+{
+  "old_nominal_completion_count": 3,
+  "old_under_new_rule_count": 3,
+  "new_original_window_count": 8,
+  "new_extended_window_count": 16,
+  "cases": [
+    {
+      "run_id": "reference_synthetic__straight__baseline__nominal",
+      "old_completion_reported_s": null,
+      "old_completion_under_stricter_planar_speed_rule_s": null,
+      "new_completion_in_original_window_s": null,
+      "new_completion_extended_s": 3.0700000000000003,
+      "old_position_rmse_on_original_window_m": 0.04233611609632618,
+      "new_position_rmse_on_original_window_m": 0.013961637405582388,
+      "new_final_position_error_m": 0.00010868289032388756,
+      "new_final_yaw_error_rad": 7.254945927066815e-05
+    },
+    {
+      "run_id": "reference_synthetic__straight__smooth__nominal",
+      "old_completion_reported_s": 3.8000000000000003,
+      "old_completion_under_stricter_planar_speed_rule_s": 3.8000000000000003,
+      "new_completion_in_original_window_s": 3.75,
+      "new_completion_extended_s": 3.75,
+      "old_position_rmse_on_original_window_m": 0.03638802551525548,
+      "new_position_rmse_on_original_window_m": 0.005235681415457496,
+      "new_final_position_error_m": 0.0008337850770788361,
+      "new_final_yaw_error_rad": 8.715764590308266e-06
+    },
+    {
+      "run_id": "reference_synthetic__arc_turn__baseline__nominal",
+      "old_completion_reported_s": null,
+      "old_completion_under_stricter_planar_speed_rule_s": null,
+      "new_completion_in_original_window_s": null,
+      "new_completion_extended_s": 3.65,
+      "old_position_rmse_on_original_window_m": 0.04243575921154275,
+      "new_position_rmse_on_original_window_m": 0.016658054192599234,
+      "new_final_position_error_m": 0.007077632683325211,
+      "new_final_yaw_error_rad": 4.436550143727125e-05
+    },
+    {
+      "run_id": "reference_synthetic__arc_turn__smooth__nominal",
+      "old_completion_reported_s": null,
+      "old_completion_under_stricter_planar_speed_rule_s": null,
+      "new_completion_in_original_window_s": 3.75,
+      "new_completion_extended_s": 3.75,
+      "old_position_rmse_on_original_window_m": 0.03667476677501908,
+      "new_position_rmse_on_original_window_m": 0.0054002762565467585,
+      "new_final_position_error_m": 0.002026261146035982,
+      "new_final_yaw_error_rad": 1.6369359124634997e-05
+    },
+    {
+      "run_id": "reference_synthetic__reversal__baseline__nominal",
+      "old_completion_reported_s": 4.5600000000000005,
+      "old_completion_under_stricter_planar_speed_rule_s": 4.5600000000000005,
+      "new_completion_in_original_window_s": null,
+      "new_completion_extended_s": 6.43,
+      "old_position_rmse_on_original_window_m": 0.04318982336462593,
+      "new_position_rmse_on_original_window_m": 0.023201790758759548,
+      "new_final_position_error_m": 0.00023432599275693432,
+      "new_final_yaw_error_rad": 0.00014186025327800892
+    },
+    {
+      "run_id": "reference_synthetic__reversal__smooth__nominal",
+      "old_completion_reported_s": 7.5,
+      "old_completion_under_stricter_planar_speed_rule_s": 7.5,
+      "new_completion_in_original_window_s": 7.5,
+      "new_completion_extended_s": 7.5,
+      "old_position_rmse_on_original_window_m": 0.034566662711514776,
+      "new_position_rmse_on_original_window_m": 0.0051806174224795516,
+      "new_final_position_error_m": 0.003338237059648483,
+      "new_final_yaw_error_rad": 9.142836809470545e-06
+    },
+    {
+      "run_id": "reference_synthetic__s_turn__baseline__nominal",
+      "old_completion_reported_s": null,
+      "old_completion_under_stricter_planar_speed_rule_s": null,
+      "new_completion_in_original_window_s": null,
+      "new_completion_extended_s": 5.83,
+      "old_position_rmse_on_original_window_m": 0.051805459619929245,
+      "new_position_rmse_on_original_window_m": 0.014460047336580474,
+      "new_final_position_error_m": 0.002656288676972143,
+      "new_final_yaw_error_rad": 0.00013880553873403016
+    },
+    {
+      "run_id": "reference_synthetic__s_turn__smooth__nominal",
+      "old_completion_reported_s": null,
+      "old_completion_under_stricter_planar_speed_rule_s": null,
+      "new_completion_in_original_window_s": 7.5,
+      "new_completion_extended_s": 7.5,
+      "old_position_rmse_on_original_window_m": 0.042148994255720516,
+      "new_position_rmse_on_original_window_m": 0.005692551857731289,
+      "new_final_position_error_m": 0.0014215912349967391,
+      "new_final_yaw_error_rad": 1.6349246449373776e-05
+    },
+    {
+      "run_id": "high_drag_synthetic__straight__baseline__nominal",
+      "old_completion_reported_s": null,
+      "old_completion_under_stricter_planar_speed_rule_s": null,
+      "new_completion_in_original_window_s": null,
+      "new_completion_extended_s": 3.04,
+      "old_position_rmse_on_original_window_m": 0.055720262380864034,
+      "new_position_rmse_on_original_window_m": 0.014184671828204834,
+      "new_final_position_error_m": 0.006839318779171402,
+      "new_final_yaw_error_rad": 0.00016295818809122046
+    },
+    {
+      "run_id": "high_drag_synthetic__straight__smooth__nominal",
+      "old_completion_reported_s": null,
+      "old_completion_under_stricter_planar_speed_rule_s": null,
+      "new_completion_in_original_window_s": 3.75,
+      "new_completion_extended_s": 3.75,
+      "old_position_rmse_on_original_window_m": 0.0501122907909891,
+      "new_position_rmse_on_original_window_m": 0.0058827737006532325,
+      "new_final_position_error_m": 0.0033130473436700763,
+      "new_final_yaw_error_rad": 7.924146523486036e-07
+    },
+    {
+      "run_id": "high_drag_synthetic__arc_turn__baseline__nominal",
+      "old_completion_reported_s": null,
+      "old_completion_under_stricter_planar_speed_rule_s": null,
+      "new_completion_in_original_window_s": null,
+      "new_completion_extended_s": 4.45,
+      "old_position_rmse_on_original_window_m": 0.05373903726307754,
+      "new_position_rmse_on_original_window_m": 0.01749495387254774,
+      "new_final_position_error_m": 0.0038189827644605975,
+      "new_final_yaw_error_rad": 0.0007459774111280293
+    },
+    {
+      "run_id": "high_drag_synthetic__arc_turn__smooth__nominal",
+      "old_completion_reported_s": null,
+      "old_completion_under_stricter_planar_speed_rule_s": null,
+      "new_completion_in_original_window_s": 3.75,
+      "new_completion_extended_s": 3.75,
+      "old_position_rmse_on_original_window_m": 0.048407694767394004,
+      "new_position_rmse_on_original_window_m": 0.0059587707028053785,
+      "new_final_position_error_m": 0.005181667751440285,
+      "new_final_yaw_error_rad": 6.176589841588865e-06
+    },
+    {
+      "run_id": "high_drag_synthetic__reversal__baseline__nominal",
+      "old_completion_reported_s": null,
+      "old_completion_under_stricter_planar_speed_rule_s": null,
+      "new_completion_in_original_window_s": null,
+      "new_completion_extended_s": 5.79,
+      "old_position_rmse_on_original_window_m": 0.053107941574753646,
+      "new_position_rmse_on_original_window_m": 0.022187585884621403,
+      "new_final_position_error_m": 0.00218982227962985,
+      "new_final_yaw_error_rad": 0.000371382402160766
+    },
+    {
+      "run_id": "high_drag_synthetic__reversal__smooth__nominal",
+      "old_completion_reported_s": null,
+      "old_completion_under_stricter_planar_speed_rule_s": null,
+      "new_completion_in_original_window_s": 7.5,
+      "new_completion_extended_s": 7.5,
+      "old_position_rmse_on_original_window_m": 0.04798676669334026,
+      "new_position_rmse_on_original_window_m": 0.006304454035882882,
+      "new_final_position_error_m": 0.004548251285550066,
+      "new_final_yaw_error_rad": 7.334534376586482e-06
+    },
+    {
+      "run_id": "high_drag_synthetic__s_turn__baseline__nominal",
+      "old_completion_reported_s": null,
+      "old_completion_under_stricter_planar_speed_rule_s": null,
+      "new_completion_in_original_window_s": null,
+      "new_completion_extended_s": 5.8100000000000005,
+      "old_position_rmse_on_original_window_m": 0.06532868833756143,
+      "new_position_rmse_on_original_window_m": 0.01538599052539525,
+      "new_final_position_error_m": 0.0014933807206566694,
+      "new_final_yaw_error_rad": 0.0004630693110972132
+    },
+    {
+      "run_id": "high_drag_synthetic__s_turn__smooth__nominal",
+      "old_completion_reported_s": null,
+      "old_completion_under_stricter_planar_speed_rule_s": null,
+      "new_completion_in_original_window_s": 7.5,
+      "new_completion_extended_s": 7.5,
+      "old_position_rmse_on_original_window_m": 0.057629695120582726,
+      "new_position_rmse_on_original_window_m": 0.00579613162795901,
+      "new_final_position_error_m": 0.004321272725121199,
+      "new_final_yaw_error_rad": 5.910741854799297e-07
+    }
+  ]
+}

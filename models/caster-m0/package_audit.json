@@ -1,0 +1,45 @@
+{
+  "checked_at_utc": "2026-10-07T16:43:13.4601989Z",
+  "package_root": "<windows-home>\\Documents\\Codex\\2026-10-03\\https-huggingface-co-strandsagents-strands-decider\\outputs\\caster_model_v0",
+  "all_passed": true,
+  "numerical_checks": 32,
+  "parameters_sha256": "4FA1974851C566698EEF117E09E8578C09D043D7C9A9269FADA0D721301C2F77",
+  "runs": [
+    {
+      "scenario_id": "straight_aligned",
+      "command_rows": 201,
+      "state_rows": 201,
+      "plot_exists": true
+    },
+    {
+      "scenario_id": "straight_misaligned",
+      "command_rows": 201,
+      "state_rows": 201,
+      "plot_exists": true
+    },
+    {
+      "scenario_id": "reversal_perturbed",
+      "command_rows": 401,
+      "state_rows": 401,
+      "plot_exists": true
+    },
+    {
+      "scenario_id": "reversal_exact_aligned",
+      "command_rows": 401,
+      "state_rows": 401,
+      "plot_exists": true
+    },
+    {
+      "scenario_id": "turn_in_place",
+      "command_rows": 201,
+      "state_rows": 201,
+      "plot_exists": true
+    },
+    {
+      "scenario_id": "curved_turn",
+      "command_rows": 251,
+      "state_rows": 251,
+      "plot_exists": true
+    }
+  ]
+}

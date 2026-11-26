@@ -1,0 +1,23 @@
+{
+  "caster-m2-v0/build_m2.m": "321101f979171ae9fab1bcdf243cea2685f5f4b0545ae6eff47f3a0bdb96deae",
+  "caster-m2-v0/run_m2.m": "9f79afec0a1e91f520bda1829e0c817d724c8d6ea6c48f257d1ca6b8a253433e",
+  "caster-m2-v0/verify_m2.m": "81c8052304f72018aed76a7330af6bec0498b62d8f024e40828762ef4508d297",
+  "caster-m2-v0/m2_contact.m": "e34766c2b5b0299efcdb58b91cd88b7e1557b88385727e326f82ef99d273705a",
+  "caster-m2-v0/m2_dynamics.m": "82afa4151ffa9b2f8646a70c74376599d1951a00ef4de4ed1cb71457cfb6b459",
+  "caster-m2-v0/m2_geometry.m": "e7d959bc5b683ee2ef6d382cf063db327558ebbefddf437d1deb5825536e0263",
+  "caster-m2-v0/m2_mass_terms.m": "985f1a4edcc5c6560d0f16213b03223ec242f954cb39db50486a490ab868abca",
+  "caster-m2-v0/m2_load_parameters.m": "14ba8bc3c7722a9c358c8fd0fb586e09e7d744ee954b4315782d0afca6b091a8",
+  "caster-m2-v0/geometry_si.json": "0d41adbdf06a6380d60109cd130ed1f3dcb60f2de0493774da0e325c96607f0c",
+  "caster-m2-v0/dynamics_si.json": "09f5613ee366005291011067a2ba2de33453bb1851f11a571899dec436ed8ac0",
+  "caster-m2-v0/README.md": "20999a9636c2aa7f304998c99993da61bb2b77081f49b8f67e5c3bbd6258fdd0",
+  "caster-m2-v0/evidence/windows-m2-run.txt": "07730b7d85c98a4d1fd59b00fb290e1bc7962c238409fbfb5ee33a296ccb23ad",
+  "caster-v0/arche_baseline.fs": "84d08057261f977f84cbefbc32bc139e70fb18f937b761678dbd4b9bde1ce2e0",
+  "caster-v0/parameters_si.json": "0d41adbdf06a6380d60109cd130ed1f3dcb60f2de0493774da0e325c96607f0c",
+  "caster-v0/README.md": "04999c9077bc33a2e9ae17277d01c271c65fe2ccbe531e5a9a76ac28257468da",
+  "caster-v0/verify_parameters.py": "349d99203776aa59b3c8bb3d61c12edfa131ee69bdc48d9e7b70ae5b1848aa8b",
+  "caster-v0/evidence/cad-v2-industrial-design.png": "a67328bb615bb087f5a0c854e806626897853df43000de72bed63fd1b308b70c",
+  "caster-v0/evidence/cad-v2-underside.png": "7b717cfd5222c4090cb01b0bbac6a71d1c2d676ff927a7d1b6210243aa7a9e24",
+  "caster-v0/evidence/cad-v2-swivel-360.png": "25998d30dd9f84b24ded3c7b460110ca4684a8d09d4205cc47a290d608d16484",
+  "caster-v0/evidence/cad-v2-roll-360.png": "218e8320551025466c9918d03e7050c184e7dabcda96a7fb53a1f68818570248",
+  "caster-v0/evidence/cad-v2-parameters-50mm.png": "1500c6777fad29b991c20097e6ef5fa265892740d54627130424338343e1a045"
+}

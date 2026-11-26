@@ -77,12 +77,13 @@ Physical validation depends on suitable robot access, logs and reference measure
 | Research methods | [Experiment protocol](docs/research/experiment-protocol.md), [prediction task](docs/research/learning-task.md) and [research notebook](docs/research/research-log.md) |
 | Scope decisions | [Decision gates](docs/planning/decision-gates.md) and [decision log](docs/planning/decisions.md) |
 | Company access | [Access register](docs/access/access-register.md) and [visit checklist](docs/access/access-inventory.md) |
+| Simulation sources | [MATLAB M0](models/caster-m0), [MATLAB M2](models/caster-m2-v1), [Simscape V6](models/simscape-v6), [Python V1](caster-physics-python), [Python V2.3](caster-physics-python-v2) and [terminal lab](arche-tui) |
 | Actual work and evidence | [Progress history](docs/progress/README.md) and [GitHub issues](https://github.com/t0ttora/me492-caster-digital-twin/issues) |
 | References | [Sources](docs/sources.md) |
 
 ## Project status and participation
 
-The published baseline is a preparation document. As of **30 September 2026**, company access is pending and this repository contains no verified physical experiment results or trained model. Dated updates belong in the [progress history](docs/progress/README.md); live task status belongs in [issues](https://github.com/t0ttora/me492-caster-digital-twin/issues) and [milestones](https://github.com/t0ttora/me492-caster-digital-twin/milestones).
+The [27 November update](docs/progress/2026-11-27-simulation-and-source.md) links the MATLAB, Simscape and Python models and recorded simulation evidence. Physical calibration and company access remain open in the public record. Dated updates belong in the [progress history](docs/progress/README.md); live task status belongs in [issues](https://github.com/t0ttora/me492-caster-digital-twin/issues) and [milestones](https://github.com/t0ttora/me492-caster-digital-twin/milestones).
 
 The semester plan allocates 252 working hours plus 32 contingency hours. Academic deadlines and weekly acceptance evidence are maintained in the [timetable](docs/planning/timetable.md). Completing an issue records task progress; it does not establish research validity or company approval.
 

@@ -1,0 +1,252 @@
+{
+  "created_at_utc": "2026-10-07T19:45:09.404418+00:00",
+  "algorithm": "SHA-256",
+  "scope": "All selected package members except this self-referential manifest.",
+  "files": [
+    {
+      "path": "README_Turkce.md",
+      "bytes": 13703,
+      "sha256": "32796e7d0ca08ebac258b796513f5f1d8986f2eae45d3f4790c8eee5afe18d29"
+    },
+    {
+      "path": "artifact_metadata.json",
+      "bytes": 381,
+      "sha256": "db8aa2339cd3f1641d610ccdcc9c2681006097da47934a9bc3cdd5bc63a6807e"
+    },
+    {
+      "path": "build_m2.m",
+      "bytes": 9550,
+      "sha256": "3a454121a4a1b87b211deae12b2c3fcc4891f73668908d57d1fa97c6b5abf96c"
+    },
+    {
+      "path": "capability_audit.json",
+      "bytes": 2324,
+      "sha256": "149f26aa6c0f3738a9e05051ea4e2966650027e2012989eaf0756022cf660f8c"
+    },
+    {
+      "path": "dynamics_si.json",
+      "bytes": 1265,
+      "sha256": "551d75ebc3c9de618e0ee94e3f7caeb949539360fa67c8d593799305e490deb7"
+    },
+    {
+      "path": "executed_summary.json",
+      "bytes": 2174,
+      "sha256": "b907bf46fc45d55d492209cc33ffdb8c1019f6166dda199c00075b2fc9eeb346"
+    },
+    {
+      "path": "execution_transcript_v1.txt",
+      "bytes": 6787,
+      "sha256": "49ec52fe45dfcfcdea754e1a9067b4e5959d0055e8788f5c8d979fa5370e9989"
+    },
+    {
+      "path": "export_m2_results.m",
+      "bytes": 2513,
+      "sha256": "6a4e1721028f41c221398037e9e636e02e46950ffdeaed50fe34943e8daa53d1"
+    },
+    {
+      "path": "export_m2_visuals.m",
+      "bytes": 5911,
+      "sha256": "1914cbc2e40977172951663219e731ff0d0313335846a1222e64198900abe969"
+    },
+    {
+      "path": "geometry_si.json",
+      "bytes": 603,
+      "sha256": "4fa1974851c566698eef117e09e8578c09d043d7c9a9269fada0d721301c2f77"
+    },
+    {
+      "path": "kernel_verification_evidence.json",
+      "bytes": 2743,
+      "sha256": "9976152010dfeb201090636c0d4af3ed6c078fe95e854d41f08ae3aa3971dfe7"
+    },
+    {
+      "path": "m2_contact.m",
+      "bytes": 277,
+      "sha256": "5e369a2dab863ce2227defa849f0e70d6659efa4ffe36d5b0ccaefafb672fa23"
+    },
+    {
+      "path": "m2_contact_diagnostics.m",
+      "bytes": 182,
+      "sha256": "c72fc907b3deb65f3d6f2c45c647065dabb1b098a0869b0bff7001cd706752dc"
+    },
+    {
+      "path": "m2_dynamics.m",
+      "bytes": 228,
+      "sha256": "85ab9c4d0eebe61944b541c27c3243d553f8d1209986a6a3f6b8b271c1a08d95"
+    },
+    {
+      "path": "m2_energy_power.m",
+      "bytes": 679,
+      "sha256": "d612d59d4bbaf57781d19d5c7500d9c05868a3c8068ae731dcdeddf8c9c774eb"
+    },
+    {
+      "path": "m2_file_hash.m",
+      "bytes": 227,
+      "sha256": "c014d93a496eea98489c5bd227a7b3f51b38b867f57606f524ff6b4e762f4d7f"
+    },
+    {
+      "path": "m2_friction.m",
+      "bytes": 1181,
+      "sha256": "71c26d5e0de7f365900192c5d9f7258cac9c8c206bc27ea475d3e9daa11e98a9"
+    },
+    {
+      "path": "m2_generalized_forces.m",
+      "bytes": 477,
+      "sha256": "d935cd191607f52ccdf6eb2cd4c7a9610b3640f793d56c4bd110cd29d6633d26"
+    },
+    {
+      "path": "m2_geometry.m",
+      "bytes": 592,
+      "sha256": "b02e1c5c23be9c4794ebbc27a3cdc540b0f68b1b672693d1bd472f7e16a03b89"
+    },
+    {
+      "path": "m2_load_parameters.m",
+      "bytes": 2271,
+      "sha256": "1d0e9b00481c7229d032775000b9e7887a98fa648170e290f287c25c1792db10"
+    },
+    {
+      "path": "m2_mass_terms.m",
+      "bytes": 354,
+      "sha256": "e101463b5600254a817f4a0c754bd7b7cc482f1497ba9401304f914ceb64bebf"
+    },
+    {
+      "path": "m2_model_init.m",
+      "bytes": 403,
+      "sha256": "cf51d0ff8633465d9cc0c8698783026dc551143f8871200e07e0c3ab31cdd46c"
+    },
+    {
+      "path": "m2_motion_rhs.m",
+      "bytes": 164,
+      "sha256": "66a5e597134f8f34b40749e0e37e10c99ee91433ea384ae0b61cb2586d3dae7d"
+    },
+    {
+      "path": "m2_slip.m",
+      "bytes": 248,
+      "sha256": "4eb86f8a8b57744b7e50ac4e41fd4acff1c0fe985fd3f5498177cc00600ba149"
+    },
+    {
+      "path": "m2_support_loads.m",
+      "bytes": 413,
+      "sha256": "e85c6b6ba190b35c8d98e154e7e832fb612c5a003def1bb4e9dbf8fa442a1df9"
+    },
+    {
+      "path": "models/Me492CasterM2.slx",
+      "bytes": 46964,
+      "sha256": "7728d8e99f402d15731fa0c40eac7dc26497cf17902ea75f6260a91d0c3812df"
+    },
+    {
+      "path": "models/Me492CasterM2V1.slx",
+      "bytes": 112992,
+      "sha256": "618b0f9079af388e23b7e5826829f25aa16a1c6ef1960afe5cf79c9872082158"
+    },
+    {
+      "path": "plots/contacts_subsystem.png",
+      "bytes": 268054,
+      "sha256": "e4dbfcfefaa8cf4dd0f941e77c9188114d78c7d2c304d77e0f7e593254ac6909"
+    },
+    {
+      "path": "plots/energy_and_convergence.png",
+      "bytes": 202843,
+      "sha256": "0a9d4162495d914eef72728cc9155e13b42cfbcd63eec6ba7d540735bc3d9a41"
+    },
+    {
+      "path": "plots/inertia_subsystem.png",
+      "bytes": 275409,
+      "sha256": "12beee3a9101e9cea04adbd2c82f8ea838a5631d72f027740b983ee5f64791a2"
+    },
+    {
+      "path": "plots/top_level.png",
+      "bytes": 408459,
+      "sha256": "a616ed0ee52af4e3e10d265cd03a0ffc9e09f12b473f4da60bc64942d0cd6b42"
+    },
+    {
+      "path": "plots/trajectory_and_yaw.png",
+      "bytes": 175972,
+      "sha256": "4b0562f3cc3bcbe8922a9c343c9b768f0e77a432ac8b4c7c1d5dc2a49f6e3fc9"
+    },
+    {
+      "path": "polish_m2.m",
+      "bytes": 1523,
+      "sha256": "47220252f59c6595c004f3dead2836cc99e725c2efbdfaad15d063d23d69dd87"
+    },
+    {
+      "path": "preservation_verification.json",
+      "bytes": 650,
+      "sha256": "3225ad20efb2ea5d41d7734d49fc7956c19ba389973a4ff35e121153706a864f"
+    },
+    {
+      "path": "reference_hashes.json",
+      "bytes": 185,
+      "sha256": "843e4cb3cb04d25623f43329e8138484650f5a56af749e572e1165c40082ff17"
+    },
+    {
+      "path": "regression_comparison.json",
+      "bytes": 21151,
+      "sha256": "3f13557e9bd93d027a4feb01e40653e6864477b8fd720cae41cf14ea000e0b71"
+    },
+    {
+      "path": "results/aligned_forward_states.csv",
+      "bytes": 182135,
+      "sha256": "d4918306e29f0cd371a9e2ba3005976ba56c175e27a7ec1f94d3e8147ec11123"
+    },
+    {
+      "path": "results/misaligned_forward_states.csv",
+      "bytes": 313406,
+      "sha256": "fcc17927eeed36f05320f7b1dc6bdc9b4b140d2d2815a616b47b6d8028842f31"
+    },
+    {
+      "path": "results/passive_coast_states.csv",
+      "bytes": 381352,
+      "sha256": "3ef9b7c878e8efd57de6f99195a587e3a93cd856d8ae51820f5a1100a0ebeb27"
+    },
+    {
+      "path": "run_m2.m",
+      "bytes": 12844,
+      "sha256": "1c08649d23226ddc6564a822f17f782f4b88dbadf64edde93e095c53d068d293"
+    },
+    {
+      "path": "run_manifest.json",
+      "bytes": 21196,
+      "sha256": "60d95a0141d8f66c67d04f53cef0daa9bfc97c309c712af2fea04af11ebe50c3"
+    },
+    {
+      "path": "schema.md",
+      "bytes": 6356,
+      "sha256": "9a5243782ac2dcf2530f103b92334d9c3aa7472b408795768bbbcddc0d003961"
+    },
+    {
+      "path": "state_parameter_map.json",
+      "bytes": 2499,
+      "sha256": "17cdf949ab36350e5e8aa85836c3d296da6e694ad5a406008a4f8a94ed24e2e3"
+    },
+    {
+      "path": "theory.md",
+      "bytes": 6756,
+      "sha256": "385c74edd377ccf2a07f8c75c2fa217a43eaa47072c7b05b97de6742cdcf76e4"
+    },
+    {
+      "path": "verification_evidence.json",
+      "bytes": 9135,
+      "sha256": "52f644d76510366761510b233a634cf322bf0093c4f57d8a6377c223e468b10f"
+    },
+    {
+      "path": "verify_m2.m",
+      "bytes": 13390,
+      "sha256": "67a1fd34c66ae89c1594e71a4486ca7af9f7f54bf2bfe115d33f303d0d3392a8"
+    },
+    {
+      "path": "verify_workflow.m",
+      "bytes": 5201,
+      "sha256": "85946434085371a9630094eeeb6eb38e63e7fefde072e98e49994f20b5ecd516"
+    },
+    {
+      "path": "workflow_transcript_v1_final.txt",
+      "bytes": 1015,
+      "sha256": "1ad4eb122b92eee02cf14f68ec2b5347d74fe77a74c3049780fde6843dea1301"
+    },
+    {
+      "path": "workflow_verification_evidence.json",
+      "bytes": 1822,
+      "sha256": "03a4d531c3453652d3167248de5466b5c37b245012f7287121eb5a7e6d8f2efe"
+    }
+  ]
+}

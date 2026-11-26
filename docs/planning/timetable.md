@@ -2,10 +2,12 @@
 
 252 planned hours + 32 contingency hours. Reserve covers named risks, not feature development.
 
+**7 October update:** Onshape parametric CAD, a MATLAB-primary baseline and a minimal Gazebo scene are the pre-visit working direction. Preparation is due **9 October, 11:00 Europe/Istanbul**. The [pre-visit roadmap](pre-visit-roadmap-2026-10-07.md) allocates 9h45 inside W02, including 45 minutes of recovery buffer; these are not extra semester hours. Actual hours remain to be logged. Runtime and company access are still evidence-dependent.
+
 | Week | Period | Hours | Output | Acceptance evidence |
 | --- | --- | ---: | --- | --- |
 | W01 | 30 Sep–4 Oct | 10 | Scope and preparation | Access checklist, experiment outline and a reproducible ideal-drive calculation. |
-| W02 | 5–11 Oct | 18 | Arche technical visit | Visit record with owners and due dates. Nominal robot dimensions and a sample telemetry file requested. |
+| W02 | 5–11 Oct | 18 | Pre-visit model preparation and Arche technical visit | By 9 Oct 11:00, configurable CAD, prepared/executed model status and prioritised data requests recorded. Successful runs require evidence. After the visit, record owners/due dates and request dimensions/sample telemetry. |
 | W03 | 12–18 Oct | 18 | Platform and ideal model | G1 on 16 Oct. Correct straight/circle motion, explicit units and frames, agreed physical access route. |
 | W04 | 19–25 Oct | 18 | Caster model and physical pilot | G2 on 23 Oct. One usable real log with independent pose where permitted. Stable caster reversal simulation. |
 | W05 | 26 Oct–1 Nov | 16 | Repeatable benchmark | Versioned run manifest, identical command replay and automated metric export. Reference protocol frozen. |

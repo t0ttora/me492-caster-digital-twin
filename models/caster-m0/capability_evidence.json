@@ -1,0 +1,38 @@
+{
+  "matlab_version": "26.2.0.3386108 (R2026b)",
+  "matlab_root": "C:\\Program Files\\MATLAB\\R2026b",
+  "computer": "PCWIN64",
+  "checked_at_utc": "2026-10-07T16:22:39Z",
+  "workspace": "<windows-home>\\Documents\\Codex\\2026-10-03\\https-huggingface-co-strandsagents-strands-decider",
+  "installed_products": [
+    "MATLAB",
+    "MATLAB Copilot",
+    "Simscape",
+    "Simscape Multibody",
+    "Simulink"
+  ],
+  "libraries": {
+    "simulink": "C:\\Program Files\\MATLAB\\R2026b\\toolbox\\simulink\\core\\api\\simulink.m",
+    "simscape": "C:\\Program Files\\MATLAB\\R2026b\\toolbox\\physmod\\simscape\\engine\\library\\m\\nesl_utility.slx",
+    "simscape_multibody": "C:\\Program Files\\MATLAB\\R2026b\\toolbox\\physmod\\sm\\sli\\m\\sm_lib.slx"
+  },
+  "license_checkout": {
+    "Simulink": {
+      "available": true,
+      "message": ""
+    },
+    "Simscape": {
+      "available": true,
+      "message": ""
+    },
+    "SimMechanics": {
+      "available": true,
+      "message": ""
+    }
+  },
+  "simulink_integrator_test": {
+    "passed": true,
+    "error": "",
+    "final_value": 1
+  }
+}

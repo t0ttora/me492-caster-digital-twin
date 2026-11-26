@@ -13,3 +13,7 @@ cad/
 
 _site/
 _qa/
+
+/arche-tui/outputs/
+/caster-physics-python/outputs/
+/caster-physics-python-v2/outputs/

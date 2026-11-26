@@ -1,0 +1,12 @@
+{
+  "straight": {
+    "after_extra_8s_ex_m": 0.010749277805869428,
+    "after_extra_8s_ey_m": 0.003070093317399505,
+    "position_error_m": 0.01117910758179284
+  },
+  "arc_turn": {
+    "after_extra_8s_ex_m": 0.008519333350060646,
+    "after_extra_8s_ey_m": -0.03580028719738673,
+    "position_error_m": 0.03679999462153259
+  }
+}

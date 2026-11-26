@@ -1,0 +1,92 @@
+rest_is_equilibrium: passed=1 value=0 <1e-12
+rest_has_no_tangential_force: passed=1 value=0 =0
+static_load_sums_to_weight: passed=1 value=0 <1e-10 N
+all_swivel_angles_have_positive_support_load: passed=1 value=26.4882615 >5 N
+mass_matrix_positive_definite: passed=1 value=0.00045 >1e-5 kg / kg m^2 (mixed coordinates)
+drive_spin_produces_forward_ground_force: passed=1 value=30.7067052 >0 N
+ground_reaction_slows_unpowered_spinning_wheel: passed=1 value=-524.158324 <0 rad/s^2
+force_inside_coulomb_circle: passed=1 value=-0.00285999517 <=0 N
+lateral_friction_opposes_positive_slip: passed=1 value=-29.7508019 <0 N
+combined_contact_is_dissipative: passed=1 value=-5.95016038 <=0 W
+zero_slip_has_zero_traction: passed=1 value=0 <1e-10 N
+instantaneous_energy_power_balance: passed=1 value=2.41122677e-11 <1e-7 W
+reported_energy_matches_independent_expression: passed=1 value=0 <1e-12 J
+all_resistances_are_dissipative: passed=1 value=15.5419358 >=0 W
+caster_traction_and_bore_share_friction_budget: passed=1 value=-1.3024377 <=0 N equivalent combined patch load
+disabled_caster_has_no_ground_force_or_ground_resistance: passed=1 value=0 =0
+bearing_resistance_retained_in_ablation: passed=1 value=0 =0 Nm
+M2 verification: 17/17 checks passed.
+aligned_forward h=0.0005: final pose=[0.846659 0.000000 0.000000], phi=0.000000, balance=2.01e-09 J
+misaligned_forward h=0.0005: final pose=[0.407666 -0.231320 -1.745535], phi=1.258793, balance=2e-09 J
+mirror_misaligned h=0.0005: final pose=[0.407666 0.231320 1.745535], phi=-1.258793, balance=2e-09 J
+caster_contact_disabled h=0.0005: final pose=[1.156642 0.139909 0.417387], phi=0.634665, balance=2e-09 J
+unequal_torque h=0.0005: final pose=[0.448188 0.268750 2.491607], phi=-1.779975, balance=1.47e-09 J
+reversal_perturbed h=0.0005: final pose=[-3.036638 -0.130319 0.036376], phi=-0.006609, balance=6.9e-09 J
+zero_rest h=0.0005: final pose=[0.000000 0.000000 0.000000], phi=0.785398, balance=0 J
+passive_coast h=0.0005: final pose=[0.581572 -0.094244 -0.815908], phi=0.864395, balance=3.8e-07 J
+conservative_free h=0.0005: final pose=[0.418293 -0.087890 0.900454], phi=-0.668917, balance=1.28e-15 J
+misaligned_fine h=0.00025: final pose=[0.407666 -0.231320 -1.745535], phi=1.258793, balance=1.17e-10 J
+misaligned_finer h=0.000125: final pose=[0.407666 -0.231320 -1.745535], phi=1.258793, balance=7.07e-12 J
+reversal_no_swivel_resistance h=0.0005: final pose=[-2.984684 0.435717 -0.165988], phi=-3.141622, balance=7.31e-09 J
+M2 Simulink replays complete. Physical consistency still requires verify_m2.
+rest_is_equilibrium: passed=1 value=0 <1e-12
+rest_has_no_tangential_force: passed=1 value=0 =0
+static_load_sums_to_weight: passed=1 value=0 <1e-10 N
+all_swivel_angles_have_positive_support_load: passed=1 value=26.4882615 >5 N
+mass_matrix_positive_definite: passed=1 value=0.00045 >1e-5 kg / kg m^2 (mixed coordinates)
+drive_spin_produces_forward_ground_force: passed=1 value=30.7067052 >0 N
+ground_reaction_slows_unpowered_spinning_wheel: passed=1 value=-524.158324 <0 rad/s^2
+force_inside_coulomb_circle: passed=1 value=-0.00285999517 <=0 N
+lateral_friction_opposes_positive_slip: passed=1 value=-29.7508019 <0 N
+combined_contact_is_dissipative: passed=1 value=-5.95016038 <=0 W
+zero_slip_has_zero_traction: passed=1 value=0 <1e-10 N
+instantaneous_energy_power_balance: passed=1 value=2.41122677e-11 <1e-7 W
+reported_energy_matches_independent_expression: passed=1 value=0 <1e-12 J
+all_resistances_are_dissipative: passed=1 value=15.5419358 >=0 W
+caster_traction_and_bore_share_friction_budget: passed=1 value=-1.3024377 <=0 N equivalent combined patch load
+disabled_caster_has_no_ground_force_or_ground_resistance: passed=1 value=0 =0
+bearing_resistance_retained_in_ablation: passed=1 value=0 =0 Nm
+aligned_misaligned_identical_torque_inputs: passed=1 value=0 =0 differences
+enabled_disabled_identical_torque_inputs: passed=1 value=0 =0 differences
+symmetric_aligned_has_zero_yaw: passed=1 value=0 <1e-10 rad
+positive_equal_torque_moves_forward: passed=1 value=0.846658702 >0.1 m
+caster_angle_changes_yaw_meaningfully: passed=1 value=1.7455347 >0.001 rad
+caster_angle_changes_trajectory_meaningfully: passed=1 value=0.496209091 >0.001 m
+caster_ground_force_ablation_changes_yaw: passed=1 value=2.1629219 >0.001 rad
+caster_force_is_not_numeric_zero: passed=1 value=1.80172133 >0.1 N
+mirror_yaw_sign_and_magnitude: passed=1 value=0 <1e-8 rad
+mirror_lateral_trajectory: passed=1 value=0 <1e-8 m
+greater_right_torque_turns_left: passed=1 value=2.49160675 >0.05 rad
+reverse_torque_eventually_moves_backward: passed=1 value=-1.34193405 <-0.05 m/s
+reverse_caster_can_roll_backward: passed=1 value=-33.4333078 <-1 rad/s
+reverse_sensitivity_uses_identical_torque_input: passed=1 value=0 =0 differences
+reverse_swivel_resistance_changes_response: passed=1 value=3.18125834 >0.01 rad
+zero_torque_rest_simulation_stays_at_rest: passed=1 value=0 <1e-12 m
+passive_energy_never_increases: passed=1 value=-4.72879034e-15 <1e-9 J per logged sample
+passive_energy_decays: passed=1 value=1.69786733e-14 <0.1 initial energy
+force_free_energy_conserved: passed=1 value=9.99200722e-16 <1e-8 J
+force_free_linear_and_angular_momentum_conserved: passed=1 value=1.02140518e-14 <1e-8 SI
+step_refinement_small_yaw_error: passed=1 value=1.9689006e-10 <0.0001 rad
+step_refinement_converges: passed=1 value=1.14499521e-11 <=0.3 coarse/fine error or 1e-10 rad
+step_refinement_trajectory: passed=1 value=3.3377182e-11 <1e-4 m
+step_refinement_relative_caster_angle: passed=1 value=6.49500453e-11 <1e-4 rad
+step_refinement_all_rotational_rates: passed=1 value=1.0564412e-07 <1e-4 rad/s
+physical_influence_exceeds_step_error: passed=1 value=8.86552986e+09 >100 times numerical step difference
+aligned_forward_finite: passed=1 value=0 =0 nonfinite
+misaligned_forward_finite: passed=1 value=0 =0 nonfinite
+mirror_misaligned_finite: passed=1 value=0 =0 nonfinite
+caster_contact_disabled_finite: passed=1 value=0 =0 nonfinite
+unequal_torque_finite: passed=1 value=0 =0 nonfinite
+reversal_perturbed_finite: passed=1 value=0 =0 nonfinite
+zero_rest_finite: passed=1 value=0 =0 nonfinite
+passive_coast_finite: passed=1 value=0 =0 nonfinite
+conservative_free_finite: passed=1 value=0 =0 nonfinite
+misaligned_fine_finite: passed=1 value=0 =0 nonfinite
+misaligned_finer_finite: passed=1 value=0 =0 nonfinite
+reversal_no_swivel_resistance_finite: passed=1 value=0 =0 nonfinite
+all_run_integrated_energy_balance: passed=1 value=3.80194312e-07 <1e-5 J
+all_run_dissipation_nonnegative: passed=1 value=0 >=-1e-10 W
+all_run_positive_support_loads: passed=1 value=26.4887637 >5 N
+all_run_friction_circle_respected: passed=1 value=-6.08200521 <1e-8 N above limit
+all_run_shared_caster_patch_budget: passed=1 value=-0.0712924195 <1e-8 N equivalent above limit
+M2 verification: 60/60 checks passed.

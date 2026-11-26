@@ -1,0 +1,13 @@
+{
+  "case": "high_drag_synthetic/arc_turn/baseline/nominal",
+  "coarse_step_s": 0.0005,
+  "fine_step_s": 0.00025,
+  "max_errors": {
+    "x_m": 3.555510816322105e-10,
+    "y_m": 1.8443332971962434e-10,
+    "yaw_rad": 5.570769623375327e-09,
+    "caster_angle_body_rad": 8.3558573393816e-09
+  },
+  "fine_completion_time_s": 4.45,
+  "all_passed": true
+}
