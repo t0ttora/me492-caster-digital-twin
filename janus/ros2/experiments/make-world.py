@@ -35,7 +35,7 @@ def main():
                     'Q13':.67,'Q17':.55,'Q19':.65}.get(case_id,0.)
         # Leave the 1 ms physics step and simulated frame rate unchanged. Bound
         # wall demand on the VM so ROS camera delivery can catch up.
-        world.find('./world/physics/real_time_factor').text = '0.25'
+        world.find('./world/physics/real_time_factor').text = '0.10' if case_id == 'Q08' else '0.25'
     includes['model://arche_janus'].text = ' '.join(map(str,robot))
     includes['model://janus_dock'].text = ' '.join(map(str,marker))
     world.write(output/'world.sdf', encoding='utf-8', xml_declaration=True)
