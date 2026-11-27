@@ -14,7 +14,8 @@ def wall_clearances(xy, yaw, bounds, half_extents=(.25, .205)):
     hx, hy = half_extents
     ex = hx*abs(np.cos(yaw))+hy*abs(np.sin(yaw))
     ey = hx*abs(np.sin(yaw))+hy*abs(np.cos(yaw))
-    return np.stack([xy[:, 0]-ex-xmin, xmax-xy[:, 0]-ex,
+    rear = np.full(len(xy), np.inf) if xmin is None else xy[:, 0]-ex-xmin
+    return np.stack([rear, xmax-xy[:, 0]-ex,
                      xy[:, 1]-ey-ymin, ymax-xy[:, 1]-ey], axis=1)
 
 
@@ -118,7 +119,7 @@ def summarize(fixture, run):
             bounds = ((-.44, .88, -.44, .92) if fixture.variant == "wider-envelope"
                       else (-.34, .74, -.36, .76))
         elif fixture.case == "O02":
-            bounds = (-.35, .70, -.34, .34)
+            bounds = (None if fixture.variant == "open-rear-extended-exit" else -.35, .70, -.34, .34)
         elif fixture.case == "O03":
             bounds = (-.32, .91, -.34, .34)
         else:
@@ -132,7 +133,7 @@ def summarize(fixture, run):
                      "worst_at_s": float(time[worst]),
                      "worst_wall": ("xmin", "xmax", "ymin", "ymax")[clearances[worst].argmin()],
                      "first_violation_at_s": float(time[failures[0]]) if len(failures) else None}
-        if fixture.case in {"M07", "Q18"}:
+        if fixture.case in {"M07", "O02", "Q18"}:
             for row, margin in zip(rows, wall, strict=True):
                 row["wall_clearance_m"] = float(margin)
         if fixture.case == "M07":

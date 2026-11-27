@@ -7,6 +7,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from janus_command_input import CommandInput
+from janus_metrics import wall_clearances
 from janus_sim import CameraStream, parameters_for, qr_staging_route
 from janus_undock import Undock
 from qr_camera import Camera, Frame, Marker, project
@@ -84,6 +85,13 @@ def test_mounted_yaw_trim_has_zero_linear_command_and_stops_on_stale_frame():
     assert dock.update(0., fresh, False, (.01, .12), final_yaw_error_rad=.12) == (0., .08, "mounted_yaw_trim")
     stale = gate.update(.25, [])
     assert dock.update(.25, stale, False, (.01, .12), final_yaw_error_rad=.12) == (0., 0., "braking")
+
+
+def test_open_corridor_rear_leaves_front_and_both_side_walls_active():
+    positions = np.asarray([[-1., 0.], [-1., .20], [.51, 0.]])
+    clearances = wall_clearances(positions, np.zeros(3), (None, .70, -.34, .34))
+    assert np.all(np.isposinf(clearances[:, 0]))
+    assert np.allclose(clearances.min(axis=1), [.135, -.065, -.06])
 
 
 def test_bounded_search_reversal_and_interlock_at_sample_boundary():
