@@ -32,6 +32,9 @@ camera-mount case derives its optical target from the declared mechanical
 dock pose and measures final model error of 4.615 mm and 0.472°. This
 uses a projected camera and virtual contact.
 
+The final V2.3 regression suite passed 81 tests. The V1 baseline passed
+54 tests in its separate verification run.
+
 [Python source and reproduction](https://github.com/t0ttora/me492-caster-digital-twin/tree/main/caster-physics-python-v2) ·
 [S path motion](../../reports/janus/python/M04-python-nominal/motion.html) ·
 [Clockwise square motion](../../reports/janus/python/M05-python-cw/motion.html) ·
@@ -59,6 +62,9 @@ guarded velocity. The M02 braking fixture reached the stop band
 required 0.406 s of renewed centering, and measured forward motion followed.
 One Q13 MCAP recorded 26,095 messages and reported transport drops.
 The case-specific proof comes from the joined raw trace.
+The final ROS suite passed 37 tests on Linux. The Mac offline suite
+passed 36 and skipped the optional ZBar test. Seven mission-contract
+regressions passed separately.
 
 Q10 uses Gazebo-rendered RGB with separately labeled glare derivatives.
 The live plant stopped from motion under hotspot, reflection and whiteout
@@ -70,8 +76,8 @@ Q04 passed its optical-versus-mechanical distinction check. Gazebo reached
 rad nominal mechanical error. A separate four-corner staging experiment
 on the same world and camera fixture measured 6.236 mm mechanical error,
 258.93 mm optical depth and a 280 ms terminal hold. That experiment uses
-the fixture's declared marker yaw, an independently logged world pose and
-no simulated contact switch or charger.
+the fixture's declared marker yaw and an independently logged world pose.
+Contact and charging remain separate pilot measurements.
 
 [ROS 2 and Gazebo source and runbook](https://github.com/t0ttora/me492-caster-digital-twin/tree/main/janus/ros2) ·
 [Offline case table](../../reports/janus/ros2/case_results.csv) ·
@@ -116,8 +122,11 @@ The first four V4 QR runs used the projected marker center. All four
 finished just beyond the 265 mm depth limit. Revised centered, left and
 right runs held the depth and 20 mm pose bounds together for 0.40 s.
 Their native plant produces measured pose and torque. The ideal camera
-projects numerical corners for the controller. In the finite blackout,
-the first invalid sample
+projects numerical corners for the controller. The mirrored r5 variants
+reached their optical gate at 115.61 s, with positive forward requests kept inside
+4% on the independently reprojected 1 ms grid. The earlier r4 variant
+was faster and had brief excursions on the same grid. In the finite
+blackout, the first invalid sample
 and zero forward request were logged at 1.01 s. The sampled stop dwell
 completed at 1.33 s, with 1.53 mm of travel to the start of the verified
 stop. The observation returned and the run resumed. These cases use

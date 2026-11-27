@@ -21,7 +21,7 @@ model forward only. JANUS task gain and full camera-to-command latency
 still require matched episodes. One separate CPU interface check used
 six rendered Gazebo JANUS frames with an independently identified goal
 frame from later in the same approach. It returned five finite waypoints
-and a distance value. The model was not connected to the command path.
+and a distance value in offline inference.
 
 The experiment uses 48 held-out episodes across 12 layouts, with the
 models scored on matched inputs. The decision rule requires an increase

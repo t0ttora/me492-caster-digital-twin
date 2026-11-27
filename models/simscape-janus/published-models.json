@@ -556,6 +556,19 @@
       "end_s": 80,
       "controller_task_measurement": true,
       "scope": "native MATLAB/Simscape simulation"
+    },
+    {
+      "case_id": "M12",
+      "scenario": "M12_bevel5mm_1deg_h12p5_r2",
+      "model_file": "native_M12_bevel5mm_1deg_h12p5_r2.slx",
+      "model_sha256": "9369433b566154210d930441f64dd4133a329dcbf355929c8955115088f496fd",
+      "controller_file": "native_M12_bevel5mm_1deg_h12p5_r2_controller.m",
+      "controller_sha256": "80945461a55084491e59ec79a1a24b8c44c42d73dc41034cdd80098193a44a55",
+      "solver": "ode4",
+      "step_s": 1.25e-05,
+      "end_s": 45,
+      "controller_task_measurement": true,
+      "scope": "native MATLAB/Simscape simulation"
     }
   ]
 }

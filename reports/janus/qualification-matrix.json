@@ -197,7 +197,7 @@
         },
         "Simscape": {
           "status": "passed",
-          "measurement_tr": "15 cm kalkıştan ayrı yerinde dönüş. 90° ve 180° caster için 250 ms duruş onayı 16,566 ve 17,686 s. Dönüşte tepe aks gezintisi 29,38 ve 32,03 mm, 0,25 Nm tork tepesi. Türetilen aktif caster yanal kayması 0,049 ve 0,060 mm/s RMS."
+          "measurement_tr": "15 cm kalkıştan ayrı yerinde dönüş. 90° ve 180° caster için 250 ms duruş onayı 16,566 ve 17,686 s. Dönüşte tepe aks gezintisi 29,38 ve 32,03 mm, 0,25 Nm tork tepesi. Türetilen aktif caster yanal kayması 0,049 ve 0,060 mm/s RMS. Ayrı ileri komutsuz native r4’te 90° geçti. 180° başlangıç doğru yaw’a rağmen 27,07 mm ile 20 mm son poz sınırını aştı."
         }
       },
       "figure": "qualification/M09.png",
@@ -262,7 +262,7 @@
       "components": {
         "Simscape": {
           "status": "passed",
-          "measurement_tr": "5 mm yükselti ve 1° giriş/çıkış pahlarını üç teker temas ederek geçti. Muhafazakâr gövde açıklığı en az 74,07 mm. Tepe pah temas normalleri sol/sağ/caster 52,01/52,00/62,26 N. 1 ms izde toplam destek kaybı yok. Keskin 5 mm ve 3° tırmanma denemeleri başarısız."
+          "measurement_tr": "5 mm yükselti ve 1° giriş/çıkış pahlarını üç teker temas ederek geçti. Muhafazakâr gövde açıklığı en az 74,07 mm. Tepe pah temas normalleri sol/sağ/caster 52,01/52,00/62,26 N. 1 ms izde toplam destek kaybı yok. Keskin 5 mm ve 3° tırmanma denemeleri başarısız. 12,5 µs tekrarında geçiş korundu, son aks X farkı 0,0062 mm. Keskin kenar adım yarıya inince de takıldı."
         },
         "Gazebo Linux": {
           "status": "passed",
@@ -421,7 +421,7 @@
         }
       },
       "figure": "qualification/Q07.png",
-      "figure_scope_tr": "Gazebo OGRE2 kamerasından geri konan işaret. Yeniden ilerleme ölçülen dünya pozuyla doğrulandı."
+      "figure_scope_tr": "Gazebo kamerasının kayıp anı, ölçülen dünya pozu, duruş, yeniden merkezleme ve ileri hareket."
     },
     {
       "case_id": "Q08",
