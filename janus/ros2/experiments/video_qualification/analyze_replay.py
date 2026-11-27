@@ -370,6 +370,12 @@ def main():
                                          telemetry, origin, shadow_rows))
             dock_shadow.extend(shadow_rows)
         summary["cases"][case] = evaluate(case, metrics, offline)
+        dedup = {r["clock_s"]: r for r in timeline}
+        command_origin = min(dedup) if dedup else start
+        state_origin = trace_ground[0]["time_s"] if trace_ground else start
+        summary["cases"][case]["csv_time_origins_in_sim_s"] = {
+            "commands.csv": command_origin, "results.csv": state_origin,
+        }
         write_json(case_dir / "metrics.json", summary["cases"][case])
         with (case_dir/"frames.jsonl").open("w") as sink:
             for row in case_rows:
@@ -378,12 +384,11 @@ def main():
                   "candidate_ids": json.dumps([c["id"] for c in (row["observation"] or {}).get("candidates", [])]),
                   "candidate_corners_px": json.dumps([c["corners_px"] for c in (row["observation"] or {}).get("candidates", [])])}
                   for row in case_rows])
-        dedup = {r["clock_s"]: r for r in timeline}
-        first = min(dedup) if dedup else start
-        write_csv(case_dir/"commands.csv", [{"time_s": stamp-first, "v_mps": r["v_mps"],
+        write_csv(case_dir/"commands.csv", [{"time_s": stamp-command_origin, "v_mps": r["v_mps"],
                   "yaw_rate_radps": r["yaw_rate_radps"]} for stamp,r in dedup.items()])
         write_csv(case_dir/"command_requests.csv", request_rows)
-        write_csv(case_dir/"results.csv", trace_ground)
+        write_csv(case_dir/"results.csv", [{**r, "sim_header_time_s": r["time_s"],
+                                            "time_s": r["time_s"]-state_origin} for r in trace_ground])
         write_csv(case_dir/"terminal_shadow.csv", dock_shadow)
     write_json(args.out / "qualification.json", summary)
 

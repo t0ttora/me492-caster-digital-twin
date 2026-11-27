@@ -162,6 +162,8 @@ def main():
                "- The prepatch PNG is retained with its offline outcome. It has no exact capture timestamp attached "
                "to the saved PNG. The first two-station render resolved both placards to ID 01 and is also retained. "
                "The repeat used distinct mesh, material and texture resource names.",
+               "- The clipped-exposure fixture's pre-run rejection prediction is retained. The decoder still "
+               "recovered the authorized ID at that exposure. Complete whiteout produced detection loss.",
                "- Both rendered texture files were verified against locally signed Ed25519 inputs. The station "
                "QR payloads are plain IDs. Field trust and on-robot authentication remain unverified.",
                "- The qualification gate uses replay images and measured simulator motion. The Q12 plant has no "
