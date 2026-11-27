@@ -1,31 +1,82 @@
-<section class="section">
+<section class="section development-log">
   <header class="research-heading">
-    <p class="eyebrow">Technical work · MATLAB / Simscape Multibody</p>
+    <p class="eyebrow"><a href="index.html">Research overview</a> / Development log</p>
     <h1>Native Simscape</h1>
-    <p>The native multibody model resolves the caster, wheel-ground contacts and chassis motion. The JANUS models record axle pose, effort, individual normal loads and contact penetration in MATLAB R2026b.</p>
+    <p>How the ideal-drive reference became an instrumented multibody model, and what the contact, solver and closed-loop tests revealed.</p>
   </header>
-  <nav class="jump-links result-nav" aria-label="On this page"><a href="#models">Model downloads</a><a href="#analysis">Analysis</a><a href="results.html#simscape">Experiment results</a></nav>
-  <section class="technical-section" id="models">
-    <h2>Model downloads</h2>
-    <dl class="research-ledger technical-ledger">
-      <div><dt>V6 instrumented model</dt><dd><a class="text-link" href="downloads/caster_visual_v6_measurements.slx" download>Download .slx ↓</a> · Full vehicle, caster and contact instrumentation.</dd></div>
-      <div><dt>Alignment replay</dt><dd><a class="text-link" href="downloads/evidence_latest_alignment_replay.slx" download>Download .slx ↓</a> · Recorded alignment scenario and an <a href="https://github.com/t0ttora/me492-caster-digital-twin/tree/main/models/simscape-v6/evidence">archived full-rate trace ↗</a>.</dd></div>
-      <div><dt>JANUS qualification</dt><dd><a class="text-link" href="downloads/native_M04_contract_S_r1.slx" download>Download the M04 S-path model ↓</a> · <a href="https://github.com/t0ttora/me492-caster-digital-twin/tree/main/models/simscape-janus">All native model variants and MATLAB source ↗</a>.</dd></div>
-    </dl>
-  </section>
-  <section class="technical-section" id="analysis">
-    <h2>Analysis</h2>
-    <p>The M04 acceptance record reports <strong>1.07 mm</strong> geometric cross-track RMSE for the two-arc qualification run. Step refinement continued to 6.25 µs. Some full-window differences in caster swivel rate exceeded the convergence threshold.</p>
-    <div class="research-figures">
-      <figure><a href="reports/janus/native-m04-s-path.png"><img src="reports/janus/native-m04-s-path.png" loading="lazy" alt="Native Simscape S-path result"></a><figcaption>M04 · Native S-path run</figcaption></figure>
-      <figure><a href="reports/janus/native-step-errors.png"><img src="reports/janus/native-step-errors.png" loading="lazy" alt="Observed error at different Simscape solver steps"></a><figcaption>Caster response under step refinement</figcaption></figure>
+  <nav class="jump-links result-nav" aria-label="Development log sections">
+    <a href="#baseline">M0 to M2</a><a href="#instrumentation">V5 to V6</a><a href="#solver">Solver study</a><a href="#motion">Motion and terrain</a><a href="#qr">Docking</a><a href="#comparison">Torque replay</a><a href="#models">Models and data</a>
+  </nav>
+
+  <section class="log-chapter" id="baseline">
+    <header><p class="eyebrow">October · Simulink baselines</p><h2>From ideal motion to coupled dynamics</h2><p>M0 integrates ideal differential-drive motion from wheel commands. M2 replaces the ideal drive response with separate axle torques, coupled body and wheel inertia, passive caster dynamics, friction and support loads.</p></header>
+    <div class="log-evidence">
+      <div class="log-figure-grid">
+        <figure><a href="assets/development/m2-top-level.png"><img src="assets/development/m2-top-level.png" loading="lazy" alt="Simulink M2 top-level wiring between torques, state, dynamics and logging"></a><figcaption><strong>M2 top level.</strong> Left and right torque streams feed the dynamics. Integrated states are fed back and exported to the verification workflow.</figcaption></figure>
+        <figure><a href="assets/development/m2-contacts.png"><img src="assets/development/m2-contacts.png" loading="lazy" alt="Simulink M2 contact and friction subsystem with its input and output signals"></a><figcaption><strong>Contact subsystem.</strong> Wheel velocities and normal loads determine the slip forces that feed back into acceleration.</figcaption></figure>
+      </div>
+      <p>M0 passed 32 Windows checks across six synthetic cases. The M2 v1 MATLAB run covered 12 scenarios and passed 60 numerical and 13 workflow checks.</p>
+      <ul class="evidence-links"><li><a href="downloads/Me492CasterM0.slx" download>M0 model · SLX ↓</a></li><li><a href="downloads/Me492CasterM2V1.slx" download>M2 v1 model · SLX ↓</a></li><li><a href="records/docs/progress/2026-11-27-simulation-and-source.html">Modelling and verification record ↗</a></li></ul>
     </div>
-    <ul class="evidence-links">
-      <li><a href="reports/janus/native-m04-acceptance.json">M04 acceptance · JSON</a></li>
-      <li><a href="reports/janus/native-baseline-comparisons.csv">Step comparison · CSV</a></li>
-      <li><a href="reports/janus/native-equal-torque-reviewed.csv">Equal-torque replay measurements · CSV</a></li>
-      <li><a href="records/docs/research/janus-torque-comparison.html">Comparison method and limits ↗</a></li>
-      <li><a href="https://github.com/t0ttora/me492-caster-digital-twin/blob/main/models/simscape-janus/README.md">Model dependencies and reproduction instructions ↗</a></li>
-    </ul>
+  </section>
+  <section class="log-chapter" id="instrumentation">
+    <header><p class="eyebrow">November · Contact instrumentation</p><h2>Building V5 and instrumenting V6</h2><p>V5 refined the contact cylinders. V6 added measurement channels for axle pose, caster angle, wheel motion and individual normal loads. The later JANUS runs also recorded contact penetration and axle effort. The saved V6 model and the reconstructed +30° alignment experiment are separate files.</p></header>
+    <div class="log-evidence">
+      <div class="log-figure-grid">
+        <figure><a href="assets/development/v5-step-refinement.png"><img src="assets/development/v5-step-refinement.png" loading="lazy" alt="V5 result comparing output traces at two numerical step sizes"></a><figcaption><strong>V5 refinement.</strong> The swivel rate still differed by 0.00548 rad/s between 50 and 25 µs, above the 0.0001 rad/s criterion.</figcaption></figure>
+        <figure><a href="assets/development/v6-alignment.png"><img src="assets/development/v6-alignment.png" loading="lazy" alt="V6 caster alignment replay with the retained original trace overlaid"></a><figcaption><strong>V6 alignment replay.</strong> The original overlap covers 2.750025–3 s. The earlier part of the plotted trace comes from reconstruction. The maximum caster-angle difference within the overlap was about 1.12 × 10⁻⁶°.</figcaption></figure>
+      </div>
+      <p>The reconstructed experiment applies 0.01 N·m to each driven wheel from a +30° caster start. Its ode4 solver runs at 25 µs and the export samples every 100 µs, yielding 30,001 rows over 3 s.</p>
+      <ul class="evidence-links"><li><a href="downloads/caster_visual_v5_cylinder_contact.slx" download>V5 cylinder-contact model ↓</a></li><li><a href="downloads/caster_visual_v6_measurements.slx" download>V6 saved measurements model ↓</a></li><li><a href="downloads/evidence_latest_alignment_replay.slx" download>V6 alignment experiment ↓</a></li></ul>
+    </div>
+  </section>
+  <section class="log-chapter" id="solver">
+    <header><p class="eyebrow">27 November · Native baseline matrix</p><h2>Measuring solver sensitivity</h2><p>We crossed three initial caster angles (−30°, 0°, +30°) with 50, 25 and 12.5 µs fixed steps in MATLAB R2026b. Each run used the same three-second effort input. The finer +30° follow-up used 6.25 µs.</p></header>
+    <div class="log-evidence">
+      <div class="log-figure-grid">
+        <figure><a href="reports/janus/native-baselines.png"><img src="reports/janus/native-baselines.png" loading="lazy" alt="Nine baseline trajectories and caster responses grouped by initial angle and solver step"></a><figcaption><strong>Nine-run matrix.</strong> Inspect how initial caster direction changes the sign of the lateral response and how the three steps compare within each start.</figcaption></figure>
+        <figure><a href="reports/janus/native-step-errors.png"><img src="reports/janus/native-step-errors.png" loading="lazy" alt="Differences between Simscape step sizes plotted against the measurement window"></a><figcaption><strong>Common-grid comparison.</strong> The largest deltas occur at contact start. All six adjacent comparisons also exceeded the swivel-rate threshold in the final half-second.</figcaption></figure>
+      </div>
+      <p>At 6.25 µs the maximum difference against 12.5 µs was still 0.002633 rad/s. The solver study establishes a remaining sensitivity in this fixture.</p>
+      <ul class="evidence-links"><li><a href="reports/janus/native-baseline-terminal-values.csv">Terminal values · CSV</a></li><li><a href="reports/janus/native-baseline-comparisons.csv">Common-grid comparison · CSV</a></li><li><a href="reports/janus/native-refinement-6p25us.csv">6.25 µs refinement · CSV</a></li></ul>
+    </div>
+  </section>
+  <section class="log-chapter" id="motion">
+    <header><p class="eyebrow">JANUS · Measured pose</p><h2>Closing the loop on motion and terrain</h2><p>The native controller reads axle pose and turns it into effort commands inside the simulation. We added gate and dwell checks to detect early stops, incorrect turns or drift after arrival.</p></header>
+    <div class="log-evidence">
+      <div class="log-figure-grid">
+        <figure><a href="reports/janus/native-m04-s-path.png"><img src="reports/janus/native-m04-s-path.png" loading="lazy" alt="Native Simscape S reference and measured path with tracking and terminal checks"></a><figcaption><strong>M04 S path.</strong> Two opposing 0.30 m arcs and a +45° caster start. The acceptance file reports 1.07 mm geometric RMSE and 11.25 mm terminal position error.</figcaption></figure>
+        <figure><a href="reports/janus/native-m05-square.png"><img src="reports/janus/native-m05-square.png" loading="lazy" alt="Native clockwise square showing commanded route, measured pose and gate progression"></a><figcaption><strong>M05 square.</strong> The revised clockwise case cleared all four edge and four turn dwells. The first candidate cleared one of eight gates.</figcaption></figure>
+        <figure><a href="reports/janus/qualification/M09.png"><img src="reports/janus/qualification/M09.png" loading="lazy" alt="M09 caster pivot qualification figure for the motion sequence and sensitivity case"></a><figcaption><strong>M09 pivot.</strong> Short launch, yaw motion and a terminal trim passed. The best zero-forward-request result from 180° finished 26.78 mm from its start against a 20 mm bound.</figcaption></figure>
+        <figure><a href="reports/janus/native-m12-slope.png"><img src="reports/janus/native-m12-slope.png" loading="lazy" alt="Native M12 terrain simulation plot for the 3-degree ramp"></a><figcaption><strong>M12 terrain.</strong> The 3° uphill run stalled or reversed. A separate beveled 5 mm trim fixture completed with measured trim contact at all wheels.</figcaption></figure>
+      </div>
+      <ul class="evidence-links"><li><a href="reports/janus/native-m04-acceptance.json">M04 acceptance · JSON</a></li><li><a href="reports/janus/native-m05-acceptance.json">M05 acceptance · JSON</a></li><li><a href="reports/janus/native-m06-acceptance.json">M06 acceptance · JSON</a></li></ul>
+    </div>
+  </section>
+  <section class="log-chapter" id="qr">
+    <header><p class="eyebrow">JANUS · Projected observations</p><h2>Revising the QR docking controller</h2><p>The native plant supplies measured pose and torque. The controller receives ideal projected QR corners. Four early V4 runs stopped beyond the 265 mm depth limit. Revised runs held depth and mechanical pose bounds together for 0.40 s.</p></header>
+    <div class="log-evidence">
+      <div class="log-figure-grid">
+        <figure><a href="reports/janus/native-qr-loss-v4.png"><img src="reports/janus/native-qr-loss-v4.png" loading="lazy" alt="Native QR blackout trace including command, optical signal and measured contact forces"></a><figcaption><strong>Finite blackout.</strong> The first invalid sample and zero forward request appear at 1.01 s. The stop dwell completed at 1.33 s. The run resumed after a valid observation returned.</figcaption></figure>
+        <figure><a href="reports/janus/native-qr-loss.png"><img src="reports/janus/native-qr-loss.png" loading="lazy" alt="Earlier native QR-loss plot from the controller development record"></a><figcaption><strong>Earlier QR-loss candidate.</strong> Compare the detection and command traces with the V4 rerun to see why observation loss and measured braking were checked separately.</figcaption></figure>
+      </div>
+      <p>In the persistent-loss qualification, the command fell to zero at 1.060 s, the measured stop dwell completed at 1.417 s and the abort latched at 2.060 s. Physical dock contact and BMS confirmation require separate measurements.</p>
+      <ul class="evidence-links"><li><a href="reports/janus/native-qr-supplements.json">Reported QR measurements · JSON</a></li><li><a href="results.html#docking-cases">Docking case register ↗</a></li></ul>
+    </div>
+  </section>
+  <section class="log-chapter" id="comparison">
+    <header><p class="eyebrow">Cross-platform diagnostic</p><h2>Replaying the same Python torques</h2><p>Eight native open-loop runs replayed both logged Python axle torque channels. The match was checked on the native logging grids. Two replays were repeated when the verified Python QR streams changed.</p></header>
+    <div class="log-evidence">
+      <figure class="log-wide-figure"><a href="reports/janus/native-equal-torque.png"><img src="reports/janus/native-equal-torque.png" loading="lazy" alt="Python and native Simscape trajectories from matched logged torque streams"></a><figcaption><strong>Equal effort replay.</strong> The matching input traces isolate plant response as a comparison axis. The nominal S run showed 1.24 m position RMSE between plants with different contact, support and friction formulations.</figcaption></figure>
+      <ul class="evidence-links"><li><a href="reports/janus/native-equal-torque-reviewed.csv">Reviewed replay measurements · CSV</a></li><li><a href="records/docs/research/janus-torque-comparison.html">Comparison contract and interpretation ↗</a></li></ul>
+    </div>
+  </section>
+  <section class="technical-section" id="models">
+    <h2>Model downloads and raw data</h2>
+    <dl class="research-ledger technical-ledger">
+      <div><dt>V5 and V6</dt><dd><a href="downloads/caster_visual_v5_cylinder_contact.slx" download>V5 contact model ↓</a> · <a href="downloads/caster_visual_v6_measurements.slx" download>V6 measurements model ↓</a> · <a href="downloads/evidence_latest_alignment_replay.slx" download>Alignment replay model ↓</a> · <a href="https://github.com/t0ttora/me492-caster-digital-twin/tree/main/models/simscape-v6/evidence">Full-rate alignment CSV and manifest ↗</a></dd></div>
+      <div><dt>JANUS native</dt><dd><a href="downloads/native_M04_contract_S_r1.slx" download>M04 closed-loop S model ↓</a> · <a href="https://github.com/t0ttora/me492-caster-digital-twin/tree/main/models/simscape-janus">Full model index, scripts and run instructions ↗</a></dd></div>
+    </dl>
+    <p>The native files use MATLAB R2026b with Simulink, Simscape and Simscape Multibody. Published geometry and contact parameters describe simulation fixtures. The physical pilot supplies the independent measurements for calibration.</p>
   </section>
 </section>

@@ -7,6 +7,7 @@ from urllib.parse import urlsplit, quote
 from urllib.request import Request, urlopen
 from zoneinfo import ZoneInfo
 from zipfile import ZIP_DEFLATED, ZipFile
+import ast
 import csv
 import subprocess
 import argparse
@@ -283,6 +284,9 @@ def publish_downloads():
     downloads = OUT / 'downloads'
     downloads.mkdir()
     models = [
+        'models/caster-m0/models/Me492CasterM0.slx',
+        'models/caster-m2-v1/models/Me492CasterM2V1.slx',
+        'models/simscape-v6/caster_visual_v5_cylinder_contact.slx',
         'models/simscape-v6/caster_visual_v6_measurements.slx',
         'models/simscape-v6/evidence_latest_alignment_replay.slx',
         'models/simscape-janus/requalification/M04_contract_S_r1/native_M04_contract_S_r1.slx',
@@ -293,6 +297,7 @@ def publish_downloads():
         shutil.copyfile(path, downloads / path.name)
 
     model_sources = [
+        ROOT / 'scripts/browser_examples.py',
         ROOT / 'arche-tui/backend.py',
         ROOT / 'caster-physics-python-v2/twin.py',
         *sorted((ROOT / 'caster-physics-python/src/caster_physics').rglob('*.py')),
@@ -367,6 +372,17 @@ def build(issues, comments):
     OUT.mkdir()
     publish_downloads()
     shutil.copytree(ROOT / 'site/assets', OUT / 'assets')
+    evidence = OUT / 'assets/development'
+    evidence.mkdir()
+    figures = {
+        'python-control-geometry.svg': 'caster-physics-python-v2/output/figures/V2_Control_Error_Geometry.svg',
+        'm2-top-level.png': 'models/caster-m2-v1/plots/top_level.png',
+        'm2-contacts.png': 'models/caster-m2-v1/plots/contacts_subsystem.png',
+        'v5-step-refinement.png': 'models/simscape-v6/evidence/v5_step_refinement.png',
+        'v6-alignment.png': 'models/simscape-v6/evidence/v6_alignment_replay_and_original_tail.png',
+    }
+    for name, path in figures.items():
+        shutil.copyfile(ROOT / path, evidence / name)
     shutil.copytree(ROOT / 'site/scenes', OUT / 'scenes')
     for name in ('style.css', 'journal.css', 'app.js'):
         shutil.copyfile(ROOT / 'site' / name, OUT / name)
@@ -481,6 +497,11 @@ def build(issues, comments):
     tokens = {'RUN_COUNT': str(run_count), 'ACCESS_SNAPSHOT': escape((ROOT / access).read_text().split('\n\n')[1]), 'COMMITS': ''.join(commits), 'ACCESS': markdown((ROOT / access).read_text(), access, embedded=True), 'DECISIONS': markdown((ROOT / decisions).read_text(), decisions, embedded=True), 'FOCUS': focus, 'PROGRESS': journal_html, 'SYNC': f'GitHub snapshot · {short_date(built.isoformat())} (Istanbul).', 'TASKS': ''.join(tasks), 'ROADMAP': ''.join(roadmap), 'DOCUMENTS': ''.join(doc_links)}
     tokens['JANUS_QUALIFICATION'] = qualification_summary(qualification)
     tokens['GANTT'] = timetable_chart(weeks)
+    examples = (ROOT / 'scripts/browser_examples.py').read_text()
+    for node in ast.parse(examples).body:
+        if isinstance(node, ast.FunctionDef):
+            snippet = ast.get_source_segment(examples, node)
+            tokens[f'PYTHON_{node.name.upper()}'] = escape(f'{snippet}\n\n{node.name}()')
     tokens['WEEKLY_PROGRESS'] = ''.join(weekly_progress)
     tokens['PROGRESS_CHART'] = bar_chart(status_bars)
     tokens['COVERAGE_CHART'] = bar_chart(coverage_bars, max(row[2] for row in coverage_bars))

@@ -186,6 +186,14 @@ class DashboardTests(unittest.TestCase):
         with ZipFile(downloads / 'arche-python-lab.zip') as archive:
             self.assertEqual(archive.read('arche-tui/backend.py'), (ROOT / 'arche-tui/backend.py').read_bytes())
             self.assertIn('caster-physics-python-v2/twin.py', archive.namelist())
+            examples = archive.read('scripts/browser_examples.py').decode()
+            for name in ('torque_baseline', 'compare_s_turn'):
+                self.assertIn(f'def {name}():', examples)
+                self.assertIn(f'def {name}():', self.pages['python'])
+                self.assertIn(f'data-python-example="{name}"', self.pages['python'])
+        lab = (ROOT / '_site/scenes/index.html').read_text()
+        self.assertLess(lab.index('class="header"'), lab.index('class="lab-heading"'))
+        self.assertIn('data-page="scenes" aria-current="page"', lab)
         with ZipFile(downloads / 'arche-ros2.zip') as archive:
             self.assertEqual(archive.read('janus/ros2/src/arche_sim/worlds/janus.sdf'), (downloads / 'janus.sdf').read_bytes())
         simscape = ROOT / 'models/simscape-v6/caster_visual_v6_measurements.slx'

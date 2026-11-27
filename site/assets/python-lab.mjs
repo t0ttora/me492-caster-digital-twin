@@ -1,40 +1,42 @@
-const form = document.querySelector('#python-run');
+const buttons = [...document.querySelectorAll('[data-python-example]')];
 const status = document.querySelector('#python-status');
 const output = document.querySelector('#python-output');
 const cancel = document.querySelector('#cancel-run');
-const run = form.querySelector('[type=submit]');
+const palette = ['#9ed6ff', '#edb882'];
 let worker;
 let csv;
+let example;
 
-function reset() {
-  run.disabled = false;
-  cancel.hidden = true;
+function setBusy(busy) {
+  for (const button of buttons) {
+    button.disabled = busy;
+    button.textContent = busy && button.dataset.pythonExample === example ? 'Running Python…' : button.dataset.label;
+  }
+  cancel.hidden = !busy;
 }
 
-function drawPlot(canvas, pairs, equalScale = false) {
+function drawPlot(canvas, lines, equalScale = false) {
   const context = canvas.getContext('2d');
   const [width, height] = [canvas.width, canvas.height];
-  const [left, right, top, bottom] = [67, width - 18, 20, height - 38];
-  let [xmin, xmax, ymin, ymax] = [
-    Math.min(...pairs.map(point => point[0])),
-    Math.max(...pairs.map(point => point[0])),
-    Math.min(...pairs.map(point => point[1])),
-    Math.max(...pairs.map(point => point[1]))
-  ];
-  const xspan = Math.max(xmax - xmin, .001);
-  const yspan = Math.max(ymax - ymin, .001);
-  const xmid = (xmax + xmin) / 2;
-  const ymid = (ymax + ymin) / 2;
+  const [left, right, top, bottom] = [65, width - 33, 18, height - 35];
+  const pairs = lines.flatMap(line => line.points);
+  const xs = pairs.map(point => point[0]);
+  const ys = pairs.map(point => point[1]);
+  const xmid = (Math.min(...xs) + Math.max(...xs)) / 2;
+  const ymid = (Math.min(...ys) + Math.max(...ys)) / 2;
+  const xspan = Math.max(Math.max(...xs) - Math.min(...xs), .001);
+  const yspan = Math.max(Math.max(...ys) - Math.min(...ys), .001);
   const ratio = (right - left) / (bottom - top);
-  xmin = xmid - 0.53 * (equalScale ? Math.max(xspan, yspan * ratio) : xspan);
-  xmax = xmid + (xmid - xmin);
-  ymin = ymid - 0.53 * (equalScale ? Math.max(yspan, xspan / ratio) : yspan);
-  ymax = ymid + (ymid - ymin);
-  context.fillStyle = '#171a19';
+  const dx = 1.06 * (equalScale ? Math.max(xspan, yspan * ratio) : xspan);
+  const dy = 1.06 * (equalScale ? Math.max(yspan, xspan / ratio) : yspan);
+  const xmin = xmid - dx / 2;
+  const ymin = ymid - dy / 2;
+  context.fillStyle = '#171918';
   context.fillRect(0, 0, width, height);
   context.font = '15px monospace';
   context.fillStyle = '#c0c5bc';
-  context.strokeStyle = '#3c413b';
+  context.strokeStyle = '#414941';
+  context.lineWidth = 1;
   context.beginPath();
   for (let division = 0; division <= 4; division++) {
     const fraction = division / 4;
@@ -45,103 +47,112 @@ function drawPlot(canvas, pairs, equalScale = false) {
     context.moveTo(left, y);
     context.lineTo(right, y);
     context.textAlign = 'center';
-    context.fillText((xmin + (xmax - xmin) * fraction).toFixed(2), x, height - 12);
+    context.fillText((xmin + dx * fraction).toFixed(2), x, height - 10);
     context.textAlign = 'right';
-    context.fillText((ymin + (ymax - ymin) * fraction).toFixed(2), left - 7, y + 5);
+    context.fillText((ymin + dy * fraction).toFixed(2), left - 5, y + 5);
   }
   context.stroke();
-  context.beginPath();
-  pairs.forEach(([x, y], index) => {
-    const px = left + (x - xmin) / (xmax - xmin) * (right - left);
-    const py = bottom - (y - ymin) / (ymax - ymin) * (bottom - top);
-    if (index === 0) context.moveTo(px, py);
-    else context.lineTo(px, py);
-  });
-  context.lineWidth = 2.5;
-  context.strokeStyle = '#9ed6ff';
-  context.stroke();
-  context.lineWidth = 1;
+  for (const line of lines) {
+    context.beginPath();
+    line.points.forEach(([x, y], index) => {
+      const px = left + (x - xmin) / dx * (right - left);
+      const py = bottom - (y - ymin) / dy * (bottom - top);
+      if (index === 0) context.moveTo(px, py);
+      else context.lineTo(px, py);
+    });
+    context.lineWidth = line.dashed ? 1.5 : 2.75;
+    context.setLineDash(line.dashed ? [5, 5] : []);
+    context.strokeStyle = line.color;
+    context.stroke();
+  }
+  context.setLineDash([]);
 }
 
 function showRun(result) {
-  const {samples, duration, peakTorque} = result;
-  const last = samples.at(-1);
-  const metrics = [
-    ['Samples', String(samples.length)],
-    ['Run time', duration.toFixed(2) + ' s'],
-    ['Final axle X / Y', last[1].toFixed(3) + ' / ' + last[2].toFixed(3) + ' m'],
-    ['Peak axle torque', peakTorque.toFixed(3) + ' N·m'],
-  ];
-  const list = document.querySelector('#python-metrics');
-  list.replaceChildren(...metrics.map(([label, value]) => {
-    const item = document.createElement('div');
-    const term = document.createElement('dt');
-    const number = document.createElement('dd');
-    term.textContent = label;
-    number.textContent = value;
-    item.append(term, number);
-    return item;
+  const series = result.series;
+  const comparesProfiles = series.length > 1;
+  const metrics = document.querySelector('#python-metrics');
+  metrics.replaceChildren(...series.map((run, index) => {
+    const row = document.createElement('tr');
+    const name = document.createElement('th');
+    name.scope = 'row';
+    name.textContent = run.name;
+    name.style.color = palette[index];
+    row.append(name);
+    for (const value of [
+      String(run.samples.length), run.duration.toFixed(2),
+      run.pathRmse == null ? '—' : (run.pathRmse * 1000).toFixed(2),
+      run.completion == null ? '—' : run.completion.toFixed(2), run.peakTorque.toFixed(3),
+    ]) {
+      const cell = document.createElement('td');
+      cell.textContent = value;
+      row.append(cell);
+    }
+    return row;
   }));
-  drawPlot(document.querySelector('#plot-path'), samples.map(row => row.slice(1, 3)), true);
-  drawPlot(document.querySelector('#plot-caster'), samples.map(([t, , , angle]) => [t, angle]));
+  const path = series.map((run, index) => ({color: palette[index], points: run.samples.map(row => row.slice(1, 3))}));
+  if (comparesProfiles) {
+    path.unshift({color: '#a7ada7', dashed: true, points: series[0].samples.map(row => row.slice(4, 6))});
+  }
+  document.querySelector('#reference-legend').hidden = !comparesProfiles;
+  drawPlot(document.querySelector('#plot-path'), path, true);
+  drawPlot(document.querySelector('#plot-caster'), series.map((run, i) => ({
+    color: palette[i], points: run.samples.map(([t, , , caster]) => [t, caster]),
+  })));
   csv = result.csv;
+  const heading = document.querySelector('#run-title');
+  heading.textContent = comparesProfiles ? 'S-turn profile comparison · generated results' : 'Equal-torque baseline · generated results';
   output.hidden = false;
-  status.textContent = 'Simulation complete. Results were generated in this browser.';
+  status.textContent = 'Python run complete.';
+  heading.focus({preventScroll: true});
+  output.scrollIntoView({block: 'start'});
 }
 
-function updateFields() {
-  for (const id of ['maneuver-field','profile-field']) {
-    const field = document.getElementById(id);
-    field.hidden = form.elements.model.value === 'V1';
-    field.querySelector('select').disabled = field.hidden;
-  }
-}
-form.elements.model.addEventListener('change', updateFields);
-updateFields();
-reset();
-form.addEventListener('submit', event => {
-  event.preventDefault();
-  const settings = Object.fromEntries(new FormData(form));
-  settings.caster = Number(settings.caster);
-  status.textContent = worker ? 'Integrating the simulation…' : 'Loading Python and NumPy…';
-  run.disabled = true;
-  cancel.hidden = false;
-  if (!worker) {
-    try {
-      worker = new Worker(new URL('./python-worker.mjs', import.meta.url), {type: 'module'});
-    } catch {
-      status.textContent = 'This browser could not start Python. See the local setup below.';
-      reset();
-      return;
-    }
-    worker.addEventListener('message', ({data}) => {
-      if (data.status) status.textContent = data.status;
-      else {
-        if (data.result) showRun(data.result);
-        else status.textContent = 'Simulation could not run. ' + data.error.split('\n').filter(Boolean).at(-1);
-        reset();
+for (const button of buttons) {
+  button.dataset.label = button.textContent;
+  button.addEventListener('click', () => {
+    example = button.dataset.pythonExample;
+    setBusy(true);
+    output.hidden = true;
+    status.textContent = worker ? 'Running the Python example…' : 'Loading Python and NumPy…';
+    if (!worker) {
+      try {
+        worker = new Worker(new URL('./python-worker.mjs', import.meta.url), {type: 'module'});
+      } catch {
+        status.textContent = 'This browser could not start Python. The recorded results are linked above.';
+        setBusy(false);
+        return;
       }
-    });
-    worker.addEventListener('error', () => {
-      worker.terminate();
-      worker = null;
-      status.textContent = 'The Python runtime could not load. Retry or use the local setup below.';
-      reset();
-    });
-  }
-  worker.postMessage(settings);
-});
+      worker.addEventListener('message', ({data}) => {
+        if (data.status) status.textContent = data.status;
+        else {
+          if (data.result) showRun(data.result);
+          else status.textContent = 'Python could not run. ' + data.error.split('\n').filter(Boolean).at(-1);
+          setBusy(false);
+        }
+      });
+      worker.addEventListener('error', () => {
+        worker.terminate();
+        worker = null;
+        status.textContent = 'The Python runtime could not load. Retry or open the recorded results.';
+        setBusy(false);
+      });
+    }
+    worker.postMessage(example);
+  });
+}
+setBusy(false);
 cancel.addEventListener('click', () => {
   worker?.terminate();
   worker = null;
-  status.textContent = 'Simulation stopped.';
-  reset();
+  status.textContent = 'Python run stopped.';
+  setBusy(false);
 });
 document.querySelector('#download-run').addEventListener('click', () => {
   const url = URL.createObjectURL(new Blob([csv], {type: 'text/csv'}));
   const link = document.createElement('a');
   link.href = url;
-  link.download = 'arche-browser-run.csv';
+  link.download = 'arche-' + example + '.csv';
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 });

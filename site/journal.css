@@ -177,7 +177,7 @@ html:has(.research-frame) { scroll-padding-top: calc(var(--ruler) + 72px); }
 .technical-section h2,.library-heading { margin-bottom: 9px; }
 .library-heading { margin-top: 18px; }
 .library-search { display: flex; gap: 9px; align-items: center; flex-wrap: wrap; margin: 10px 0; font-size: .875rem; }
-.library-search input,.experiment-form input,.experiment-form select,.experiment-form button,#download-run {
+.library-search input {
   min-height: 44px; color: var(--paper); background: var(--surface);
   border: 1px solid var(--line); padding: 6px 9px; border-radius: 0; font: inherit;
 }
@@ -186,15 +186,6 @@ html:has(.research-frame) { scroll-padding-top: calc(var(--ruler) + 72px); }
 .research-figures img,.research-figures canvas { display: block; width: 100%; height: auto; background: var(--surface); border: 1px solid var(--line); }
 .research-figures img { object-fit: contain; }
 .research-figures figcaption { color: var(--muted); font-size: .8125rem; margin-top: 6px; }
-.experiment-form { display: flex; flex-wrap: wrap; align-items: end; gap: 9px 12px; margin: 16px 0 8px; }
-.experiment-form label { display: grid; gap: 4px; font-size: .875rem; }
-.experiment-form select,.experiment-form input { font-size: 1rem; }
-.experiment-form input { width: 8rem; }
-.experiment-form button[type=submit] { color: #142125; background: var(--accent); }
-.experiment-form button:disabled { opacity: .55; cursor: wait; }
-.run-metrics { display: flex; gap: 10px 32px; flex-wrap: wrap; border-block: 1px solid var(--line); padding: 10px 0; }
-.run-metrics dt { font-size: .8125rem; color: var(--muted); }
-.run-metrics dd { margin: 3px 0 0; font-variant-numeric: tabular-nums; }
 .gantt-scroll { overflow: auto; max-width: 100%; margin: 14px 0 8px; }
 .gantt { min-width: 660px; border: 1px solid var(--line); }
 .gantt-row { display: grid; grid-template-columns: 218px minmax(0,1fr); border-top: 1px solid var(--line); }
@@ -216,7 +207,6 @@ html:has(.research-frame) { scroll-padding-top: calc(var(--ruler) + 72px); }
   .research-ledger.technical-ledger div,.workstreams .research-ledger div { grid-template-columns: minmax(105px,.45fr) minmax(0,1fr); gap: 9px; }
   .gantt-label { font-size: .8125rem; }
 }
-.experiment-form [hidden],.library-search[hidden] { display: none; }
 .header nav a[aria-current="location"] { color: var(--paper); }
 @media (max-width: 760px) {
   .gantt { min-width: 0; }
@@ -227,4 +217,66 @@ html:has(.research-frame) { scroll-padding-top: calc(var(--ruler) + 72px); }
   .gantt-label small { margin-left: 6px; display: inline; }
   .gantt-lane { height: 28px; }
   .gantt-bar { inset-block: 2px; font-size: .656rem; }
+}
+
+.library-search[hidden] { display: none; }
+
+/* Technical development logs use the journal grid with larger evidence panels. */
+.development-log .research-heading { max-width: 86ch; }
+.development-log .research-heading a { text-decoration: underline; text-underline-offset: 3px; }
+.log-chapter {
+  display: grid;
+  grid-template-columns: minmax(200px, .33fr) minmax(0, 1fr);
+  gap: 18px 30px;
+  border-top: 1px solid var(--line);
+  margin-top: 20px;
+  padding-top: 20px;
+}
+.log-chapter header .eyebrow { color: var(--accent); margin-bottom: 7px; }
+.log-chapter header h2 { margin: 0 0 8px; }
+.log-chapter header > p:not(.eyebrow),.log-evidence > p { color: var(--muted); }
+.log-evidence > p { margin-top: 10px; }
+.log-evidence > p a,.log-evidence li a { text-decoration: underline; text-underline-offset: 3px; }
+.log-figure-grid,.example-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 17px; }
+.log-figure-grid figure,.log-wide-figure { display: flex; flex-direction: column; margin: 0; }
+.log-figure-grid :is(img,canvas),.log-wide-figure img {
+  display: block; width: 100%; height: auto; max-width: 100%;
+  background: #171918; border: 1px solid var(--line);
+}
+.log-figure-grid img { aspect-ratio: 3 / 2; object-fit: contain; }
+.log-figure-grid a:hover img,.log-wide-figure a:hover img { border-color: var(--accent); }
+.log-figure-grid figcaption,.log-wide-figure figcaption {
+  padding-block: 7px 11px; color: var(--muted); font-size: .8125rem; line-height: 1.45;
+}
+.log-figure-grid figcaption strong,.log-wide-figure figcaption strong { color: var(--paper); }
+.method-chain { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); list-style: none; margin: 0; padding: 0; border-block: 1px solid var(--line); }
+.method-chain li { padding: 10px 8px; border-inline-start: 1px solid var(--line); font-size: .875rem; }
+.method-chain li:first-child { border-inline-start: 0; }
+.example-grid > article { min-width: 0; display: flex; flex-direction: column; align-items: start; }
+.example-grid h3,#run-title { font-size: 1rem; }
+.example-grid p { margin-top: 6px; color: var(--muted); font-size: .875rem; }
+.example-grid pre {
+  flex: 1; width: 100%; margin: 10px 0; padding: 11px;
+  overflow: auto; border: 1px solid var(--line); background: #171918;
+  color: #d7e9ee; font: .75rem/1.55 ui-monospace,monospace;
+}
+.example-area button {
+  min-height: 44px; padding: 6px 10px; border-radius: 0;
+  border: 1px solid var(--line); background: var(--surface); color: var(--paper);
+}
+.example-area button[data-python-example]:not(:disabled) { background: var(--accent); color: #142125; }
+.example-area button:disabled { opacity: .55; cursor: wait; }
+.example-status { display: flex; align-items: center; gap: 9px; margin-top: 9px; color: var(--muted); font-size: .875rem; }
+#python-output { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+#python-output table { min-width: 530px; }
+#python-output .log-figure-grid { margin: 9px 0; }
+#python-output .small { margin-top: 9px; }
+@media (max-width: 900px) {
+  .log-chapter { grid-template-columns: minmax(0,1fr); }
+}
+@media (max-width: 620px) {
+  .log-figure-grid,.example-grid { grid-template-columns: minmax(0,1fr); }
+  .method-chain { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .method-chain li:nth-child(3) { border-inline-start: 0; }
+  .method-chain li:nth-child(n+3) { border-top: 1px solid var(--line); }
 }

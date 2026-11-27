@@ -15,30 +15,33 @@ import io
 import json
 import math
 import sys
-sys.path.insert(0, "arche-tui")
-from backend import defaults, simulate_config, validate
 
-def launch(settings_json):
-    settings = json.loads(settings_json)
-    config = defaults(settings["model"])
-    config["initial"]["caster_angle_relative_rad"] = math.radians(settings["caster"])
-    if settings["model"] == "V2":
-        config["experiment"].update(maneuver=settings["maneuver"], profile=settings["profile"])
-    params, duration = validate(config)
-    rows, _, _ = simulate_config(config, params, duration)
+sys.path[:0] = ["arche-tui", "scripts"]
+import backend
+from browser_examples import torque_baseline, compare_s_turn
+
+EXAMPLES = {"torque_baseline": torque_baseline, "compare_s_turn": compare_s_turn}
+
+def launch(example):
+    runs = EXAMPLES[example]()
     data = io.StringIO()
-    writer = csv.DictWriter(data, fieldnames=rows[0].keys())
+    writer = csv.DictWriter(data, fieldnames=["run", *runs[0][1][0]])
     writer.writeheader()
-    writer.writerows(rows)
-    samples = [[row["time_s"], row["x_m"], row["y_m"],
-                math.degrees(row["caster_angle_body_rad"])] for row in rows]
-    return json.dumps({
-        "samples": samples,
-        "csv": data.getvalue(),
-        "duration": rows[-1]["time_s"],
-        "peakTorque": max(abs(row[key]) for row in rows
-                           for key in ("left_drive_torque_Nm", "right_drive_torque_Nm"))
-    }, allow_nan=False)
+    series = []
+    for name, rows, metrics in runs:
+        writer.writerows({"run": name, **row} for row in rows)
+        samples = [[row["time_s"], row["x_m"], row["y_m"],
+                    math.degrees(row["caster_angle_body_rad"]),
+                    row.get("ref_x_m"), row.get("ref_y_m")] for row in rows]
+        series.append({
+            "name": name, "samples": samples,
+            "duration": rows[-1]["time_s"],
+            "pathRmse": metrics.get("path_rmse_m"),
+            "completion": metrics.get("completion_time_s"),
+            "peakTorque": max(abs(row[key]) for row in rows
+                               for key in ("left_drive_torque_Nm", "right_drive_torque_Nm")),
+        })
+    return json.dumps({"series": series, "csv": data.getvalue()}, allow_nan=False)
 `);
   return instance;
 }
@@ -46,10 +49,10 @@ def launch(settings_json):
 self.onmessage = async ({data}) => {
   try {
     python ??= await initialize();
-    self.postMessage({status: 'Integrating the simulation…'});
+    self.postMessage({status: 'Running the Python example…'});
     const run = python.globals.get('launch');
     try {
-      self.postMessage({result: JSON.parse(run(JSON.stringify(data)))});
+      self.postMessage({result: JSON.parse(run(data))});
     } finally {
       run.destroy();
     }
