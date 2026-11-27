@@ -33,6 +33,8 @@ The guard sends zero while clock or odometry is unavailable, stalled, stale or t
 
 For O08 after a loss of power or connectivity, stop or disable the old request publisher, restore and verify clock and odometry, obtain operator authorization, then start a fresh replay with a new run ID. The guard can check when it receives a Twist relative to its own input health. This unstamped message carries neither a sender timestamp nor proof of operator authorization. A publisher left running could send a new Twist automatically, and middleware queues can delay old messages. The offline O08 fixtures exercise direct guard calls for clock recovery, odometry recovery and a fresh guard instance after a latched abort. Native restart, queue behavior, operator authorization and stopping remain open.
 
+The O08 simulation fixture enables `require_recovery_permission` on its isolated launch. A watchdog outage after motion clears the stored request and requires a separate `/janus/recovery/authorize` Boolean signal once clock and odometry are healthy. A fresh unauthorized `Twist` is discarded. The guard emits a `recovery_authorized` acknowledgment and requires a later request. The fixture records the world service acknowledgments, restored clock, unauthorized probe and authorization sequence independently. The default general launch keeps the permission fixture disabled.
+
 On normal SIGINT or SIGTERM, the guard attempts one final zero on `/cmd_vel` before destroying the publisher when its ROS context is still valid. Process death, SIGKILL, a closed context, bridge or DDS loss, and concurrent downstream teardown can prevent the final zero from reaching the plant. No downstream command expiry is configured in this model. [Jazzy rclpy lifecycle and signal handling](https://github.com/ros2/rclpy/blob/jazzy/rclpy/rclpy/__init__.py)
 
 ## Mac offline reproduction
@@ -113,6 +115,8 @@ python3 experiments/validate-native.py /absolute/path/to/new-run-M02
 ```
 
 The runner records measured Gazebo world pose, simulated odometry, measured wheel/caster joints, command-guard output and raw experiment events. QR case outputs also retain rendered camera frames and decoded observations. Q13 interrupts the camera bridge and reinjects a captured frame with its original timestamp. O08 pauses and resumes the live Gazebo clock and separately issues an explicit new request. These faults exercise the isolated simulator and ROS topics. The simulator supplies wheel-velocity actuation and these runs make no claim about applied axle effort or physical robot stopping distance.
+
+The isolated QR fixtures use the `zbar` backend after `sudo apt install python3-pyzbar`. It reads actual rendered QR content before the common identity, freshness and centering checks. The runner selects a single-marker fast path only for the world with the named robot and sole nominal marker. Unknown or multi-marker scenes use the additional OpenCV residual check. Select the default OpenCV pipeline with `JANUS_DECODER_BACKEND=opencv`. The observer logs the backend and fixture setting in the launch evidence. Use `JANUS_RECORD_BAG=1` to keep a compressed MCAP and exported topic trace as part of the run.
 
 ## Native bag, replay and benchmark
 

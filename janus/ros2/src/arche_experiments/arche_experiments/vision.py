@@ -86,8 +86,9 @@ def select_marker(frame, candidates, minimum_area=0.0004):
 
 
 class Decoder:
-    def __init__(self):
+    def __init__(self, check_residual=True):
         self.detector = cv2.QRCodeDetector()
+        self.check_residual = check_residual
 
     def decode(self, image, frame):
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) if image.ndim == 3 else image
@@ -96,7 +97,7 @@ class Decoder:
             gray = cv2.normalize(gray, None, 0, 255, cv2.NORM_MINMAX)
         try:
             candidates = self._candidates(gray, frame)
-            if len(candidates) == 1 and candidates[0].id == frame.target_id:
+            if self.check_residual and len(candidates) == 1 and candidates[0].id == frame.target_id:
                 # OpenCV's multi detector can collapse two same-size adjacent markers into one.
                 # Re-scan the unoccupied pixels before accepting a sole target.
                 polygon = np.array(candidates[0].corners_px)
@@ -119,10 +120,26 @@ class Decoder:
         for index, corners in enumerate(points):
             try:
                 text = strings[index] if index < len(strings) else ""
-                candidates.append(Candidate.from_points(text, corners, frame.width_px, frame.height_px))
+                candidate = Candidate.from_points(text, corners, frame.width_px, frame.height_px)
             except ValueError:
                 continue
+            if (candidate.id is None and candidate.area_ratio >= .0004 and
+                    all(0 <= u < frame.width_px and 0 <= v < frame.height_px for u, v in candidate.corners_px)):
+                decoded = self._decode_rectified(image, candidate.corners_px)
+                if decoded:
+                    candidate = replace(candidate, id=decoded)
+            candidates.append(candidate)
         return candidates
+
+    def _decode_rectified(self, gray, corners):
+        # Rendered modules can lie between input pixels. Binarize after expanding the
+        # detected quadrilateral and restore a quiet zone without changing its geometry.
+        square = np.float32(((0, 0), (251, 0), (251, 251), (0, 251)))
+        transform = cv2.getPerspectiveTransform(np.float32(corners), square)
+        patch = cv2.warpPerspective(gray, transform, (252, 252), flags=cv2.INTER_LINEAR)
+        padded = cv2.copyMakeBorder(patch, 32, 32, 32, 32, cv2.BORDER_CONSTANT, value=255)
+        _, binary = cv2.threshold(padded, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+        return self.detector.detectAndDecode(binary)[0]
 
 
 class FrameTiming:

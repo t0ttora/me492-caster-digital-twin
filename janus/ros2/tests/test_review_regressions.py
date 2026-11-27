@@ -105,6 +105,23 @@ class TraceReviewTests(unittest.TestCase):
 
 
 class GuardReviewTests(unittest.TestCase):
+    def test_recovered_clock_permission_drops_fresh_unauthorized_request(self):
+        guard = CommandGuard(require_recovery_permission=True)
+        guard.clock(1.0, 10.0)
+        guard.odometry(1.0)
+        guard.request(.1, 0., 10.0)
+        self.assertEqual(guard.output(10.0).v_mps, .1)
+        self.assertEqual(guard.output(10.6).reason, 'clock_stall')
+        self.assertFalse(guard.authorize_recovery(10.6))
+        guard.clock(1.04, 10.7)
+        guard.odometry(1.04)
+        guard.request(.08, 0., 10.71)
+        self.assertEqual(guard.output(10.71).reason, 'recovery_permission_required')
+        self.assertTrue(guard.authorize_recovery(10.72))
+        self.assertEqual(guard.output(10.72).reason, 'command_timeout')
+        guard.request(.08, 0., 10.73)
+        self.assertEqual(guard.output(10.73).v_mps, .08)
+
     def test_new_odometry_cannot_reactivate_request_from_outage(self):
         guard = CommandGuard()
         guard.clock(0, 0)

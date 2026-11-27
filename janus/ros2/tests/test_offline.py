@@ -16,6 +16,11 @@ from arche_experiments.ros_fields import JOINTS, joint_fields, odometry_fields
 from arche_experiments.trace_metrics import measure_trace
 from arche_experiments.vision import Decoder, Observation, TARGET_ID, unpack_image
 
+try:
+    from arche_experiments.vision_zbar import ZBarDecoder
+except (ImportError, OSError):
+    ZBarDecoder = None
+
 
 class CommandTests(unittest.TestCase):
     def test_zoh_boundary_and_end(self):
@@ -66,6 +71,25 @@ class CommandTests(unittest.TestCase):
 
 
 class VisionTests(unittest.TestCase):
+    @unittest.skipIf(ZBarDecoder is None, 'optional native ZBar backend unavailable')
+    def test_zbar_backend_does_not_weaken_wrong_and_ambiguous_gate(self):
+        for case, variant, image, target, valid, reason, _ in qr_fixtures():
+            if case not in {'Q08', 'Q09'}:
+                continue
+            with self.subTest(case=case, variant=variant):
+                observed = ZBarDecoder().decode(image, Observation(0,0,640,480,TARGET_ID,target))
+                self.assertEqual(observed.valid, valid)
+                self.assertEqual(observed.reason, reason)
+
+    def test_rendered_marker_recovery_preserves_detected_pixel_geometry(self):
+        image = cv2.imread(str(Path(__file__).parent / 'fixtures/gazebo_aliasing_rgb.png'))
+        decoded = Decoder().decode(image, Observation(0, 0, 640, 480, TARGET_ID, 320.0))
+        self.assertTrue(decoded.valid, decoded.reason)
+        self.assertEqual(decoded.id, TARGET_ID)
+        self.assertEqual(len(decoded.corners_px), 4)
+        self.assertAlmostEqual(decoded.center_u_px, 320.0, delta=2.0)
+        self.assertGreater(decoded.quality_area_ratio, 0.015)
+
     def test_real_decoding_cases(self):
         decode = Decoder()
         for case, variant, image, target, valid, reason, sign in qr_fixtures():

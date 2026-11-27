@@ -19,7 +19,17 @@ from arche_experiments.vision import Decoder, FrameTiming, Observation, OPTICAL_
 class QrObserver(Node):
     def __init__(self):
         super().__init__("janus_qr_observer")
-        self.decoder = Decoder()
+        cv2.setNumThreads(1)
+        backend = self.declare_parameter("decoder_backend", "opencv").value
+        single_marker = self.declare_parameter("known_single_marker_fixture", False).value
+        if backend == "zbar":
+            from arche_experiments.vision_zbar import ZBarDecoder
+            self.decoder = ZBarDecoder(known_single_marker_fixture=single_marker)
+        elif backend == "opencv":
+            self.decoder = Decoder()
+        else:
+            raise ValueError(f"Unsupported decoder backend: {backend}")
+        self.get_logger().info(f"JANUS QR backend: {backend}; single-marker fixture: {single_marker and backend == 'zbar'}")
         self.timing = FrameTiming(self.declare_parameter("freshness_s", 0.20).value)
         self.target_id = self.declare_parameter("target_id", TARGET_ID).value
         self.target_u = self.declare_parameter("target_u_px", 320.0).value

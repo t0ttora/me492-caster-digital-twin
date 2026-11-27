@@ -53,7 +53,8 @@ class Command:
 class CommandGuard:
     """Pure guard shared by the ROS adapter and synthetic replay."""
 
-    def __init__(self, command_timeout=0.25, odom_timeout=0.25, clock_timeout=0.50):
+    def __init__(self, command_timeout=0.25, odom_timeout=0.25, clock_timeout=0.50,
+                 require_recovery_permission=False):
         if not all(math.isfinite(t) and t > 0 for t in (command_timeout, odom_timeout, clock_timeout)):
             raise ValueError("guard timeouts must be finite and positive")
         self.command_timeout = command_timeout
@@ -62,18 +63,26 @@ class CommandGuard:
         self.now = self.clock_wall = self.odom_stamp = self.request_stamp = None
         self.fault = None
         self.requested = Command()
+        self.require_recovery_permission = require_recovery_permission
+        self.recovery_pending = False
+        self.had_motion_request = False
+
+    def _invalidate_for_watchdog(self):
+        if self.require_recovery_permission and self.had_motion_request:
+            self.recovery_pending = True
+        self.request_stamp = None
 
     def clock(self, now, wall):
         # Detect a wall-time stall even if the timer did not run during the gap.
         if self._watchdog_reason(wall):
-            self.request_stamp = None
+            self._invalidate_for_watchdog()
         if self.now is not None and now < self.now:
             self.fault = self.fault or "clock_reset"
         if self.now is None or now != self.now:
             self.clock_wall = wall
         self.now = now
         if self._odom_watchdog_reason():
-            self.request_stamp = None
+            self._invalidate_for_watchdog()
 
     def odometry(self, stamp, valid=True):
         if not valid or not math.isfinite(stamp) or stamp < 0:
@@ -84,17 +93,29 @@ class CommandGuard:
             return
         self.odom_stamp = stamp
         if self.now is not None and self._odom_watchdog_reason():
-            self.request_stamp = None
+            self._invalidate_for_watchdog()
 
     def request(self, v, yaw, wall):
         if not all(map(math.isfinite, (v, yaw))):
             self.fault = self.fault or "invalid_command"
             return
-        if self.fault or self._watchdog_reason(wall):
+        if self.fault or self.recovery_pending:
             self.request_stamp = None
+            return
+        if self._watchdog_reason(wall):
+            self._invalidate_for_watchdog()
             return
         self.requested = Command(v, yaw)
         self.request_stamp = self.now
+        if v != 0 or yaw != 0:
+            self.had_motion_request = True
+
+    def authorize_recovery(self, wall):
+        if not self.recovery_pending or self.fault or self._watchdog_reason(wall):
+            return False
+        self.recovery_pending = False
+        self.request_stamp = None
+        return True
 
     def abort(self):
         self.fault = self.fault or "operator_abort"
@@ -117,8 +138,10 @@ class CommandGuard:
         if self.fault:
             return Command(reason=self.fault)
         if reason := self._watchdog_reason(wall):
-            self.request_stamp = None
+            self._invalidate_for_watchdog()
             return Command(reason=reason)
+        if self.recovery_pending:
+            return Command(reason="recovery_permission_required")
         if self.request_stamp is None or self.now - self.request_stamp > self.command_timeout:
             return Command(reason="command_timeout")
         return self.requested

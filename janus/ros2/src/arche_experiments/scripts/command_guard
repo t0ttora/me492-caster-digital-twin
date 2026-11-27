@@ -21,10 +21,12 @@ from arche_experiments.ros_fields import odometry_fields, stamp_s
 class GuardNode(Node):
     def __init__(self):
         super().__init__("janus_command_guard")
+        require_permission = self.declare_parameter("require_recovery_permission", False).value
         self.guard = CommandGuard(
             self.declare_parameter("command_timeout_s", 0.25).value,
             self.declare_parameter("odom_timeout_s", 0.25).value,
             self.declare_parameter("wall_clock_timeout_s", 0.50).value,
+            require_recovery_permission=require_permission,
         )
         self.last_reason = None
         self.command = self.create_publisher(Twist, "/cmd_vel", 10)
@@ -33,6 +35,8 @@ class GuardNode(Node):
         self.create_subscription(Odometry, "/odom", self.odometry, qos_profile_sensor_data)
         self.create_subscription(Twist, "/janus/cmd_vel/request", self.request, 10)
         self.create_subscription(Bool, "/janus/abort", self.abort, 10)
+        if require_permission:
+            self.create_subscription(Bool, "/janus/recovery/authorize", self.authorize, 10)
         # Keep sending zero on a paused or missing simulation clock.
         self.create_timer(0.02, self.send, clock=Clock(clock_type=ClockType.STEADY_TIME))
 
@@ -54,6 +58,12 @@ class GuardNode(Node):
         if msg.data:
             self.guard.abort()
             self.send()
+
+    def authorize(self, msg):
+        if msg.data:
+            accepted = self.guard.authorize_recovery(monotonic())
+            reason = "recovery_authorized" if accepted else "recovery_permission_rejected"
+            self.events.publish(String(data=json.dumps({"time_s": self.guard.now, "reason": reason})))
 
     def send(self):
         output = self.guard.output(monotonic())
