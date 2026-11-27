@@ -1,0 +1,75 @@
+{
+  "fixture": "bevel5mm_1deg",
+  "synthetic": true,
+  "top_profile_world_xz_m": [
+    [
+      0.2,
+      0
+    ],
+    [
+      0.48644980815379713,
+      0.005
+    ],
+    [
+      0.88644980815379715,
+      0.005
+    ],
+    [
+      1.1728996163075942,
+      0
+    ]
+  ],
+  "cross_section_local_xy_m": [
+    [
+      0.2,
+      -0.05
+    ],
+    [
+      1.1728996163075942,
+      -0.05
+    ],
+    [
+      1.1728996163075942,
+      0
+    ],
+    [
+      0.88644980815379715,
+      0.005
+    ],
+    [
+      0.48644980815379713,
+      0.005
+    ],
+    [
+      0.2,
+      0
+    ]
+  ],
+  "local_to_world_rotation": "Rx(+90deg): local x->world x, local y->world z, extrusion local z->world -y",
+  "bevel_angle_deg": 1,
+  "bevel_run_m": 0.28644980815379711,
+  "plateau_length_m": 0.4,
+  "height_m": 0.005,
+  "y_domain_m": [
+    -0.5,
+    0.5
+  ],
+  "ground": "Original infinite plane below finite convex beveled trim",
+  "static_friction": [
+    0.5,
+    0.5
+  ],
+  "dynamic_friction": [
+    0.3,
+    0.3
+  ],
+  "target_axle_x_m": 1.6,
+  "geometry_proxy": "Convex exported solid wheel hull against world-fixed brick solid hull; no time-based material switching",
+  "contact_normal_frame": "Each pair contact frame; signed component3 is pair normal magnitude, not common world-Z near edges",
+  "contacts": {
+    "stiffness_Npm": 100000,
+    "damping_Nspm": 500,
+    "transition_m": 0.0001,
+    "critical_velocity_mps": 0.01
+  }
+}

@@ -12,9 +12,16 @@ separate task requires language to resolve the destination.
 Official ViNT and GNM source was accessible, and the publisher-linked
 weight files returned public attachment metadata. Separate checkpoint
 redistribution terms are unresolved. Published speed and accuracy
-measurements came from other platforms. The target systems did not have
-a prepared inference runtime, matching available weights and a suitable
-JANUS episode for an end-to-end smoke test.
+measurements came from other platforms. The pretrained ViNT checkpoint
+subsequently ran on an Apple M2 with MPS and CPU. With 11 windows from
+the upstream GoStanford demonstration, each prediction produced five
+finite waypoints and a distance value. The p95 on 200 warmed, tensor-input
+forwards was 186.7 ms on MPS and 1330.6 ms on four-thread CPU. This measures
+model forward only. JANUS task gain and full camera-to-command latency
+still require matched episodes. One separate CPU interface check used
+six rendered Gazebo JANUS frames with an independently identified goal
+frame from later in the same approach. It returned five finite waypoints
+and a distance value. The model was not connected to the command path.
 
 The experiment uses 48 held-out episodes across 12 layouts, with the
 models scored on matched inputs. The decision rule requires an increase

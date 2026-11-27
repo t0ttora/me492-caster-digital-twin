@@ -1,0 +1,844 @@
+{
+  "schema": "janus-public-qualification-1",
+  "scope": "simulation",
+  "counts": {
+    "passed": 40
+  },
+  "physical_pilot": "pending",
+  "cases": [
+    {
+      "case_id": "M01",
+      "priority": "P0",
+      "title": "Düz zeminde kısa boşta bekleme",
+      "acceptance_tr": "Sıfır tork ve sonlu kayıt. Yapay konum kayması en çok 1 mm (öneri).",
+      "measured_fields_tr": "Konum kayması (m), maksimum mutlak teker torku (N·m), eksik/geçersiz örnek sayısı.",
+      "tested_inputs_tr": "Düz zemin, 2 s, sıfır sol/sağ aks torku. Native aynı tork dizisini uygular.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "passed",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "İki saniye sıfır torkta ölçülen aks kayması 0 mm, 201 sonlu örnek."
+        },
+        "Simscape": {
+          "status": "passed",
+          "measurement_tr": "Sıfır aks torku replay’inde 2.001 sonlu 1 ms örnek. En büyük aks kayması 0,0632 mm, 1 mm kapısının altında."
+        }
+      }
+    },
+    {
+      "case_id": "M02",
+      "priority": "P0",
+      "title": "Düşük hızda düz kalkış, fren ve duruş",
+      "acceptance_tr": "Komut ve dönme işaretleri fiziksel yönle tutarlı. Fren olayı sonrasında duruş ölçülür. Saha durma sınırını firma belirler.",
+      "measured_fields_tr": "Sağ/sol teker hızı, uygulanan komut, frenleme süresi ve mesafesi, terminal hız.",
+      "tested_inputs_tr": "Python fren basamağı, Simscape yumuşak düz kalkış ve Gazebo düşük hızlı komut kesme. Herinde ileri teker işareti ve fren olayı ayrı.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "Doğrudan fren basamağında pozitif 237,856 mm net hareket ve 860 ms / 45,804 mm duruş."
+        },
+        "Simscape": {
+          "status": "passed",
+          "measurement_tr": "Native ölçümde gövde ve iki teker ileri işareti pozitif. 4,010 s freninden 471 ms sonra duruş bandı, 6,667 mm yol ve 4,731 s’de 250 ms duruş teyidi."
+        },
+        "Gazebo Linux": {
+          "status": "passed",
+          "measurement_tr": "Tek yayıncılı Linux koşusunda 240,085 mm ileri hareket, iki teker +1,60 rad/s. Fren sonrası 63 ms’de duruş bandı ve 250 ms bekleme. İlk fren örneğinden 3,157 mm, olay konumuna ara değerle 3,517 mm."
+        }
+      }
+    },
+    {
+      "case_id": "M03",
+      "priority": "P1",
+      "title": "Sabit yarıçaplı yay ve köşeye giriş",
+      "acceptance_tr": "İstenen eğrilik yönü ve yay izleme tutarlı. Caster hizalanması ölçülür. Mutlak hata sınırı planlanmadı.",
+      "measured_fields_tr": "Referans ve gerçekleşen eğrilik, çapraz iz RMSE, caster hizalanma süresi.",
+      "tested_inputs_tr": "Pozitif sabit eğrilik, Python yaklaşık 0,287 m referans yarıçapı, Simscape 0,40 m yay.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "Sonlu yayda 192 pozitif eğrilik örneği, ortalama 3,551 rad/m ve referans 3,491 rad/m. Caster pivot yönü için tanısal bekleme 1,05 s’de tamamlandı."
+        },
+        "Simscape": {
+          "status": "passed",
+          "measurement_tr": "0,40 m yarıçaplı yayda ortalama eğrilik +2,501 rad/m, radyal RMSE 1,90 mm. Hareketli yay sonunda caster −31,36°. Hesaplanan yanal caster kayma göstergesi 0,0153 mm/s RMS."
+        }
+      }
+    },
+    {
+      "case_id": "M04",
+      "priority": "P0",
+      "title": "S yolu ve ters eğrilikler",
+      "acceptance_tr": "Çapraz iz RMSE en çok 30 mm (öneri). V2.3 terminal kapısı 250 ms kesintisiz sağlanır.",
+      "measured_fields_tr": "Çapraz iz RMSE ve maksimumu, ters eğrilik geçişleri, terminal poz/yaw ve hızlar.",
+      "tested_inputs_tr": "İki karşıt 0,30 m yay, başlangıç caster +45°. Kapalı çevrimler kendi pozunu ve farklı hız profillerini kullanır.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "passed",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "0,30 m iki karşıt yayda çapraz iz RMSE 12,618 mm. Terminal kapı 9,88 s, son hata 4,407 mm."
+        },
+        "Simscape": {
+          "status": "passed",
+          "measurement_tr": "Bağımsız sürekli yay denetimi RMSE 1,149 mm, en çok 2,352 mm. 10,619–10,869 s terminal duruşu sonuna kadar korundu."
+        }
+      }
+    },
+    {
+      "case_id": "M05",
+      "priority": "P0",
+      "title": "Saat yönünde 0,50 m kare",
+      "acceptance_tr": "Dört kenar ve dört sıralı 90° dönüş. Her köşede en çok 50 mm ve 5°, duruş+dwell; bitişte V2.3 terminal kapısı.",
+      "measured_fields_tr": "Köşe başına giriş ve çıkış poz/yaw, hız ve dwell. Kenar sayısı ve boyu, dönüş işareti, terminal.",
+      "tested_inputs_tr": "0,50 m kenarlar, saat yönünde dört 90° dönüş ve sekiz sıralı duruş kapısı.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "passed",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "Saat yönünde dört kenar, dört dönüş. Son kapı 32,50 s, final poz hatası 7,256 mm."
+        },
+        "Simscape": {
+          "status": "passed",
+          "measurement_tr": "Dört kenar ve dört dönüşte ayrı 250 ms ölçülen duruş. Son doğrulama 60,110 s."
+        }
+      }
+    },
+    {
+      "case_id": "M06",
+      "priority": "P1",
+      "title": "Saat yönünün tersinde 0,50 m kare",
+      "acceptance_tr": "M05 ile aynı kapılar, ters dönüş işareti ve sıralı dört köşe.",
+      "measured_fields_tr": "M05 metrikleri ve M05’e göre ayna farkı.",
+      "tested_inputs_tr": "M05’in aynalı rotası, saat yönünün tersine dört 90° dönüş.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "passed",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "Saat yönünün tersinde dört kenar, dört dönüş. Son kapı 32,50 s, final poz hatası 7,256 mm."
+        },
+        "Simscape": {
+          "status": "passed",
+          "measurement_tr": "Saat yönünün tersinde sekiz ayrı ölçülen kapı, final duruş teyidi 60,070 s."
+        }
+      }
+    },
+    {
+      "case_id": "M07",
+      "priority": "P1",
+      "title": "Yuvarlatılmış köşeli kare",
+      "acceptance_tr": "Yuvarlatılmış referansla doğrula. İzinli açıklık eşiğini senaryo sahibi tanımlar.",
+      "measured_fields_tr": "Çapraz iz, eğrilik/yaw ve footprint minimum açıklığı.",
+      "tested_inputs_tr": "1,080 m koridor, 0,50 × 0,41 m ortak zarf. Başarısız 100 mm köşeden 60 mm köşeye ve ötelenmiş rotaya geçiş.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "failed",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "Aynı 1,080 m koridorda yeni 60 mm köşe yarıçapı ve hız profiliyle minimum açıklık +15,62 mm, iz RMSE 2,28 mm. İlk koşu −73,36 mm."
+        },
+        "Gazebo Linux": {
+          "status": "passed",
+          "measurement_tr": "Aynı duvarlarda 60 mm yarıçaplı ötelenmiş adayda ortak 0,50 × 0,41 m kıyas zarfı açıklığı 23,38 mm, SDF gövde ve üç teker 53,84 mm, iz RMSE 1,50 mm. Temas görülmedi. İlk 100 mm rota duvara temas etti."
+        }
+      },
+      "figure": "qualification/M07.png",
+      "figure_scope_tr": "Python ve Linux Gazebo koşularında aynı duvar ve 0,50 × 0,41 m muhafazakâr zarf."
+    },
+    {
+      "case_id": "M08",
+      "priority": "P0",
+      "title": "İleri–geri ve ±30° caster aynası",
+      "acceptance_tr": "İki başlangıç açısını ayrı kaydet. Yön değişiminde duruşu ve ayna farkını raporla; limit planlanmadı.",
+      "measured_fields_tr": "İki koşunun poz/yaw, caster açısı, açı ve toparlanma süresi farkı, duruş.",
+      "tested_inputs_tr": "Aynı harekette +30° ve −30° ilk caster, duruş ve yön değişimi. Uzatılmış geri bölüm Python 1,05 m, native referans 1,10 m.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "±30° ayna koşularında ileri kapı 4,52 s ve gerçek geri hareket 4,69 s. 1,05 m geri varyantında caster bekleme kapısı iki yönde de 9,85 s. İlk kısa geri koşusunda kapı eksikti."
+        },
+        "Simscape": {
+          "status": "passed",
+          "measurement_tr": "±30° yeni native ayna koşuları yaklaşık 1,106 m geri gitti. Ölçülen pivot hızına göre 10°/250 ms caster beklemesi iki ayna izinde 17,239 s ve 0,397 m’de teyit edildi. Kısa ilk koşu bu kapıyı sağlamadı."
+        }
+      }
+    },
+    {
+      "case_id": "M09",
+      "priority": "P1",
+      "title": "90°/180° caster başlangıcı ve yerinde dönüş",
+      "acceptance_tr": "İki açıyı ayrı kaydet. Dönüş ve yerleşme, kayma ve tork sınırı iziyle değerlendirilir.",
+      "measured_fields_tr": "Kaysal hız/mesafe, yerleşme süresi, tepe ve RMS tork, doygunluk süresi.",
+      "tested_inputs_tr": "Ayrı 90° ve 180° caster başlangıçları. Python’da ileri komutsuz dönüş, native’de kısa kalkış ve ayrı yerinde dönüş evresi.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "90°/180° caster ve sağı/solu kapsayan dört koşuda ileri komut sıfır. 14,98 s terminal, 13,52–16,83 mm son poz hatası. Tork 0,104–0,119 Nm, doygunluk yok. 180° için son aktif 250 ms yanal kayma 8,32 mm/s RMS."
+        },
+        "Simscape": {
+          "status": "passed",
+          "measurement_tr": "15 cm kalkıştan ayrı yerinde dönüş. 90° ve 180° caster için 250 ms duruş onayı 16,566 ve 17,686 s. Dönüşte tepe aks gezintisi 29,38 ve 32,03 mm, 0,25 Nm tork tepesi. Türetilen aktif caster yanal kayması 0,049 ve 0,060 mm/s RMS."
+        }
+      },
+      "figure": "qualification/M09.png",
+      "figure_scope_tr": "Python’da 90°/180° ilk caster, iki yönde dönüş ve ileri komutsuz ön dönüş varyantları."
+    },
+    {
+      "case_id": "M10",
+      "priority": "P1",
+      "title": "Nominal ve ek yükle dönüş",
+      "acceptance_tr": "Ayrı kütle ve COM değerleriyle aynı görev. Temas desteği ile poz hatasının farkı raporlanır.",
+      "measured_fields_tr": "Yük/COM, normal yükler varsa temas kaybı, nominal–yüklü poz/yaw farkı.",
+      "tested_inputs_tr": "Aynı dönüş, Python’da nominal ve 4 kg kütle artışı. Native’de nominal ve ayrı gövdede +5 kg yük.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "Aynı rota ve sabit gövde COM ile 4 kg ek kütle. Ölçülen son pozlar 7,690 mm ayrıldı. Hesaplanan bütün sistem COM kayması 1,021 mm."
+        },
+        "Simscape": {
+          "status": "passed",
+          "measurement_tr": "Aynı turda nominal ve +5 kg yük, COM aksa göre (−0,04; 0; 0,155) m. Son poz hataları 12,00 ve 7,81 mm. Medyan toplam destek 162,846 ve 211,896 N."
+        }
+      }
+    },
+    {
+      "case_id": "M11",
+      "priority": "P1",
+      "title": "İki zemin ve yüzey sınırı",
+      "acceptance_tr": "Ayrı yüzey etiketleri ve geçiş anı. Yüzey bazlı kayma ve duruş; sınır profilini senaryo sahibi belirler.",
+      "measured_fields_tr": "Yüzey başına kayma, geçiş konumu ve zamanı, fren mesafesi.",
+      "tested_inputs_tr": "İki homojen zemin kontrolü ve yüzey sınırı. Ayrı fren olayı, aks ve caster’ın sınır geçişleri.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "3,40 s’deki fren olayında referans, yüksek sürüklenme ve yüzey sınırı sırasıyla 43,54 / 30,20 / 31,84 mm. Sınır 0,30 m’de 2,21 s’de geçildi."
+        },
+        "Simscape": {
+          "status": "passed",
+          "measurement_tr": "İki fiziksel model tablası x=0,200 m’de birleşti. Aks sınırı 4,684 s, iki teker B desteği 4,527 s, caster B desteği 8,352 s. A/B/sınır fren yolları 10,18 / 10,27 / 10,29 mm."
+        },
+        "Gazebo Linux": {
+          "status": "passed",
+          "measurement_tr": "İki tekerde yeni yüzey 2,035 s’de, caster’da 3,568 s’de temasla görüldü. Nominal/düşük/sınır fren yolları 4,69 / 18,60 / 16,63 mm. Kayma gövde ve teker hızlarından türetildi."
+        }
+      }
+    },
+    {
+      "case_id": "M12",
+      "priority": "P2",
+      "title": "Rampa, eşik ve ağırlık transferi",
+      "acceptance_tr": "3B temas ve açıklık kaydı gerekir. Zemin geometrisi ve güvenli temas limitleri onaya bağlı.",
+      "measured_fields_tr": "Minimum açıklık, teker başına normal kuvvet, temas kaybı süresi, ağırlık transferi.",
+      "tested_inputs_tr": "Native 3° düzlemsel eğim, 1° hassasiyet ve sonlu eşik adayları. Gazebo’da sonlu rampadan sonra 5 ve 20 mm eşik.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Simscape": {
+          "status": "passed",
+          "measurement_tr": "5 mm yükselti ve 1° giriş/çıkış pahlarını üç teker temas ederek geçti. Muhafazakâr gövde açıklığı en az 74,07 mm. Tepe pah temas normalleri sol/sağ/caster 52,01/52,00/62,26 N. 1 ms izde toplam destek kaybı yok. Keskin 5 mm ve 3° tırmanma denemeleri başarısız."
+        },
+        "Gazebo Linux": {
+          "status": "passed",
+          "measurement_tr": "Sonlu rampadan ve 5 mm eşikten üç teker geçerek tüm gövde temizlendi. Minimum gövde açıklığı 87,06 mm ve caster kuvvet tepesi 594,31 N. 20 mm hassasiyet koşusu eşiği tamamlamadı."
+        }
+      },
+      "figure": "qualification/M12.png",
+      "figure_scope_tr": "Elo native Simscape 5 mm pahlı yükselti. Ayrı teker teması ve gövde açıklığı ham kayıttan hesaplandı."
+    },
+    {
+      "case_id": "Q01",
+      "priority": "P0",
+      "title": "Merkezde QR ile nominal yaklaşım",
+      "acceptance_tr": "Doğru ve güncel QR. Öneri olarak ±%2 iç bantta 0,40 s sonra ilerle, ±%4 dış bantta ileri komutu kes. Duruş ve bitiş durumu kayıtlı.",
+      "measured_fields_tr": "Normalize piksel hatası, geçerli süre, istenen/uygulanan v ve ω, son poz/yaw, temas ve şarj olayı.",
+      "tested_inputs_tr": "Ortada tek doğru istasyon etiketi. İç bant ±%2 ve 0,40 s, dış bant ±%4.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "İlk görüntü hatası sıfır. 0,40 s’de ilk ileri istek, son model poz hatası 2,100 mm. Sanal şarj onayı yok."
+        },
+        "Simscape": {
+          "status": "passed",
+          "measurement_tr": "Native pinhole yaklaşımında optik derinlik son 400 ms’de en çok 264,001 mm, poz hatası en çok 14,001 mm. İlk ortak kapı 19,36 s, geçersiz örnekle pozitif ileri komut yok."
+        }
+      }
+    },
+    {
+      "case_id": "Q02",
+      "priority": "P0",
+      "title": "QR solda ve sola düzeltme",
+      "acceptance_tr": "Görüntü x sağı gösteriyorsa e < 0 için ilk yaw sola, +ω. İleri hareket Q01 merkez kapısından sonra.",
+      "measured_fields_tr": "e ve ω işareti, ilk düzeltme, ilk ileri komut ve dwell.",
+      "tested_inputs_tr": "İşaret ilk gözlemde görüntünün solunda. Python ve native ideal kamerada kendi pozundan görüntü konumu.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "İlk yatay hata −%29,630 ve pozitif yaw. İlk ileri istek 6,90 s, son model poz hatası 1,271 mm."
+        },
+        "Simscape": {
+          "status": "passed",
+          "measurement_tr": "Sol görüntüde ilk yaw +. İlk ileri komut 2,51 s, 0,40 s optik ve poz son penceresi 115,61 s. Son derinlik 264,00 mm, poz hatası 14,00 mm. 1 ms yeniden izdüşümde hareketli pozitif örnekte %4 aşımı yok. Hızlı r4 sapması arşivde."
+        }
+      }
+    },
+    {
+      "case_id": "Q03",
+      "priority": "P0",
+      "title": "QR sağda ve sağa düzeltme",
+      "acceptance_tr": "Görüntü x sağı gösteriyorsa e > 0 için ilk yaw sağa, −ω. İleri hareket Q01 merkez kapısından sonra.",
+      "measured_fields_tr": "Q02 ile aynı metrikler ve ayna davranışı.",
+      "tested_inputs_tr": "Q02’nin sağa aynalanmış başlangıcı, aynı merkez bekleme sözleşmesi.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "İlk yatay hata +%29,630 ve negatif yaw. İlk ileri istek 6,90 s, son model poz hatası 1,271 mm."
+        },
+        "Simscape": {
+          "status": "passed",
+          "measurement_tr": "Sağ görüntüde ilk yaw −. İlk ileri komut 2,51 s, 0,40 s optik ve poz son penceresi 115,61 s. Son derinlik 264,00 mm, poz hatası 14,00 mm. 1 ms yeniden izdüşümde hareketli pozitif örnekte %4 aşımı yok. Hızlı r4 sapması arşivde."
+        }
+      }
+    },
+    {
+      "case_id": "Q04",
+      "priority": "P1",
+      "title": "Yanal ofset ve ters işaretli ilk yaw",
+      "acceptance_tr": "Görüntü merkezleme ve mekanik hizalanma ayrı ayrı ölçülür. Sadece merkezde diye hizalı sonucu verilmez.",
+      "measured_fields_tr": "İlk ofset/yaw, e, bağımsız son pose ve yaw.",
+      "tested_inputs_tr": "Yanal ofset ve ters ilk yaw. Tek duruşta optik merkez/derinlik ile bağımsız mekanik poz. Aynı Gazebo fikstüründe köşeden poz kestirimi ek deneyi.",
+      "status": "passed",
+      "status_tr": "Ayrım kapısı geçti",
+      "interim_status": "partial",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "4 köşe kestirimiyle aşamalı poz kapısı 14,98 s, taze QR bekleme 15,39 s, sanal temas 18,41 s. Son poz hatası 4,109 mm, yaw 0,216°. BMS olmadığında zaman aşımı kaydedildi."
+        },
+        "Gazebo Linux": {
+          "status": "passed",
+          "measurement_tr": "Ayrım koşusunda optik duruş 261,58 mm, mekanik sapma 43,70 mm ve −0,0866 rad. Aynı dünya ve kamera fikstüründe dört köşeli ek algoritma optik 258,93 mm ve mekanik 6,236 mm / −0,000636 rad ile 280 ms duruşu sağladı. Fiziksel temas veya BMS uygulanmadı."
+        }
+      },
+      "figure": "qualification/Q04.png",
+      "figure_scope_tr": "Aynı dünya ve kamera fikstüründe iki Gazebo koşusu. Optik duruş ve bağımsız mekanik poz ayrı."
+    },
+    {
+      "case_id": "Q05",
+      "priority": "P1",
+      "title": "QR başlangıçta görüş dışında",
+      "acceptance_tr": "Aramada ileri hareket sıfır. Geçerli tespit veya kontrollü duruş. Açısal/zamansal bütçe senaryo parametresi.",
+      "measured_fields_tr": "Arama kapsaması ve süresi, tespit, ilk ileri komut, timeout nedeni.",
+      "tested_inputs_tr": "İlk karede hedef görüş dışında. Python ±55°, Linux +55°, sınırlandırılmış arama, ileri çıkış engeli.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "failed",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "Sınırları koruyan çift yön arama, ±55° başlangıçta geçerli işareti 1,05 s ve 3,10 s’de buldu. 3,20 s arama zaman sınırı ve sıfır ileri komut korundu."
+        },
+        "Gazebo Linux": {
+          "status": "passed",
+          "measurement_tr": "+55° görüş dışı başlangıçta sıfır ileri komutla arandı. 2,454 s ve 0,614 rad dönüşte gerçek işaret bulundu, optik duruş 262,945 mm."
+        }
+      }
+    },
+    {
+      "case_id": "Q06",
+      "priority": "P0",
+      "title": "İlerlerken QR kaybı",
+      "acceptance_tr": "Geçersiz gözlemden sonraki ilk kontrol örneğinde ileri komut sıfır. Kaybın sebebi ve uygulanan duruş kaydedilir.",
+      "measured_fields_tr": "Kayıp ve komut kesme zamanları, gecikme, durma zamanı/mesafesi, son durum.",
+      "tested_inputs_tr": "İleri hareketten sonra görsel kayıp. Python ve native persistent-loss kesme, duruş ve ayrı abort.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "Kendi pozundan projeksiyon üreten Python denetleyicisinde kayıp enjekte edildi. Geçersiz örnek ve sıfır sınırlı ileri komut 2,000 s. Duruş bandına 2,830 s’de 36,616 mm yol sonrası girildi, 3,080 s’de teyit edildi. 3,600 s’de kayıp nedeniyle abort oluştu."
+        },
+        "Simscape": {
+          "status": "passed",
+          "measurement_tr": "L09 kalıcı projeksiyon kaybı 1,050 s’de üretildi. 1,060 s’deki ilk geçersiz çıkışla v ve ω sıfırlandı. Duruş 1,167 s’de başladı ve 1,417 s’de teyit edildi. Kesmeden teyide kadar aks yolu 5,590 mm. Test bütçesiyle 2,060 s’de abort kilitlendi."
+        }
+      }
+    },
+    {
+      "case_id": "Q07",
+      "priority": "P1",
+      "title": "QR geri gelir ve yeniden merkezleme",
+      "acceptance_tr": "Tekrar ilerleme için doğru kimlik, taze kare ve merkez dwell gerekir. Retry sayacı ve sebep kayıtlı.",
+      "measured_fields_tr": "Yeniden tespit zamanı, kare yaşı/ID, retry sayısı, dwell ve ilerleme zamanı.",
+      "tested_inputs_tr": "Sürüş sırasındaki kayıp sonrası aynı kimlik. Gazebo’da işaret 120 mm yanal konuma geri konur.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "Kayıp 2,000 s, aynı kimlikle yeniden tespit 2,650 s, ilk yeni ilerleme 3,050 s. Bir yeniden deneme ve 0,40 s yeni merkez beklemesi."
+        },
+        "Gazebo Linux": {
+          "status": "passed",
+          "measurement_tr": "Kayıptan 44 ms ve 1,609 mm sonra duruş bandı. İşaret 120 mm yanal kaydırılarak bir kez geri kondu. Aynı ID için 0,406 s taze merkez kanıtı sonrası 3,080 s’de ileri istek (kare yaşı 30 ms), 3,106 s’de ölçülen hareket."
+        }
+      },
+      "figure": "qualification/Q07.png",
+      "figure_scope_tr": "Gazebo OGRE2 kamerasından geri konan işaret. Yeniden ilerleme ölçülen dünya pozuyla doğrulandı."
+    },
+    {
+      "case_id": "Q08",
+      "priority": "P0",
+      "title": "Yalnız yanlış QR kimliği",
+      "acceptance_tr": "Yanlış ID varken pozitif ileri komut ve başarı olayı sıfır. Kimlik reddi kayıtlı.",
+      "measured_fields_tr": "Görülen/beklenen ID, ileri komut sayısı, ret ve zaman aşımı.",
+      "tested_inputs_tr": "Yalnız yanlış etiket kimliği. Gazebo’da istenen JANUS-DOCK-AUTHORIZED, görülen JANUS-DOCK-01.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "346 kontrol örneği yanlış kimlik olarak işaretlendi. Net hareket sıfır, 3,45 s’de wrong_id zaman aşımı, başarı yok."
+        },
+        "Gazebo Linux": {
+          "status": "passed",
+          "measurement_tr": "Gerçek Gazebo kamera karelerinde 15 yanlış ID çözüldü, iki kare çözülemedi. Sıfır kabul, sıfır ileri istek ve yaklaşık sıfır poz kayması kaydedildi."
+        }
+      }
+    },
+    {
+      "case_id": "Q09",
+      "priority": "P1",
+      "title": "Tek karede iki istasyon QR’ı",
+      "acceptance_tr": "Beklenen ID tekil ve güvenilir ise seç. Belirsiz durumda reddet. Yanlış istasyona ileri komut veya başarı olmamalı.",
+      "measured_fields_tr": "Aday ID/kalite/köşeler, seçilen ID, ret nedeni ve komut.",
+      "tested_inputs_tr": "Bir karede beklenen ve farklı ID, yinelenmiş hedef ve ters seçim kontrolü. Gazebo RGB kare dizisi.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Gazebo kamerası / video": {
+          "status": "passed",
+          "measurement_tr": "Kayıtlı Gazebo kareleri Linux’ta replay edildi. İki aynı hedefin 12 karesi belirsiz sayıldı, yanlış kimlik kabul edilmedi ve hareket eden simüle robot durdu."
+        }
+      }
+    },
+    {
+      "case_id": "Q10",
+      "priority": "P1",
+      "title": "Parlama, yansıma, aşırı pozlama",
+      "acceptance_tr": "Tespit geçersizse ileri komut kesilir. Yanlış hizalama/şarj onayı olmamalı.",
+      "measured_fields_tr": "Görüntü koşulu, doğru ve yanlış tespit, invalid süre, duruş.",
+      "tested_inputs_tr": "Gazebo RGB’ye hotspot, yansıma ve beyaz doygunluk. Ayrı okunabilir pozlama kontrolü ve gerçek zamanlı ROS 2 replay.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Gazebo kamerası / video": {
+          "status": "passed",
+          "measurement_tr": "Gazebo RGB’ye kontrollü parlama, yansıma ve doygunluk uygulandı. 250 ms duruş teyidine 3,843 / 2,483 / 1,771 mm. Aynı izlerin ayrıca simüle istasyon durum makinesi replay’i, hatalı hizalanma veya şarj olayı üretmedi."
+        }
+      },
+      "figure": "qualification/Q10.png",
+      "figure_scope_tr": "Gazebo kamera dizisinden türetilen parlama, yansıma ve doygunluk, canlı ROS 2 ve Gazebo duruş izi."
+    },
+    {
+      "case_id": "Q11",
+      "priority": "P1",
+      "title": "Düşük ışık ve hareket bulanıklığı",
+      "acceptance_tr": "Kalite/yaş geçersizse ileri komut kesilir. Görüntü koşulu ve gecikme kayıtlı.",
+      "measured_fields_tr": "Kare yaşı, tespit oranı, kalite, komut kesme gecikmesi.",
+      "tested_inputs_tr": "Gazebo RGB’nin düşük ışık, blur ve gecikmeli teslim varyantları. Hareketli plantta olay sonrası hız izlenir.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Gazebo kamerası / video": {
+          "status": "passed",
+          "measurement_tr": "Düşük ışık, hareket bulanıklığı ve geç teslim kareleri ayrı video varyantı. Eski kareler reddedildi, geçersiz gözlemden sonra simüle robotun duruşu ölçüldü."
+        }
+      }
+    },
+    {
+      "case_id": "Q12",
+      "priority": "P1",
+      "title": "Örtülme ve yakında kadrajdan kesilme",
+      "acceptance_tr": "QR tek dayanaksa geçersiz gözlemden sonra ileri komut sıfır. Onaylı ayrı terminal mekanizması varsa kaynak kaydedilir.",
+      "measured_fields_tr": "Görünür köşe sayısı, QR kaybı, terminal kaynak, v ve stop nedeni.",
+      "tested_inputs_tr": "Gazebo RGB’ye örtme ve sayısal kırpma, ayrıca native yakın kadraj. Bağımsız fiziksel terminal kaynağı kullanılmadı.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Gazebo kamerası / video": {
+          "status": "passed",
+          "measurement_tr": "Örtülme, kadrajdaki iki köşe ve yakındaki kesilme varyantı geçersiz kabul edildi. İleri komut ve simülasyon hızı sıfırlandı. Bağımsız onaylı terminal kaynağı uygulanmadı."
+        }
+      }
+    },
+    {
+      "case_id": "Q13",
+      "priority": "P0",
+      "title": "Eski/tekrarlı kare ve kamera kopması",
+      "acceptance_tr": "Eski, yinelenen veya geri giden timestamp geçerli yeni gözlem sayılmaz. Akış zaman aşımında ileri komut sıfır.",
+      "measured_fields_tr": "Kare sıra no/yaşı, tekrar ve geri gitme sayısı, watchdog timeout, v.",
+      "tested_inputs_tr": "Tekrar, teslim gecikmesi, akış kopması ve yaş sınırı içindeki geri damga. Python kamera modeli ve canlı ROS 2.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "Gecikme, tekrar ve kopma izlerine gerçek geri damga eklendi. 60 ms yaşındaki 1,940 s damgası 1,950 s’den sonra reddedildi. İlk geçersiz örnekte ileri komut sıfır, duruş teyidi 3,08 s."
+        },
+        "ROS 2 Linux": {
+          "status": "passed",
+          "measurement_tr": "203 ms yaşta kamera akış kesintisi v/ω’yi sıfırladı, 250 ms duruş. Aynı izde yinelenen kare reddedildi. Ayrı koşuda 1,350 s’den sonra gelen 1,300 s damgası 120 ms yaşla out-of-order reddedildi."
+        }
+      },
+      "figure": "qualification/Q13.png",
+      "figure_scope_tr": "Geri giden kamera damgası, Python guard ve ölçülen simülasyon duruşu."
+    },
+    {
+      "case_id": "Q14",
+      "priority": "P1",
+      "title": "Dock koridorunda engel",
+      "acceptance_tr": "Engel önünde duruş ve yetkili yeniden başlatma. Açıklık eşiğini operatör/firma belirler.",
+      "measured_fields_tr": "Minimum açıklık, algı ve komut kesme süresi, temas, yeniden başlatan olay.",
+      "tested_inputs_tr": "Dock’a yaklaşırken programlı engel girişi. Dünya pozu ve temas kaydı, geçit açıklığı, izinli ve izinsiz kontrol.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Gazebo Linux": {
+          "status": "passed",
+          "measurement_tr": "Programlı engel girişi 0,130 m/s harekette tetiklendi. Komut 3 ms’de sıfır, duruş bandı 40 ms ve 2,681 mm. Açıklık 344,09 mm, temas yok. Geçit açıldıktan ve yetki verildikten sonra taze QR ile 5,220 s’de hareket başladı."
+        }
+      },
+      "figure": "qualification/Q14.png",
+      "figure_scope_tr": "Linux Gazebo dünya pozu, engel açıklığı, duruş ve yetkili devam."
+    },
+    {
+      "case_id": "Q15",
+      "priority": "P0",
+      "title": "Hizalı, şarj gelmedi",
+      "acceptance_tr": "Hizalı ve şarj sonuçları ayrı. Şarj onayı olmadan başarı yok. Bekleme bütçesi sonunda timeout ve sıfır hareket komutu.",
+      "measured_fields_tr": "Hizalı/temas/şarj zamanları, BMS türü, bütçe ve outcome.",
+      "tested_inputs_tr": "Ölçülen duruş ve sanal temas sonrası BMS teyidi iletilmez.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "Sanal hizalanma ve temas var. Şarj teyidi yok, 8,54 s’de zaman aşımı. Son model poz hatası 2,100 mm."
+        },
+        "Gazebo Linux": {
+          "status": "passed",
+          "measurement_tr": "Gerçek Gazebo kamerasıyla yaklaşım ve 2,66 mm poz hatası. Sıfır hareket ve sanal temastan sonra 1,522 s teyit bekledi, başarı üretmeden zaman aşımına geçti."
+        }
+      }
+    },
+    {
+      "case_id": "Q16",
+      "priority": "P0",
+      "title": "Sanal BMS şarj onayı",
+      "acceptance_tr": "Şarj onayı açıkça sanal. Olay sırasında hareket komutu sıfır. Teyit, başarıdan önce veya aynı örnekte.",
+      "measured_fields_tr": "BMS olayı ve kaynak, outcome zamanı, v ve ω, gerçek hız.",
+      "tested_inputs_tr": "Sanal temas sonrası taze pozitif BMS, ayrıca erken ve eski pozitif örnekler.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "Sanal temas ve hareket duruşundan sonra sanal şarj teyidi. Koşu 7,34 s, son model poz hatası 2,233 mm."
+        },
+        "Gazebo Linux": {
+          "status": "passed",
+          "measurement_tr": "2,18 mm poz hatası ve sıfır ölçülen hareket. Erken/eski sanal teyit reddedildi. Temastan 0,518 s sonra başarı için kullanılan sanal BMS karesi 12 ms yaşındaydı."
+        }
+      }
+    },
+    {
+      "case_id": "Q17",
+      "priority": "P1",
+      "title": "Retry bütçesi doldu",
+      "acceptance_tr": "Deneme sayısı yapılandırılmış üst sınırı aşmaz. Bütçe bitince açık abort nedeni ve sıfır hareket komutu.",
+      "measured_fields_tr": "Retry sayacı, sınır, abort zamanı/sebebi ve v/ω.",
+      "tested_inputs_tr": "İşaret tekrarlı olarak görünmez. Yeniden denemeler ve bütçe dolunca abort.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "205 eksik gözlem kontrol örneği. İki yeniden merkezleme sonrası üçüncü kayıpta, 4,50 s’de retry_budget ile abort. 5,64 s ölçülen koşu penceresi."
+        },
+        "Gazebo Linux": {
+          "status": "passed",
+          "measurement_tr": "Üç gerçek işaret kaybı, iki yeniden deneme, bütçe dolunca ayrı abort. Abort sonrasında yeni hareket komutu üretilmedi."
+        }
+      }
+    },
+    {
+      "case_id": "Q18",
+      "priority": "P1",
+      "title": "Dock’tan geri ayrılma",
+      "acceptance_tr": "Şarj kesilmesi ve çıkış izlenir. Minimum açıklık ve caster toparlanması kaydedilir. Firma undock sırası geçerli.",
+      "measured_fields_tr": "Şarj kesme/geri komut sırası, açıklık, caster açısı ve toparlanma.",
+      "tested_inputs_tr": "Dock’tan geri komut ve ölçülen hareket öncesinde sanal şarj kesme teyidi.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "blocked",
+      "components": {
+        "Gazebo Linux": {
+          "status": "passed",
+          "measurement_tr": "Sanal şarj kesme teyidi 33,446 s, ölçülen geri hareket 33,526 s. Geri yol 0,577 m, minimum açıklık 81,7 mm, caster toparlanması 3,595 s."
+        }
+      }
+    },
+    {
+      "case_id": "Q19",
+      "priority": "P1",
+      "title": "Kamera ofseti veya QR montaj açısı",
+      "acceptance_tr": "Hedef sütun ve QR→dock dönüşümü konfigürasyonda kayıtlı. Merkezleme ve mekanik hata ayrı.",
+      "measured_fields_tr": "Yeni intrinsics/montaj ve target_u, son e, poz/yaw, referans etiket.",
+      "tested_inputs_tr": "Python’da kamera montajı ve işaret değişikliği. Gazebo’da işaret 35 mm yanal ve +10° yaw. Ayrı hedef sütunları ve mekanik dönüşüm.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "Kamera montaj dönüşümü üzerinden hedef 438,113 px hesaplandı. Son model poz hatası 4,615 mm ve 0,472°. Sanal temas izlendi, şarj zaman aşımıyla sonuçlandı."
+        },
+        "Gazebo Linux": {
+          "status": "passed",
+          "measurement_tr": "QR montajı değiştirildi. Kalibre hedef sütun 246,796 px, optik hata −%0,504 ve mesafe 263,489 mm. Bağımsız model poz hatası 31,82 mm, yaw hatası 3,41°. Temas bu koşunun kapsamı dışında."
+        }
+      },
+      "figure": "qualification/Q19.png",
+      "figure_scope_tr": "Python sentetik kamera, 438,113 px hedef ve ayrı mekanik poz ölçümü."
+    },
+    {
+      "case_id": "Q20",
+      "priority": "P1",
+      "title": "Sağ-sol salınımı",
+      "acceptance_tr": "Salınım ve tekrarlar ölçülür. Yerleşme veya bütçeli abort gerekçesi kayıtlı. İşaret sayısına sınır planlanmadı.",
+      "measured_fields_tr": "Hata işaret değişimleri, tekrar sayısı, yerleşme süresi ve terminal.",
+      "tested_inputs_tr": "Python’da 55 ms gecikme, yüksek/sönümlü kazanç. Simscape’te ideal kamera köşelerine 1,25 Hz yatay bozucu.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "failed",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "Aynı 55 ms gecikmeli yeni tanıda yaw işaret çevrimi 23’ten 2’ye indi. Sönümlü aday 0,40 s merkez beklemesinden sonra 1,41 s’de ilerledi. İlk yüksek kazanç koşusu zaman aşımına uğradı."
+        },
+        "Simscape": {
+          "status": "passed",
+          "measurement_tr": "Eşlenmiş 1,25 Hz ideal kamera bozucusunda iki aday da dört yaw işaret çevrimi verdi. 3,30 s’den sonra merkez hatası %2 içinde, terminal faz 22,25 s. Bu native çiftte sönümle iyileşme ölçülmedi. Temas ve BMS yok."
+        }
+      },
+      "figure": "qualification/Q20.png",
+      "figure_scope_tr": "55 ms gecikmeli Python sönümlü adayın ham izi."
+    },
+    {
+      "case_id": "O01",
+      "priority": "P1",
+      "title": "A → B → A ardışık görev",
+      "acceptance_tr": "Her hedefin varış olayı ve görevler arası durum sıfırlama. Görevler ayrı kimliklenir.",
+      "measured_fields_tr": "Hedef pozları, varış ve geçiş zamanı, önceki görev durumu sızıntısı.",
+      "tested_inputs_tr": "A → B → A, her varışta yeni hedef kimliği ve komut durumu.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Gazebo Linux": {
+          "status": "passed",
+          "measurement_tr": "A giriş, B ve A çıkış ayrı kimlik ve sıfırlama ile 0,30 / 5,54 / 10,73 s’de ölçülen poz beklemesini geçti. B son hatası 7,51 mm."
+        }
+      }
+    },
+    {
+      "case_id": "O02",
+      "priority": "P1",
+      "title": "Dar koridorda dönüş ve geri çıkış",
+      "acceptance_tr": "Footprint korunur ve temas olmaz. Gerekli minimum açıklık senaryo parametresi.",
+      "measured_fields_tr": "Minimum açıklık, çıkış pozu, temas ve caster toparlanması.",
+      "tested_inputs_tr": "Dar koridorda giriş, dönüş, geri çıkış. Python açık arka çıkış varyantı ve Gazebo gövde referansında negatif hız.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "Açık çıkışlı ayrı mekanik koşuda aynı yan ve ön duvar zarfı. +14,615 mm açıklık. Robot döndükten sonra gövde ileri, dünya X geri gitti. Caster 14,18 s’de 250 ms tanısal bandı sağladı."
+        },
+        "Gazebo Linux": {
+          "status": "passed",
+          "measurement_tr": "Giriş, dönüş ve gerçek geri çıkış. 0,50 × 0,41 m kıyas zarfı açıklığı 10,91 mm, SDF gövde ve üç teker zarfı 37,75 mm, duvar teması sıfır. Geri çıkış 0,092 m/s tepe, caster toparlanması 1,36 s."
+        }
+      }
+    },
+    {
+      "case_id": "O03",
+      "priority": "P1",
+      "title": "Yaya geçişi sırasında duruş",
+      "acceptance_tr": "Temassız duruş, geçit açık ve yetkili devam olayı gelene dek ileri hareket sıfır.",
+      "measured_fields_tr": "Algı, komut kesme ve duruş zamanı, açıklık, devam yetkisi.",
+      "tested_inputs_tr": "Hareketli modele programlı yaya geçişi. Yolun açılmasından bağımsız izin olayı ve izinsiz kontrol.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Gazebo Linux": {
+          "status": "passed",
+          "measurement_tr": "Programlı yaya geçişi 0,170 m/s’de başladı. Komut 13 ms’de sıfır, duruş 67 ms ve 6,081 mm. Açıklık 48,67 mm ve temas yok. Geçit 2,514 s’de açıldı, izin 3,000 s, hareket 3,049 s. İzinsiz eş koşuda robot duruşu korudu."
+        }
+      },
+      "figure": "qualification/O03.png",
+      "figure_scope_tr": "Linux Gazebo yaya geçişi canlandırması. Dünya pozu, açıklık ve yetkili yürütme ölçümü."
+    },
+    {
+      "case_id": "O04",
+      "priority": "P0",
+      "title": "Komut kesilmesi veya operatör iptali",
+      "acceptance_tr": "İptal ve watchdog ayrı varyasyon. Süre aşımı/iptal işlenince hareket komutu sıfır ve sebep kayıtlı.",
+      "measured_fields_tr": "Son komut zamanı, timeout/iptal ve duruş zamanı, v/ω, gerçek durma mesafesi.",
+      "tested_inputs_tr": "Komut yayını kesme ve operatör iptali, birbirinden ayrı olaylar.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "Sentetik Python guard girdileri komut yayınını ve operatör iptalini ayrı çalıştırdı. Sıfır komut sonrası duruşa 0,78 s ve yaklaşık 28 mm’de ulaşıldı."
+        },
+        "Gazebo Linux": {
+          "status": "passed",
+          "measurement_tr": "Tek yayıncılı native koşuda kesinti 246 ms’de saptandı. 41 ms ve 1,568 mm sonra duruş bandı ölçüldü. Operatör iptali sonraki pozitif istekleri engelledi."
+        }
+      }
+    },
+    {
+      "case_id": "O05",
+      "priority": "P1",
+      "title": "Odom/encoder kopması veya saat gerilemesi",
+      "acceptance_tr": "Geçersiz veri. Tanılama ve duruş. Olaylar ve taze veriyle tekrar yetkisi ayrı kayıtlı.",
+      "measured_fields_tr": "Sıra no/zaman, geçersiz örnek, watchdog/stop, tanı kodu.",
+      "tested_inputs_tr": "Odom kaybı ve geri giden damga, ayrı geçersizlik koşulları. Taze veri ve hareket yetkisi ayrı olaylar.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "Sentetik odom yayını kaybında sıfır komut 1,65 s, duruş teyidi 2,74 s. Geri damga aynı örnekte reddedildi ve 2,43 s’de duruş teyit edildi. Teker encoder kaynağı ayrı bir testtir."
+        },
+        "ROS 2 Linux": {
+          "status": "passed",
+          "measurement_tr": "Geri damgada tanı kaydedildi ve 40 ms’de duruş bandı. 52 taze odom örneği sırasında 18 yetkisiz istek reddedildi. Ayrı izin 1,983 s, yeni komut sonrası ölçülen hareket 2,340 s. Fiziksel encoder ayrı."
+        }
+      },
+      "figure": "qualification/O05.png",
+      "figure_scope_tr": "Canlı ROS 2 ve Gazebo. Geri damga, taze ama yetkisiz istekler, ayrı izin ve yeni hareket."
+    },
+    {
+      "case_id": "O06",
+      "priority": "P1",
+      "title": "Yükle servis noktasına park",
+      "acceptance_tr": "Yük konfigürasyonu kayıtlı. Hassas son poz ölçülür, fiziksel kabul sınırı firma onayına bağlı.",
+      "measured_fields_tr": "Yük/COM, terminal poz/yaw/hızlar, referans yöntemi.",
+      "tested_inputs_tr": "Python sentetik kütle artışı ve Gazebo’da bağlı 4 kg rijit yük, ölçülen terminal park pozu.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Python": {
+          "status": "passed",
+          "measurement_tr": "4 kg ek kütleyle son model poz hatası 4,264 mm, 3,91 s terminal kapı."
+        },
+        "Gazebo Linux": {
+          "status": "passed",
+          "measurement_tr": "4 kg rijit yükle 7,57 mm son konum hatası ve duruş. Üç tekerin taban teması ölçüldü. Yerleşik medyan kuvvetlerin toplamı 202,09 N."
+        }
+      }
+    },
+    {
+      "case_id": "O07",
+      "priority": "P1",
+      "title": "Düşük bataryada görevi kes ve dock’a dön",
+      "acceptance_tr": "Sentetik SoC eşiğinde görev dönüş zincirine geçer. Görev önceliği, dock ve teyit olayları ayrı.",
+      "measured_fields_tr": "SoC türü/eşiği, kesilen görev, dock giriş, şarj ve outcome.",
+      "tested_inputs_tr": "Aktif görev sırasında sanal %12 SoC, kontrollü duruş, dock yaklaşımı ve sanal BMS teyidi.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "Gazebo Linux": {
+          "status": "passed",
+          "measurement_tr": "Sanal %12 SoC, 0,165 m hareketle yürüyen görevi 1,417 s’de kesti. Ölçülen duruş sonrası 0,328 s’de dock başladı. Kamera hizalaması ve taze sanal BMS ile 24,926 s’de başarı."
+        }
+      }
+    },
+    {
+      "case_id": "O08",
+      "priority": "P2",
+      "title": "Güç/bağlantı geri gelir",
+      "acceptance_tr": "Güç/bağlantı geri geldiğinde açık yetki gelene kadar hareket komutu sıfır. Yeniden başlatma olayı kayıtlı.",
+      "measured_fields_tr": "Güç/bağlantı, reset, yetkilendirme ve ilk hareket zamanları.",
+      "tested_inputs_tr": "Gazebo saat duraklaması ve dönüşü, taze yetkisiz istekler, açık izin ve yeni hareket.",
+      "status": "passed",
+      "status_tr": "Geçti",
+      "interim_status": "partial",
+      "components": {
+        "ROS 2 + Gazebo Linux": {
+          "status": "passed",
+          "measurement_tr": "Saat geri geldikten sonra 30 taze ama yetkisiz Twist sıfır çıkış verdi. Açık laboratuvar izni sonrasında eski komut 314 ms boyunca dönmedi. Yeni istek ölçülen hareketi başlattı. Son guard güncellemesiyle 10 kabul kapısı tekrar geçti."
+        }
+      },
+      "figure": "qualification/O08.png",
+      "figure_scope_tr": "ROS 2/Gazebo canlı saat kaybı ve test yetkisinden sonraki yeni hareket."
+    }
+  ]
+}

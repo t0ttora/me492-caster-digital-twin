@@ -22,7 +22,8 @@ PAGES = [('index', 'Overview'), ('progress', 'Progress'), ('vision', 'Vision'), 
 REPORTS = [('ME492_Final_Roadmap_and_Arche_Visit_EN', 'Execution baseline & Arche visit'), ('ME492_Timetable_EN', 'Semester timetable'),
            ('Arche_Academic_Report_Typeset_EN_2026-11-16', 'Academic simulation progress report'),
            ('Arche_V2_Controller_Design_EN', 'Python V2 controller calculations'),
-           ('Arche_JANUS_Teknik_Rapor_TR', 'JANUS motion and docking report (Turkish)')]
+           ('Arche_JANUS_Teknik_Rapor_TR', 'JANUS motion and docking report (Turkish)'),
+           ('Arche_JANUS_Vaka_Kartlari_TR', 'JANUS illustrated case cards (Turkish)')]
 STATUS = {'planned': 'Planned', 'in-progress': 'In progress', 'blocked': 'Blocked', 'verified': 'Verified', 'closed': 'Closed · unverified', 'unclassified': 'Unclassified', 'conflicting': 'Conflicting labels'}
 
 
