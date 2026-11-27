@@ -1,28 +1,32 @@
 <section id="progress" class="section progress-page">
-  <header class="page-intro">
-    <p class="eyebrow">Research journal</p>
-    <h1>Progress</h1>
-    <p>What I ran, what changed and where I still need evidence.</p>
+  <header class="research-heading">
+    <p class="eyebrow">ME492 · Research journal</p>
+    <h1>Research progress</h1>
+    <p>Weekly deliverables and decision gates use the published GitHub status. Simulation qualification is recorded separately in the case matrix.</p>
   </header>
-  <div class="progress-layout progress-editorial">
-    <div>
-      <article class="progress-lead" id="latest-work">
-        <p class="eyebrow"><time datetime="2026-11-27">27 November 2026</time></p>
-        <h2>The next run needs the robot</h2>
-        <p>The simulation checks are complete. For the pilot I need a supervised session with the robot and an independent pose recording that I can line up with the onboard logs.</p>
-        <p><a class="text-link" href="records/docs/progress/2026-11-27-janus-experiments.html">Read the experiment record ↗</a></p>
-      </article>
-      <section class="journal" id="journal">
-        <div class="journal-head"><h2>Entries</h2></div>
-        {{PROGRESS}}
-      </section>
-    </div>
-    <aside class="current-focus" id="weekly-progress">
-      <h2>Open work</h2>
-      <div id="focus-items">{{FOCUS}}</div>
-      <ul class="evidence-links"><li><a href="roadmap.html#weekly-progress">Weekly deliverables</a></li><li><a href="tasks.html">All tasks</a></li><li><a href="decisions.html">Robot access</a></li></ul>
-      <div class="sync-note"><span id="sync-status" role="status">{{SYNC}}</span><button id="refresh" class="text-button" type="button" hidden>Refresh GitHub status</button></div>
-    </aside>
+  <div class="progress-figures">
+    <section aria-labelledby="semester-status">
+      <h2 id="semester-status">Semester status</h2>
+      {{PROGRESS_CHART}}
+      <p class="muted small">Chart from the published snapshot. <a class="text-link" href="decisions.html">Decision register ↗</a></p>
+    </section>
+    <section aria-labelledby="simulation-coverage">
+      <h2 id="simulation-coverage">JANUS simulation coverage</h2>
+      {{COVERAGE_CHART}}
+      <p class="muted small">Bars show passing case counts. <a class="text-link" href="results.html#cases">Case measurements ↗</a><br>Physical runs in the public inventory: {{RUN_COUNT}}.</p>
+    </section>
   </div>
-  <details class="fold" id="commits"><summary>Recent commits</summary><div class="commit-list">{{COMMITS}}</div></details>
+  <section id="weekly-progress" class="progress-review" aria-labelledby="week-status">
+    <h2 id="week-status">Weekly evidence</h2>
+    <p class="muted small table-hint">Scroll the table to see the latest evidence.</p>
+    <div class="table-scroll" role="region" aria-label="Weekly evidence" tabindex="0">
+      <table class="data-table"><thead><tr><th scope="col">Week</th><th scope="col">Deliverable</th><th scope="col">Status</th><th scope="col">Latest evidence</th></tr></thead><tbody>{{WEEKLY_PROGRESS}}</tbody></table>
+    </div>
+    <div class="sync-note"><span id="sync-status" role="status">{{SYNC}}</span><button id="refresh" class="text-button" type="button" hidden>Refresh GitHub status</button></div>
+  </section>
+  <div class="progress-layout" id="journal">
+    <aside class="current-focus"><h2>Open work</h2><div id="focus-items">{{FOCUS}}</div><p><a class="text-link" href="tasks.html">All task records ↗</a></p></aside>
+    <section class="journal"><div class="journal-head"><h2>Research journal</h2></div>{{PROGRESS}}</section>
+  </div>
+  <details class="fold activity-record" id="commits"><summary>Recent commits</summary><div class="commit-list">{{COMMITS}}</div></details>
 </section>

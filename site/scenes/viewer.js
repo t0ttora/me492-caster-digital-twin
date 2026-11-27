@@ -9,7 +9,7 @@ const LEFT = new Vector3(0, 0, -1);
 const FORWARD = new Vector3(1, 0, 0);
 const color = {
   fixture: 0x919d9d, guard: 0x8b9e9e, terrain: 0x8f9e9d, dock: 0x9ba7a4,
-  surface: 0x515d5d, actor: 0xb76d36, mast: 0x99a9aa, trim: 0xeeeade, edge: 0x6d7774,
+  surface: 0x515d5d, axle: 0x899494, actor: 0xb76d36, mast: 0x99a9aa, trim: 0xeeeade, edge: 0x6d7774,
   path: 0x1b8c77, pad: 0x5b7872, amber: 0xe2a54d,
 };
 const ZERO = new Vector3();
@@ -114,11 +114,16 @@ export class JanusViewer {
   async load() {
     const loader = new GLTFLoader();
     const textureLoader = new THREE.TextureLoader();
-    const [kit, concrete] = await Promise.all([
+    const [kit, concrete, decal] = await Promise.all([
       loader.loadAsync(new URL('./assets/janus-kit.glb', import.meta.url).href),
       textureLoader.loadAsync(new URL('./assets/concrete.png', import.meta.url).href),
+      textureLoader.loadAsync(new URL('./assets/dock-decal.png', import.meta.url).href),
     ]);
     this.kit = kit.scene;
+    decal.colorSpace = THREE.SRGBColorSpace;
+    decal.flipY = false;
+    decal.magFilter = THREE.NearestFilter;
+    this.decalMaterial = new THREE.MeshBasicMaterial({map: decal, toneMapped: false});
     this.surface = concrete;
     concrete.colorSpace = THREE.SRGBColorSpace;
     concrete.wrapS = concrete.wrapT = THREE.RepeatWrapping;
@@ -147,7 +152,7 @@ export class JanusViewer {
     const controlsMargin = this.host.clientWidth < 450 && !document.documentElement.dataset.embed ? 1.12 : 1;
     const span = this.view === 'top' ? Math.max(d.h+0.14,(d.w+0.12)/aspect) :
       Math.max(d.h*.58 + d.w*.37 + .46, (d.w*.84+d.h*.54+.25)/aspect)*1.06;
-    const halfSpan = span * controlsMargin / 2;
+    const halfSpan = this.view === 'robot' ? Math.max(.65, .73 / aspect) / 2 : span * controlsMargin / 2;
     this.camera.top = halfSpan; this.camera.bottom = -halfSpan;
     this.camera.left = -halfSpan*aspect; this.camera.right = halfSpan*aspect;
     this.camera.updateProjectionMatrix();
@@ -156,13 +161,21 @@ export class JanusViewer {
   setView(view) {
     this.view = view;
     this.controls.enabled = view !== 'sensor';
+    this.controls.enablePan = view !== 'robot';
     this.scene.background = view === 'sensor' ? this.sensorBackground : null;
     this.applySection();
+    for (const { print, originalMaterial } of this.markers || []) {
+      if (print) print.material = view === 'sensor' ? originalMaterial : this.decalMaterial;
+    }
     this.camera.zoom = 1;
     if (!this.bounds) return;
     const {cx,cy,w,h} = this.bounds;
     this.controls.target.copy(xyz(cx, cy, .10));
-    if (view === 'top') {
+    if (view === 'robot') {
+      this.controls.target.copy(this.robot.position).addScaledVector(UP,.075);
+      this.camera.position.copy(this.controls.target).add(xyz(-.59,-.72,.44));
+      this.controls.enableRotate = true;
+    } else if (view === 'top') {
       this.camera.position.copy(xyz(cx,cy-.001,4.4));
       this.camera.up.set(0,1,0);
       this.controls.enableRotate = false;
@@ -223,6 +236,16 @@ export class JanusViewer {
     ob.userData.localMesh = true;
     parent.add(ob);
     return ob;
+  }
+
+  shaft(name, radius, length, position, parent, lateral = false) {
+    const axle = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, length, 32), this.material('axle'));
+    axle.name = name;
+    axle.position.copy(xyz(...position));
+    if (lateral) axle.rotation.x = Math.PI / 2;
+    axle.castShadow = axle.receiveShadow = true;
+    axle.userData.localMesh = true;
+    parent.add(axle);
   }
 
   copy(name,parent) {
@@ -329,7 +352,11 @@ export class JanusViewer {
       mark.scale.setScalar(width);
       mark.position.copy(xyz(x-.003*Math.cos(a),y-.003*Math.sin(a),z));
       mark.rotation.y=a;
-      this.markers.push({data,mark,stand});
+      const supportFront = (.018 * width - .003) / .68;
+      const supportBack = .059;
+      this.box('Placard support arm',[supportBack - supportFront,.17,.034],[(supportFront + supportBack) / 2,0,.31],'mast',stand);
+      const print = type === 'distractor' ? null : mark.getObjectByName('QR_print');
+      this.markers.push({data,mark,stand,print,originalMaterial:print?.material});
     }
 
     for (const [x,y] of setup.targets) {
@@ -354,16 +381,34 @@ export class JanusViewer {
     this.head=this.copy('CAMERA_HEAD',this.robot);
     this.head.position.copy(xyz(...setup.camera));
     this.head.rotation.y=setup.cameraYaw;
-    const [cameraX,cameraY,cameraZ]=setup.camera;
-    const supportTop=cameraZ-.028, supportBottom=.110;
-    if (supportTop>supportBottom+.004) {
-      this.box('Camera mast base',[.051,.058,.007],[cameraX-.027,cameraY,.113],'edge',this.robot);
-      for (const side of [-1,1]) {
-        this.box('Camera mast rail',[.017,.011,supportTop-supportBottom],
-          [cameraX-.026,cameraY+side*.017,(supportTop+supportBottom)/2],'mast',this.robot);
-      }
+    const [cameraX,cameraY,cameraZ] = setup.camera;
+    this.joints = ['CASTER_SWIVEL','WHEEL_L','WHEEL_R','CASTER_ROLL'].map(name => this.robot.getObjectByName(name));
+    const [swivel] = this.joints;
+    for (const side of [-1,1]) {
+      this.box('Drive mount gusset',[.071,.045,.036],[0,side*.151,.024],'edge',this.robot);
+      this.shaft('Drive hub spacer',.021,.035,[0,side*.169,0],this.robot,true);
+      this.shaft('Drive axle',.011,.054,[0,side*.166,0],this.robot,true);
     }
-    this.joints=['CASTER_SWIVEL','WHEEL_L','WHEEL_R','CASTER_ROLL'].map(n=>this.robot.getObjectByName(n));
+    this.box('Caster chassis mount',[.082,.080,.015],[-.180,0,.020],'edge',this.robot);
+    this.shaft('Caster swivel spindle',.015,.042,[0,0,-.008],swivel);
+    this.shaft('Caster fork axle',.006,.041,[-.05,0,-.060],swivel,true);
+
+    // The mast attaches to the cover and the sensor bracket without moving the optical datum.
+    const bracketX = cameraX - .018 * Math.cos(setup.cameraYaw);
+    const bracketY = cameraY - .018 * Math.sin(setup.cameraYaw);
+    const baseX = THREE.MathUtils.clamp(bracketX,-.196,.174);
+    const baseY = THREE.MathUtils.clamp(bracketY,-.105,.105);
+    const mastTop = cameraZ - .035;
+    this.box('Camera bracket riser',[.019,.053,.014],[-.018,0,-.025],'mast',this.head);
+    if (mastTop > .105) {
+      this.box('Camera base plate',[.075,.066,.012],[baseX,baseY,.109],'edge',this.robot);
+      const bottom = xyz(baseX,baseY,.111);
+      const top = xyz(bracketX,bracketY,mastTop);
+      const mast = this.box('Camera mast',[.024,.035,top.distanceTo(bottom) + .013],[0,0,0],'mast',this.robot);
+      mast.position.copy(bottom).lerp(top,.5);
+      mast.quaternion.setFromUnitVectors(UP,top.sub(bottom).normalize());
+    }
+
     if (setup.payload) {
       const p=this.copy('PAYLOAD',this.robot);
       p.position.copy(xyz(-.01,0,.124));
@@ -432,7 +477,13 @@ export class JanusViewer {
     if (!this.robot) return;
     const p=sampleAt(this.track.samples,t);
     const [,x,y,z,yaw,steer,l,r,c,,pitch,roll] = p;
-    this.robot.position.copy(xyz(x,y,z));
+    const position = xyz(x,y,z);
+    if (this.view === 'robot') {
+      const delta = position.clone().sub(this.robot.position);
+      this.controls.target.add(delta);
+      this.camera.position.add(delta);
+    }
+    this.robot.position.copy(position);
     this.robot.quaternion.setFromAxisAngle(UP,yaw)
       .multiply(new Quaternion().setFromAxisAngle(LEFT,pitch))
       .multiply(new Quaternion().setFromAxisAngle(FORWARD,roll));

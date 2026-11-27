@@ -1,21 +1,28 @@
-<section class="home-opening section">
-  <div class="home-intro">
-    <p class="eyebrow">ME492 / Mechanical engineering</p>
-    <h1>How a caster changes the way a robot moves</h1>
-    <p>A passive caster has to swivel before it can roll in a new direction. I’m studying what that does to the robot’s path when it turns, reverses or lines up with a charging station.</p>
-    <div class="home-actions"><a class="site-cta" href="scenes/">Enter the 3D Lab <span aria-hidden="true">↗</span></a><a class="text-link" href="results.html">Read the results</a></div>
-  </div>
-  <figure class="home-model">
-    <iframe src="scenes/?vaka=Q04&amp;embed=1" title="Interactive 3D preview of the Q04 docking test" width="760" height="515"></iframe>
-    <noscript><style>.home-model iframe{display:none}</style><img src="assets/q04-replay.webp" width="960" height="535" alt="JANUS approaching the charging station"></noscript>
-    <figcaption><span class="mono">Q04 / Docking</span><a href="scenes/?vaka=Q04">Inspect this run ↗</a></figcaption>
-  </figure>
-</section>
-<section class="section home-record">
-  <header><p class="eyebrow">Project record</p><h2>From the model to the robot</h2></header>
-  <div class="home-record-links">
-    <article><h3><a href="results.html">What happened in simulation <span aria-hidden="true">↗</span></a></h3><p>The motion tests, QR approaches and recovery runs, with their plots and acceptance criteria.</p></article>
-    <article><h3><a href="progress.html">Where the work stands <span aria-hidden="true">↗</span></a></h3><p>I’m preparing a supervised pilot to capture video, commands and onboard telemetry on the same clock.</p></article>
-    <article><h3><a href="roadmap.html">What I’ve scheduled <span aria-hidden="true">↗</span></a></h3><p>Weekly deliverables, decision dates and the evidence I need before the physical trials.</p></article>
+<section class="section research-overview">
+  <header class="research-heading">
+    <p class="eyebrow">ME492 · Yeditepe University · Fall 2026</p>
+    <h1>Caster-aware digital twin</h1>
+    <p>Modelling passive caster dynamics in a differential-drive robot and measuring their effect on trajectory tracking, reversals and QR docking.</p>
+  </header>
+  {{JANUS_QUALIFICATION}}
+  <div class="overview-columns">
+    <section>
+      <h2>Research questions</h2>
+      <dl class="research-ledger">
+        <div><dt>RQ1</dt><dd>How much does a caster-aware model improve agreement with measured robot motion?</dd></div>
+        <div><dt>RQ2</dt><dd>Can smoother commands reduce tracking and yaw error within the allowed completion time?</dd></div>
+        <div><dt>RQ3</dt><dd>Can recent telemetry predict short-horizon yaw error better than numerical baselines?</dd></div>
+      </dl>
+      <p><a class="text-link" href="vision.html">Research design and evidence ↗</a></p>
+    </section>
+    <section>
+      <h2>Current work</h2>
+      <dl class="research-ledger">
+        <div><dt>Simulation</dt><dd><a href="results.html">Python, native Simscape and ROS 2 / Gazebo results ↗</a></dd></div>
+        <div><dt>Robot pilot</dt><dd>Operator-assisted access, synchronized logs and an independent pose reference are pending. The public inventory contains {{RUN_COUNT}} physical runs.</dd></div>
+        <div><dt>Protocol</dt><dd><a href="records/docs/research/experiment-protocol.html">24 calibration runs and 48 confirmation runs planned ↗</a></dd></div>
+      </dl>
+      <p><a class="text-link" href="progress.html">Weekly status and research log ↗</a></p>
+    </section>
   </div>
 </section>

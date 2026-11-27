@@ -16,12 +16,12 @@ The `Publish research journal` workflow rebuilds on main pushes, issue changes, 
 All 22 initial tasks and their public comments are rendered at build time. Status filters, search, task details, roadmap-to-task links and a manual public GitHub status refresh enhance that static record. API errors retain the published snapshot and show a warning. All tasks, reports and records remain readable without JavaScript.
 
 - `layout.html` and `header.html`: shared frame, navigation and page metadata
-- `index.html`: project overview and interactive Q04 preview
-- `results.html`: qualification, case evidence, code links and run data
+- `index.html`: research questions and qualification overview
+- `results.html`: qualification, measured outcomes for all cases, code links and run data
 - `case-notes.json`: English case titles and summaries, paired with the published qualification matrix
-- `progress.html`: dated journal and repository history
+- `progress.html`: evidence charts, weekly status, dated journal and repository history
 - `tasks.html`: filterable issue workbench
-- `roadmap.html`: weekly timeline, milestones and deadlines
+- `roadmap.html`: weekly evidence table, hours, milestones and deadlines
 - `vision.html`: research rationale and question/evidence matrix
 - `manifesto.html`: separate editorial principles page
 - `decisions.html`: decision and access ledgers

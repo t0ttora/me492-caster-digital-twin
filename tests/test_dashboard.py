@@ -54,20 +54,18 @@ class DashboardTests(unittest.TestCase):
         url = build_site.GH + '/blob/main/reports/ME492_Timetable_EN.pdf'
         self.assertEqual(build_site.safe_link(url), 'report-ME492_Timetable_EN.html')
 
-    def test_qualification_has_one_home(self):
+    def test_overview_and_results_share_qualification(self):
         matrix = json.loads((ROOT / 'reports/janus/qualification-matrix.json').read_text())
         passed = sum(case['status'] == 'passed' for case in matrix['cases'])
-        self.assertEqual(self.html.count('id="janus-qualification"'), 1)
         results = self.pages['results']
         self.assertIn(f'<strong>{passed} of {len(matrix["cases"])}</strong> cases passed', results)
         self.assertIn('All 72 environment checks passed.', results)
         for track, result in [('Python V2.3', '29 / 29'), ('Native Simscape', '16 / 16'), ('ROS 2 / Gazebo', '27 / 27')]:
             self.assertIn(f'>{track}</a></dt><dd>{result}</dd>', results)
-        for slug in ('index', 'progress'):
-            self.assertNotIn('environment checks', self.pages[slug])
+        self.assertIn(f'<strong>{passed} of {len(matrix["cases"])}</strong> cases passed', self.pages['index'])
+        self.assertNotIn('<iframe', self.pages['index'])
         self.assertIn(f'lists {self.data["published_runs"]} physical runs', results)
-        self.assertIn('src="scenes/?vaka=Q04&amp;embed=1"', self.pages['index'])
-        self.assertIn('href="roadmap.html#weekly-progress"', self.pages['progress'])
+        self.assertEqual(self.pages['progress'].count('class="status-chart"'), 2)
 
     def test_results_index_and_live_trace_downloads(self):
         page = self.pages['results']
@@ -109,13 +107,12 @@ class DashboardTests(unittest.TestCase):
     def test_weekly_and_gate_views_share_task_status_and_evidence(self):
         fixture = json.loads((ROOT / 'site/issue-snapshot.json').read_text())['issues']
         by_number = {issue['number']: issue for issue in fixture}
-        self.assertNotIn('data-progress-issue=', self.pages['progress'])
-        for slug, numbers, close_tag in [('roadmap', range(1, 17), '</details>'), ('decisions', range(17, 23), '</tr>')]:
+        for slug, numbers in [('roadmap', range(1, 17)), ('progress', range(1, 17)), ('decisions', range(17, 23))]:
             page = self.pages[slug]
             self.assertEqual(page.count('data-progress-issue='), len(numbers))
             for number in numbers:
                 issue = by_number[number]
-                row = page.split(f'data-progress-issue="{number}"', 1)[1].split(close_tag, 1)[0]
+                row = page.split(f'data-progress-issue="{number}"', 1)[1].split('</tr>', 1)[0]
                 self.assertIn(build_site.badge(build_site.state(issue)), row)
                 self.assertIn(f'href="tasks.html#task-{number}"', row)
                 review = build_site.evidence_review(issue)

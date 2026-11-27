@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#10100e">
 <title>3D Lab · Arche JANUS</title>
 <link rel="stylesheet" href="../style.css">
@@ -11,23 +11,23 @@
 <link rel="icon" href="../assets/olus-emre-logo.svg">
 <script>if(new URLSearchParams(location.search).get('embed')==='1')document.documentElement.dataset.embed='true';</script>
 <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/addons/"}}</script>
-<script type="module" src="../app.js"></script>
 <script type="module" src="app.js"></script>
 </head>
 <body class="page-scenes">
 <a class="skip" href="#scene">Skip to the scene</a>
-<div class="frame journal-frame lab-frame">
-{{HEADER}}
+<div class="lab-frame" id="lab-workspace">
 <main class="lab" id="scene">
   <header class="lab-heading">
-    <div>
-      <p class="eyebrow"><span>3D Lab</span> <span aria-hidden="true">/</span> <span id="category">QR docking</span></p>
+    <a class="lab-back" href="../index.html" aria-label="Back to research overview">← <span>Research overview</span></a>
+    <div class="case-name">
+      <p class="case-context"><span>3D Lab</span> <span aria-hidden="true">/</span> <span id="category">QR docking</span></p>
       <h1 id="case-title">Docking with a lateral offset</h1>
     </div>
     <div class="case-navigation">
       <button id="prev-case" type="button" aria-label="Previous case" title="Previous case">←</button>
-      <button id="open-catalog" type="button" aria-haspopup="dialog"><span>Browse cases</span> <span class="mono" id="case-position"></span></button>
+      <button id="open-catalog" type="button" aria-haspopup="dialog"><span>Cases</span> <span class="mono" id="case-position"></span></button>
       <button id="next-case" type="button" aria-label="Next case" title="Next case">→</button>
+      <button id="show-inspector" type="button" aria-haspopup="dialog">Run details</button>
     </div>
   </header>
 
@@ -37,9 +37,10 @@
         <div class="viewport-top">
           <div class="stage-id"><span class="mono" id="stage-case">Q04</span><span id="environment" lang="tr" hidden></span></div>
           <div class="view-switch" role="group" aria-label="Camera view">
-            <button type="button" data-view="overview" aria-pressed="true">Orbit</button>
+            <button type="button" data-view="overview" aria-pressed="true">Scene</button>
             <button type="button" data-view="top" aria-pressed="false">Top</button>
-            <button type="button" data-view="sensor" aria-pressed="false">Robot camera</button>
+            <button type="button" data-view="robot" aria-pressed="false">Robot</button>
+            <button type="button" data-view="sensor" aria-pressed="false">Camera</button>
           </div>
         </div>
         <div class="camera-tools" role="group" aria-label="Camera controls">
@@ -85,7 +86,7 @@
         <label for="variant">Recorded run</label>
         <select id="variant" disabled></select>
         <p class="data-origin" id="origin"></p>
-        <div class="scene-links"><a id="result-link" href="../results.html#case-Q04">Case evidence ↗</a><a id="clip-link" href="clips/Q04.mp4">MP4 ↗</a></div>
+        <div class="scene-links"><a id="result-link" href="../results.html#case-Q04">Case evidence ↗</a><a id="clip-link" href="clips/Q04.mp4">MP4 ↗</a><a href="credits.html">Model credits ↗</a></div>
       </section>
       <details class="inspector-block detail-block" open>
         <summary>Events <span class="mono" id="event-count"></span></summary>
@@ -111,6 +112,7 @@
         <p id="scenario" lang="tr"></p>
         <div id="published" lang="tr"></div>
         <h3>Pose log SHA-256</h3><code id="raw-path"></code>
+        <p class="marker-note">The model carries a <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Rick Astley QR decal</a>. Camera view shows the experiment’s original target.</p>
         <h3>Fixture source</h3><code id="fixture-path" lang="tr"></code>
       </details>
       <details id="video-box" class="inspector-block detail-block" hidden>
@@ -120,12 +122,11 @@
     </aside>
   </div>
 
-  <section class="sequence" aria-labelledby="sequence-title">
-    <div class="sequence-heading"><h2 id="sequence-title">Case sequence</h2><button type="button" id="show-all-cases" aria-haspopup="dialog">Search all cases ↗</button></div>
-    <div class="filmstrip" id="filmstrip" aria-label="Nearby cases"></div>
-  </section>
-  <p class="scope">The robot follows a recorded simulation. The chassis and lab are 3D models. <a href="credits.html">Model credits ↗</a></p>
 </main>
+<dialog id="run-dialog" class="catalog" aria-labelledby="run-title">
+  <div class="catalog-header"><h2 id="run-title">Run details</h2><form method="dialog"><button>Close ×</button></form></div>
+  <div id="run-sheet"></div>
+</dialog>
 <dialog id="catalog" class="catalog" aria-labelledby="catalog-title">
   <div class="catalog-header"><h2 id="catalog-title">Find a case</h2><form method="dialog"><button>Close ×</button></form></div>
   <label for="search" class="sr-only">Case title or code</label>

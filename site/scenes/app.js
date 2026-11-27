@@ -51,6 +51,7 @@ const fmt = new Intl.NumberFormat('en-GB',{minimumFractionDigits:2,maximumFracti
 const short = new Intl.NumberFormat('en-GB',{maximumFractionDigits:1});
 const eventName = key => eventLabels[key] || String(key).replaceAll('_',' ');
 const embedded = document.documentElement.dataset.embed === 'true';
+const compactLayout = matchMedia('(max-width: 760px)');
 const cache=new Map();
 let list=[],filter='',current=null,track=null,viewer=null,view='overview',renderError=null,requestNumber=0;
 let time=0, direction=0, lastTick=null, requestFrame=0, activeEvent=null, recording=null;
@@ -95,36 +96,11 @@ function renderCatalog() {
   }
 }
 
-function renderSequence(id) {
-  const index=list.findIndex(c=>c.id===id);
-  $('case-position').textContent=(index+1)+' / '+list.length;
-  $('prev-case').disabled=index<=0;
-  $('next-case').disabled=index>=list.length-1;
-  const strip=$('filmstrip');
-  const wasFocused=strip.contains(document.activeElement);
-  const start=Math.max(0,Math.min(list.length-7,index-3));
-  strip.replaceChildren();
-  for (const c of list.slice(start,start+7)) {
-    const b=button('','film-cell');
-    b.setAttribute('aria-current', String(c.id===id));
-    b.title=c.id+' '+caseTitle(c);
-    b.setAttribute('aria-label', b.title);
-    if (c.id===id) b.dataset.active='';
-    const poster=new Image(800,432);
-    poster.src='clips/'+c.id+'.jpg'; poster.alt=''; poster.loading='lazy';
-    const meta=document.createElement('span');
-    const code=document.createElement('span');
-    const title=document.createElement('span');
-    code.className='mono'; code.textContent=c.id; title.textContent=caseTitle(c);
-    meta.append(code,title); b.append(poster,meta);
-    b.addEventListener('click',()=>selectCase(c.id,0,true));
-    strip.append(b);
-  }
-  const active=strip.querySelector('[data-active]');
-  if (active) {
-    if (wasFocused) active.focus({preventScroll:true});
-    strip.scrollLeft=active.offsetLeft - (strip.clientWidth-active.clientWidth)/2;
-  }
+function updateCaseNavigation(id) {
+  const index = list.findIndex(item => item.id === id);
+  $('case-position').textContent = (index + 1) + ' / ' + list.length;
+  $('prev-case').disabled = index <= 0;
+  $('next-case').disabled = index >= list.length - 1;
 }
 
 function shiftCase(step) {
@@ -170,7 +146,7 @@ async function selectCase(id,startVariant=0,update=false) {
   $('fallback-clip').href=clip;
   $('result-link').href='../results.html#case-'+id;
   setCameraTools();
-  if (!embedded) renderSequence(id);
+  if (!embedded) updateCaseNavigation(id);
   if (!cache.has(id)) cache.set(id,getJson('./data/'+id+'.json'));
   try {
     const next=await cache.get(id);
@@ -350,7 +326,7 @@ function setView(next) {
   $('pan-mode').setAttribute('aria-pressed',String(view==='top'));
   viewport.classList.toggle('is-panning',view==='top');
   $('gesture-help').textContent=view==='sensor'?'View from the simulated robot camera':
-    view==='top'?'Drag to pan · scroll to zoom':'Drag to orbit · scroll to zoom · right-drag to pan';
+    view==='top'?'Drag to pan · scroll to zoom':'Drag to orbit · pinch or scroll to zoom';
   setCameraTools();
   $('pan-mode').disabled=view!=='overview' || Boolean(renderError);
 }
@@ -402,7 +378,21 @@ function openCatalog() {
   catalog.showModal();
 }
 $('open-catalog').addEventListener('click',openCatalog);
-$('show-all-cases').addEventListener('click',openCatalog);
+const runDialog = $('run-dialog');
+const runInspector = document.querySelector('.inspector');
+function placeInspector() {
+  if (compactLayout.matches) {
+    $('run-sheet').append(runInspector);
+  } else {
+    if (runDialog.open) runDialog.close();
+    document.querySelector('.lab-layout').append(runInspector);
+  }
+}
+if (!embedded) {
+  placeInspector();
+  compactLayout.addEventListener('change', placeInspector);
+  $('show-inspector').addEventListener('click', () => runDialog.showModal());
+}
 $('prev-case').addEventListener('click',()=>shiftCase(-1));
 $('next-case').addEventListener('click',()=>shiftCase(1));
 for (const b of filters) b.addEventListener('click',()=>{
@@ -461,7 +451,7 @@ viewport.addEventListener('keydown',e=>{
   if (e.target!==viewport) return;
   if (e.code==='Space') { e.preventDefault(); play(); return; }
   if (!viewer || renderError || view==='sensor') return;
-  if (panKeys[e.key]) viewer.pan(...panKeys[e.key]);
+  if (view !== 'robot' && panKeys[e.key]) viewer.pan(...panKeys[e.key]);
   else if (['+', '=','-'].includes(e.key)) viewer.zoom(e.key==='-'?-1:1);
   else if (e.key==='0') setView(view);
   else return;
@@ -484,6 +474,7 @@ try {
   list=index.cases;
   try {
     viewer=new JanusViewer(viewport);
+    if (!embedded && compactLayout.matches) view = 'robot';
     viewer.controls.enableZoom=!embedded;
     await viewer.load();
   } catch(error) {

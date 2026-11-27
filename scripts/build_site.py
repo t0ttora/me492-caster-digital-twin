@@ -197,8 +197,52 @@ def qualification_summary(matrix):
         rows.append(f'<div><dt><a href="results.html#{anchor}">{label}</a></dt><dd>{passed_checks} / {len(checks)}</dd></div>')
     return f'''<section class="qualification-panel" id="janus-qualification" aria-labelledby="qualification-title">
 <div><h2 id="qualification-title">Qualification</h2><p><strong>{passed_cases} of {len(cases)}</strong> cases passed. {component_summary} Some cases run in several environments.</p></div>
-<details class="fold"><summary>Checks by environment</summary><dl>{''.join(rows)}</dl><p class="muted small">The ROS 2 / Gazebo count includes live runs and camera replay.</p></details>
+<div><dl>{''.join(rows)}</dl><p class="muted small">The ROS 2 / Gazebo count includes live runs and camera replay.</p></div>
 </section>'''
+
+
+def bar_chart(rows, scale=None):
+    items = []
+    for label, value, total, color in rows:
+        items.append(f'<div><dt>{label}</dt><dd><meter class="{color}" min="0" max="{scale or total or 1}" value="{value}" aria-hidden="true"></meter><span>{value} / {total}</span></dd></div>')
+    return f'<dl class="status-chart">{"".join(items)}</dl>'
+
+
+def selected_measurements():
+    with (ROOT / 'reports/janus/python/measurements.csv').open() as source:
+        runs = {row['run_id']: row for row in csv.DictReader(source)}
+    python_csv = 'reports/janus/python/measurements.csv'
+    python_rows = [
+        ('M04', 'Cross-track RMSE', f'{1000 * float(runs["M04-python-nominal"]["path_rmse_m"]):.2f} mm', 'Nominal S path'),
+        ('M05', 'Last of eight gates', f'{float(runs["M05-python-cw"]["last_gate_time_s"]):.2f} s', '0.50 m clockwise square'),
+        ('M06', 'Last of eight gates', f'{float(runs["M06-python-ccw"]["last_gate_time_s"]):.2f} s', '0.50 m counterclockwise square'),
+    ]
+    rows = [(case, 'Python V2.3', metric, value, condition, python_csv) for case, metric, value, condition in python_rows]
+    ros_rows = [
+        ('M02', 'Brake command → stop band', 'stop_to_speed_band_s', 1000, '.0f', 'ms', 'World-pose speed band'),
+        ('M02', 'Braking distance', 'braking_distance_m', 1000, '.2f', 'mm', 'Straight-line fixture'),
+        ('Q08', 'Wrong-station observations', 'real_rendered_observations', 1, 'd', '', 'Rendered camera detections'),
+        ('Q08', 'Forward requests', 'forward_requests', 1, 'd', '', 'Wrong-station run'),
+        ('Q08', 'Search deadline', 'qr_timeout_elapsed_s', 1, '.3f', 's', 'Simulation time'),
+        ('O05', 'Rejected requests', 'unauthorized_requests', 1, 'd', '', 'Fresh odometry, awaiting authorization'),
+        ('O05', 'Odometry fault → stop band', 'fault_to_measured_stop_band_s', 1000, '.0f', 'ms', 'Injected timestamp regression'),
+    ]
+    for case, metric, field, scale, precision, unit, condition in ros_rows:
+        source = f'reports/janus/ros2/live/{case}-acceptance.json'
+        value = json.loads((ROOT / source).read_text())['measurements'][field] * scale
+        rows.append((case, 'ROS 2 / Gazebo', metric, f'{value:{precision}} {unit}'.strip(), condition, source))
+    native_path = 'reports/janus/native-m04-acceptance.json'
+    native = json.loads((ROOT / native_path).read_text())
+    rows.append(('M04', 'Native Simscape', 'Cross-track RMSE', f'{1000 * native["cross_track_rmse_m"]:.2f} mm', 'Two 0.30 m arcs, 45° initial caster', native_path))
+    # The comparison and staged runs use different stop targets on the same simulated fixture.
+    rows.extend([
+        ('Q04', 'ROS 2 / Gazebo', 'Final mechanical position error', '43.70 mm', 'Comparison run', 'reports/janus/qualification/Q04.png'),
+        ('Q04', 'ROS 2 / Gazebo', 'Final mechanical position error', '6.236 mm', 'Four-corner staging run', 'reports/janus/qualification/Q04.png'),
+    ])
+    return ''.join(
+        f'<tr><th scope="row"><a href="#case-{case}">{case}</a></th><td>{environment}</td><td>{escape(metric)}<span class="measurement-context">{environment} · <a href="{source}">{condition} ↗</a></span></td><td class="mono numeric">{value}</td><td><a href="{source}">{condition} ↗</a></td></tr>'
+        for case, environment, metric, value, condition, source in rows
+    )
 
 
 def site_header(root, current):
@@ -217,8 +261,10 @@ def case_index(cases, notes, scenes):
             if not code.startswith(prefix):
                 continue
             title, summary = notes[code]
-            environments = ', '.join(ENVIRONMENTS[environment] for environment in case['components'])
-            measurements = ''.join(f'<div><dt>{escape(ENVIRONMENTS[environment])}</dt><dd lang="tr">{escape(check["measurement_tr"])}</dd></div>' for environment, check in case['components'].items())
+            measurements = ''.join(
+                f'<div><dt>{escape(ENVIRONMENTS[environment])}</dt><dd lang="tr">{escape(check["measurement_tr"])}</dd></div>'
+                for environment, check in case['components'].items()
+            )
             result = 'Passed' if case['status'] == 'passed' else escape(case['status'].replace('_', ' ').capitalize())
             scenes_url = f'scenes/?vaka={code}'
             video_url = f'scenes/clips/{code}.mp4'
@@ -230,8 +276,17 @@ def case_index(cases, notes, scenes):
   <figcaption>{clip} simulation replay. The clock shows time from the simulation log.</figcaption>
 </figure>
 <p class="case-media-links"><a href="{scenes_url}">Explore {code} in 3D</a><a href="{video_url}">Open MP4</a></p>'''
-            rows.append(f'<details class="case-entry" id="case-{code}"><summary><span>{code}</span><span class="case-title">{escape(title)}</span><span class="case-result">{result}</span></summary><div class="case-body"><p>{escape(summary)}</p>{media}<p class="muted small">{escape(environments)}</p><p lang="tr"><strong>Kabul ölçütü</strong> {escape(case["acceptance_tr"])}</p><dl>{measurements}</dl></div></details>')
-        sections.append(f'<details class="case-group fold" id="{anchor}"><summary>{heading} <span>{len(rows)}</span></summary>{"".join(rows)}</details>')
+            media_links = f'<p class="case-shortcuts"><a href="{scenes_url}">3D replay</a> · <a href="{video_url}">MP4</a></p>'
+            rows.append(f'''<tr>
+<th scope="row"><a href="#case-{code}">{code}</a><span class="case-priority">{escape(case["priority"])}</span></th>
+<td><details class="case-entry" id="case-{code}"><summary>{escape(title)}</summary>
+<div class="case-body"><p>{escape(summary)}</p><p lang="tr"><strong>Kabul ölçütü</strong> {escape(case["acceptance_tr"])}</p>{media}</div></details>{media_links}</td>
+<td>{result}</td><td><dl class="case-measurements">{measurements}</dl></td></tr>''')
+        sections.append(f'''<section id="{anchor}" aria-labelledby="{anchor}-title">
+<h3 id="{anchor}-title">{heading} <span class="muted mono">{len(rows)} cases</span></h3>
+<div class="table-scroll" role="region" aria-label="{heading} case measurements" tabindex="0"><table class="data-table case-table">
+<thead><tr><th scope="col">Case</th><th scope="col">Scenario</th><th scope="col">Status</th><th scope="col">Recorded outcome by environment</th></tr></thead>
+<tbody>{"".join(rows)}</tbody></table></div></section>''')
     return ''.join(sections)
 
 
@@ -333,20 +388,41 @@ def build(issues, comments):
             selected = ' aria-current="true"' if w['id'] == latest_week else ''
             stops.append(f'<a href="#week-{w["id"]}" aria-label="{w["id"]}, {escape(w["period"])}"{selected}>{w["id"]}</a>')
         week_links.append(f'<div><p>{phase}</p><div>{"".join(stops)}</div></div>')
-    roadmap = []
-    for w in weeks:
-        task = f'<a href="tasks.html#task-{w["issue"]}">Full task record ↗</a>' if w['issue'] else ''
-        open_by_default = ' open' if w['id'] == latest_week else ''
-        review = reviews[w['id']] or 'No evidence update recorded.'
-        roadmap.append(f'''<details class="week-record" id="week-{w["id"]}" name="roadmap-week" data-progress-issue="{w["issue"]}"{open_by_default}>
-<summary><span class="mono">{w["id"]}</span><span>{escape(w["output"])}</span>{badge(w["status"])}</summary>
-<div class="week-body"><div><p class="muted small">{escape(w["period"])} · {w["hours"]} planned hours</p><h3>Acceptance criteria</h3><p>{escape(w["evidence"])}</p></div><div><h3>Latest evidence</h3><p class="evidence-review">{review}</p>{task}</div></div></details>''')
+    roadmap, weekly_progress = [], []
+    for week in weeks:
+        code = week['id']
+        number = week['issue']
+        title = escape(week['output'])
+        status = badge(week['status'])
+        review = reviews[code] or 'No evidence update recorded.'
+        task = f'<a href="tasks.html#task-{number}">{code} ↗</a>' if number else code
+        issue_attr = f' data-progress-issue="{number}"' if number else ''
+        roadmap.append(f'''<tr id="week-{code}"{issue_attr}><th scope="row">{task}</th><td>{escape(week["period"])}</td>
+<td><strong>{title}</strong><p>{escape(week["evidence"])}</p></td><td class="mono">{week["hours"]}</td>
+<td>{status}</td><td class="evidence-review">{review}</td></tr>''')
+        weekly_progress.append(f'<tr{issue_attr}><th scope="row">{task}</th><td>{title}</td><td>{status}</td><td class="evidence-review">{review}</td></tr>')
+    gates = [i for i in issues if 'type:gate' in label_names(i)]
+    status_bars = [
+        ('Weeks verified', sum(w['status'] == 'verified' for w in weeks), len(weeks), 'verified'),
+        ('Weeks in progress', sum(w['status'] == 'in-progress' for w in weeks), len(weeks), 'active'),
+        ('Weeks blocked', sum(w['status'] == 'blocked' for w in weeks), len(weeks), 'blocked'),
+        ('Weeks planned', sum(w['status'] == 'planned' for w in weeks), len(weeks), 'planned'),
+        ('Decision gates verified', sum(state(gate) == 'verified' for gate in gates), len(gates), 'verified'),
+    ]
+    coverage_bars = []
+    for prefix, label in [('M', 'Motion'), ('Q', 'QR docking'), ('O', 'Operations')]:
+        family = [case for case in qualification['cases'] if case['case_id'].startswith(prefix)]
+        coverage_bars.append((label, sum(case['status'] == 'passed' for case in family), len(family), 'verified'))
     journal_entries = [item[1] for item in journal]
     journal_html = ''.join(journal_entries[:4])
     if journal_entries[4:]:
         journal_html += '<details class="fold older-entries"><summary>Earlier entries</summary>' + ''.join(journal_entries[4:]) + '</details>'
     tokens = {'RUN_COUNT': str(run_count), 'ACCESS_SNAPSHOT': escape((ROOT / access).read_text().split('\n\n')[1]), 'COMMITS': ''.join(commits), 'ACCESS': markdown((ROOT / access).read_text(), access, embedded=True), 'DECISIONS': markdown((ROOT / decisions).read_text(), decisions, embedded=True), 'FOCUS': focus, 'PROGRESS': journal_html, 'SYNC': f'GitHub snapshot · {short_date(built.isoformat())} (Istanbul).', 'TASKS': ''.join(tasks), 'ROADMAP': ''.join(roadmap), 'WEEK_LINKS': ''.join(week_links), 'DOCUMENTS': ''.join(doc_links)}
     tokens['JANUS_QUALIFICATION'] = qualification_summary(qualification)
+    tokens['WEEKLY_PROGRESS'] = ''.join(weekly_progress)
+    tokens['PROGRESS_CHART'] = bar_chart(status_bars)
+    tokens['COVERAGE_CHART'] = bar_chart(coverage_bars, max(row[2] for row in coverage_bars))
+    tokens['MEASUREMENTS'] = selected_measurements()
     scenes_dir = ROOT / 'site/scenes'
     scene_index = json.loads((scenes_dir / 'data/index.json').read_text())
     notes = json.loads((ROOT / 'site/case-notes.json').read_text())
