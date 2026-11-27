@@ -31,7 +31,13 @@ case "$case_id" in
     launch_options+=("target_u_px:=$target_u")
     world="$output/world.sdf"
     ;;
-  Q08) launch_options+=("target_id:=JANUS-DOCK-AUTHORIZED") ;;
+  Q08)
+    launch_options+=("target_id:=JANUS-DOCK-AUTHORIZED")
+    if [[ ${JANUS_CAMERA_VARIANT:-nominal} != nominal ]]; then
+      python3 "$experiment_dir/make-world.py" "$case_id" "$world" "$output" "$JANUS_CAMERA_VARIANT" >/dev/null
+      world="$output/world.sdf"
+    fi
+    ;;
 esac
 if [[ $case_id == Q13 && ${JANUS_Q13_MODE:-resume} == regression ]]; then
   launch_options+=("camera_raw_topic:=/janus/camera/native_raw")
@@ -105,6 +111,9 @@ if [[ -n ${JANUS_WALL_S:-} ]]; then
 fi
 if [[ -n ${JANUS_CONTROL_DEPTH_M:-} ]]; then
   controller_options+=(--control-depth-m "$JANUS_CONTROL_DEPTH_M")
+fi
+if [[ $case_id == Q08 && -n ${JANUS_Q08_TIMEOUT_S:-} ]]; then
+  controller_options+=(--q08-timeout-s "$JANUS_Q08_TIMEOUT_S")
 fi
 if [[ $case_id == O05 && ${JANUS_O05_RECOVERY:-0} == 1 ]]; then
   controller_options+=(--o05-recovery)

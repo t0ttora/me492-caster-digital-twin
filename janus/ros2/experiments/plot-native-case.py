@@ -18,6 +18,7 @@ EVENTS = {
     'unauthorized_probe':'yetkisiz komut', 'recovery_ack_received':'yetki alındı', 'authorized_restart_input':'yeni komut',
     'camera_cut':'kamera kesildi', 'old_frame_rejected':'eski kare reddi', 'camera_restore':'kamera geri geldi',
     'qr_acquired':'QR bulundu', 'hide':'işaret kaybı', 'restore':'işaret döndü',
+    'qr_search_timeout':'QR zaman aşımı',
     'standoff':'yaklaşma duruşu', 'retry_budget_exhausted':'yeniden deneme sınırı',
     'optical_exposure_start':'pozlama arızası',
 }
@@ -80,7 +81,7 @@ def plot(folder):
         text='    '.join(f'{i} {EVENTS[row["event"]]}' for i,row in enumerate(marks[:6],1))
         drive.text(.002,-.28,text,transform=drive.transAxes,ha='left',va='top',fontsize=7,wrap=True)
 
-    for image_name in ('loss-rendered.png','standoff-rendered.png','steady-rendered.png','start-rendered.png'):
+    for image_name in ('timeout-rendered.png','loss-rendered.png','standoff-rendered.png','steady-rendered.png','start-rendered.png'):
         if (folder/image_name).is_file():
             scene.imshow(mpimg.imread(folder/image_name))
             scene.set_title('Gazebo ön kamerası · modelin render karesi')

@@ -5,6 +5,7 @@ from collections import Counter, deque
 from contextlib import ExitStack
 from copy import deepcopy
 from dataclasses import fields
+from datetime import datetime, timezone
 from hashlib import sha256
 import json
 import math
@@ -40,7 +41,7 @@ QR_CASES = ('Q01', 'Q02', 'Q03', 'Q04', 'Q05', 'Q06', 'Q07', 'Q08', 'Q13', 'Q17'
 
 class NativeRun(Node):
     def __init__(self, case_id, run_dir, trace, service_log, camera_bridge_pid, q13_mode,
-                 control_depth_m, o05_recovery):
+                 control_depth_m, o05_recovery, q08_timeout_s):
         super().__init__('janus_live_case')
         self.case_id = case_id
         self.run_dir = run_dir
@@ -50,6 +51,8 @@ class NativeRun(Node):
         self.q13_mode = q13_mode
         self.control_depth_m = control_depth_m
         self.o05_recovery = o05_recovery
+        self.q08_timeout_s = q08_timeout_s
+        self.q08_acquired = False
         self.q13_camera_relay = case_id == 'Q13' and q13_mode == 'regression'
         self.bridge_paused = False
         self.replay_last_try = None
@@ -295,8 +298,20 @@ class NativeRun(Node):
         if 'standoff' in self.events:
             self.send(0., 0., 'standoff_hold')
             return
-        visible = (self.frame is not None and self.frame.valid
-                   and 0 <= self.now - self.frame.capture_time_s <= .20)
+        fresh = self.frame is not None and 0 <= self.now - self.frame.capture_time_s <= .20
+        if self.q08_timeout_s is not None and not self.q08_acquired:
+            deadline = self.start + self.q08_timeout_s
+            if self.now >= deadline:
+                if 'qr_search_timeout' not in self.events:
+                    cause = self.frame.reason if fresh else 'no_fresh_observation'
+                    self.event('qr_search_timeout', outcome='abort', cause=f'search_timeout:{cause}',
+                               deadline_time_s=deadline, utc=datetime.now(timezone.utc).isoformat(),
+                               last_capture_time_s=self.frame.capture_time_s if fresh else None)
+                    self.pending_image = 'timeout'
+                self.send(0., 0., 'qr_search_timeout_hold')
+                return
+            self.q08_acquired = bool(fresh and self.frame.valid)
+        visible = fresh and self.frame.valid
         forward = self.gate.update(self.now, self.frame)
         if not visible:
             if 'hide' in self.events and 'visible_loss' not in self.events:
@@ -379,6 +394,9 @@ class NativeRun(Node):
                 self.drive_q13_fault_sequence()
             self.qr_command()
             if self.case_id == 'Q08':
+                if self.q08_timeout_s is not None:
+                    return ('qr_search_timeout' in self.events
+                            and self.now-self.events['qr_search_timeout'] >= .35)
                 return elapsed > 2.5
             if self.case_id == 'Q13':
                 if 'camera_restore' in self.events:
@@ -520,6 +538,7 @@ def parse():
     parser.add_argument('--q13-mode', choices=['duplicate','regression','resume'], default='resume')
     parser.add_argument('--control-depth-m', type=float, default=STANDOFF_M)
     parser.add_argument('--o05-recovery', action='store_true')
+    parser.add_argument('--q08-timeout-s', type=float)
     args = parser.parse_args()
     if (args.case == 'Q13' and args.q13_mode!='regression' and
             (args.camera_bridge_pid is None or args.camera_bridge_pid <= 1)):
@@ -528,6 +547,8 @@ def parse():
         parser.error('control depth goal must be within the fixed optical acceptance band')
     if args.o05_recovery and args.case != 'O05':
         parser.error('odometry regression recovery is only used in the O05 fixture')
+    if args.q08_timeout_s is not None and (args.case != 'Q08' or not 0 < args.q08_timeout_s <= 30):
+        parser.error('Q08 timeout must be between 0 and 30 simulated seconds and used only for Q08')
     return args
 
 
@@ -539,7 +560,7 @@ def main():
         trace = close.enter_context((args.output/'telemetry.jsonl').open('w'))
         services = close.enter_context((args.output/'simulation-service.log').open('w'))
         node = NativeRun(args.case, args.output, trace, services, args.camera_bridge_pid, args.q13_mode,
-                         args.control_depth_m, args.o05_recovery)
+                         args.control_depth_m, args.o05_recovery, args.q08_timeout_s)
         try:
             next_tick = time.monotonic()
             deadline = next_tick + args.wall_s
@@ -567,6 +588,9 @@ def main():
             summary['q13_mode'] = args.q13_mode
         if args.case == 'O05':
             summary['o05_recovery'] = args.o05_recovery
+        if args.q08_timeout_s is not None:
+            summary['q08_timeout_s'] = args.q08_timeout_s
+            summary['harness_wall_budget_s'] = args.wall_s
         if args.case in QR_CASES:
             summary['controller_depth_goal_m'] = args.control_depth_m
         (args.output/'execution.json').write_text(json.dumps(summary, indent=2, allow_nan=False)+'\n')

@@ -40,6 +40,53 @@ def percentile(values, fraction):
     return sorted_values[math.ceil(len(values)*fraction)-1]
 
 
+def wrong_qr_timeout_gates(execution, choices, wrong, valid, gates, values):
+    timeout_s = execution['q08_timeout_s']
+    start = execution['clock_start_s']
+    trace_events = choices['event']
+    terminals = [row for row in trace_events if row['event']=='qr_search_timeout']
+    successes = [row for row in trace_events if row['event'] in ('qr_acquired','standoff','success','docked')]
+    guard = choices['guard_output']
+    requests = choices['request']
+    body = choices['truth']
+    values.update(qr_timeout_configured_s=timeout_s, controller_timeout_events=len(terminals),
+                  accepted_or_success_events=len(successes),
+                  positive_guard_commands=sum(row['v_mps'] > 0 for row in guard),
+                  max_measured_linear_speed_mps=max(abs(row['v_mps']) for row in body),
+                  max_measured_yaw_rate_radps=max(abs(row['yaw_rate_radps']) for row in body))
+    gates['all_controller_and_guard_twists_zero'] = bool(guard and requests) and all(
+        row['v_mps']==0. and row['yaw_rate_radps']==0. for row in guard+requests)
+    gates['no_qr_acquisition_or_success_events'] = not valid and not successes
+    gates['independent_simulator_stays_stationary'] = (values['world_xy_drift_m'] <= .001
+        and values['max_measured_linear_speed_mps'] <= 1e-6 and values['max_measured_yaw_rate_radps'] <= 1e-6)
+    gates['one_controller_terminal_wrong_id_timeout'] = len(terminals)==1 and terminals[0]['cause']=='search_timeout:wrong_id'
+    if not gates['one_controller_terminal_wrong_id_timeout']:
+        return
+    terminal = terminals[0]
+    stamp = terminal['read_time_s']
+    latest_capture = terminal['last_capture_time_s']
+    before = [row for row in wrong if start <= row['capture_time_s'] and row['read_wall_s'] < terminal['read_wall_s']]
+    after = [row for row in wrong if stamp <= row['capture_time_s']]
+    observed_intervals = [b['capture_time_s']-a['capture_time_s'] for a,b in zip(before,before[1:])]
+    values.update(qr_timeout_reason=terminal['cause'], qr_timeout_utc=terminal['utc'],
+                  qr_timeout_simulation_time_s=stamp, qr_timeout_elapsed_s=stamp-start,
+                  last_wrong_capture_age_s=stamp-latest_capture,
+                  largest_pre_timeout_wrong_observation_gap_s=max(observed_intervals,default=None),
+                  terminal_zero_hold_s=execution['clock_end_s']-stamp)
+    gates['controller_reached_simulated_deadline_with_abort_outcome'] = (terminal['outcome']=='abort'
+        and math.isclose(terminal['deadline_time_s'],start+timeout_s,abs_tol=1e-9)
+        and 0 <= stamp-terminal['deadline_time_s'] <= .10
+        and terminal['read_wall_s'] < execution['harness_wall_budget_s']
+        and values['terminal_zero_hold_s'] >= .25
+        and any(row['state']=='qr_search_timeout_hold' and row['time_s'] >= stamp for row in requests))
+    gates['live_wrong_only_observations_continue_through_timeout'] = bool(before and after and observed_intervals
+        and before[0]['capture_time_s']-start <= .25 and max(observed_intervals) <= .20+1e-9
+        and before[-1]['capture_time_s']==latest_capture and 0 <= stamp-latest_capture <= .20
+        and after[0]['capture_time_s']-stamp <= .20
+        and all(row['target_id']=='JANUS-DOCK-AUTHORIZED' and row['visible']
+                and {candidate['id'] for candidate in row['candidates']}=={'JANUS-DOCK-01'} for row in wrong))
+
+
 def odometry_recovery_gates(choices, events, body, first, confirm, gates, values):
     restored = events.get('odom_stream_restored')
     permission_sent = events.get('authorization_signal_sent')
@@ -237,6 +284,8 @@ def summarize(folder, camera_flow_stall=False):
             values['world_xy_drift_m'] = max(math.dist(xy(row),xy(start)) for row in body)
             gates['rendered_nonmatching_id_rejected'] = bool(wrong) and not valid
             gates['never_moved_forward'] = not positive and not requested_at_plant and values['world_xy_drift_m'] <= .001
+            if 'q08_timeout_s' in execution:
+                wrong_qr_timeout_gates(execution, choices, wrong, valid, gates, values)
         elif case == 'Q13':
             variant = execution.get('q13_mode','resume')
             fault = events.get('replay_old_frame', {})
