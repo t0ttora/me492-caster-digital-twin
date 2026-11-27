@@ -118,6 +118,17 @@ The runner records measured Gazebo world pose, simulated odometry, measured whee
 
 The isolated QR fixtures use the `zbar` backend after `sudo apt install python3-pyzbar`. It reads actual rendered QR content before the common identity, freshness and centering checks. The runner selects a single-marker fast path only for the world with the named robot and sole nominal marker. Unknown or multi-marker scenes use the additional OpenCV residual check. Select the default OpenCV pipeline with `JANUS_DECODER_BACKEND=opencv`. The observer logs the backend and fixture setting in the launch evidence. Use `JANUS_RECORD_BAG=1` to keep a compressed MCAP and exported topic trace as part of the run.
 
+Q13's `JANUS_Q13_MODE=duplicate` run interrupts its camera bridge and republishes a retained, expired render. `JANUS_Q13_MODE=regression` remaps the native camera through its test relay, delays no simulation clock and sends a distinct older, still-fresh captured image after the observer has accepted a newer frame. The `resume` variant additionally waits for measured motion after new valid observations. Each run writes its detector or guard reasons alongside measured state.
+
+`JANUS_CAMERA_VARIANT=near_start` uses an explicitly recorded initial pose and a wall-rate target of 0.25 for smaller guest scheduling load. It preserves the 1 ms physics step, 20 Hz simulation-camera setting and acceptance gates. The optional `JANUS_CONTROL_DEPTH_M` sets a controller target inside the fixed optical acceptance band. The acceptance script recomputes optical depth from the independent Gazebo pose. Set `JANUS_CONTROL_DEPTH_M=.261` for the measured Q03 margin variant.
+
+```sh
+JANUS_CAMERA_VARIANT=near_start JANUS_Q13_MODE=regression \
+  bash experiments/run-native-case.sh Q13 /absolute/path/to/new-run-Q13
+python3 experiments/validate-native.py /absolute/path/to/new-run-Q13
+python3 experiments/plot-native-case.py /absolute/path/to/new-run-Q13
+```
+
 ## Native bag, replay and benchmark
 
 All three terminals need the Jazzy and workspace environments. Set `case_id`, `replay_file`, `run_id` and `run_dir` consistently. For a first M01 run use the shared `M01-zero-velocity.csv`. For M02 use the requested or limited velocity input from its upstream manifest and record which input was used. Include the exact fixture schedule, initial state, model/command hashes, versions, start/end clock and termination reason with the bag. Choose initial poses and caster state appropriate for the scenario before assigning a case-level result.

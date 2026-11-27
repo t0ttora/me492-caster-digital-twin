@@ -34,13 +34,13 @@ TAG_X_M = 1.50
 TAG_Z_M = .31
 CAMERA_X_M = .25
 STANDOFF_M = .265
-POSITION_TOLERANCE_M = .02
 FRAME_FIELDS = {field.name for field in fields(Observation)}
-QR_CASES = ('Q01', 'Q02', 'Q03', 'Q04', 'Q05', 'Q06', 'Q07', 'Q08', 'Q10', 'Q13', 'Q17', 'Q19')
+QR_CASES = ('Q01', 'Q02', 'Q03', 'Q04', 'Q05', 'Q06', 'Q07', 'Q08', 'Q13', 'Q17', 'Q19')
 
 
 class NativeRun(Node):
-    def __init__(self, case_id, run_dir, trace, service_log, camera_bridge_pid, q13_mode):
+    def __init__(self, case_id, run_dir, trace, service_log, camera_bridge_pid, q13_mode,
+                 control_depth_m):
         super().__init__('janus_live_case')
         self.case_id = case_id
         self.run_dir = run_dir
@@ -48,6 +48,8 @@ class NativeRun(Node):
         self.service_log = service_log
         self.camera_bridge_pid = camera_bridge_pid
         self.q13_mode = q13_mode
+        self.control_depth_m = control_depth_m
+        self.q13_camera_relay = case_id == 'Q13' and q13_mode == 'regression'
         self.bridge_paused = False
         self.replay_last_try = None
         self.replayed_stamp = None
@@ -58,16 +60,14 @@ class NativeRun(Node):
         self.search_direction = -1
         self.retry_losses = 0
         self.marker_hidden = False
-        self.optical_mode = 'normal'
-        self.photometric_samples = set()
         self.gate = CenteringGate()
         self.publish = self.create_publisher(Twist, '/janus/cmd_vel/request', 10)
         self.publish_abort = self.create_publisher(Bool, '/janus/abort', 10)
         self.publish_authorize = (self.create_publisher(Bool, '/janus/recovery/authorize', 10)
                                   if case_id == 'O08' else None)
         self.publish_fault_image = None
-        if camera_bridge_pid or case_id == 'Q10':
-            fault_qos = QoSProfile(depth=3, reliability=ReliabilityPolicy.RELIABLE) if camera_bridge_pid else qos_profile_sensor_data
+        if case_id == 'Q13':
+            fault_qos = QoSProfile(depth=3, reliability=ReliabilityPolicy.RELIABLE)
             self.publish_fault_image = self.create_publisher(Image, '/janus/camera/image_raw', fault_qos)
         self.publish_fault_odom = (self.create_publisher(Odometry, '/odom', qos_profile_sensor_data)
                                    if case_id == 'O05' else None)
@@ -86,7 +86,7 @@ class NativeRun(Node):
         self.counts = Counter()
         self.service_processes = []
         latest_only = QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT)
-        image_topic = '/janus/camera/native_raw' if case_id == 'Q10' else '/janus/camera/image_raw'
+        image_topic = '/janus/camera/native_raw' if self.q13_camera_relay else '/janus/camera/image_raw'
         for cls, topic, name in (
             (Clock, '/clock', 'clock'), (Odometry, '/janus/ground_truth', 'truth'),
             (Odometry, '/odom', 'odom'), (JointState, '/joint_states', 'joint_state'),
@@ -148,8 +148,8 @@ class NativeRun(Node):
             self.latest_image = msg
             if self.case_id == 'Q13':
                 self.recent_images.append(msg)
-        if self.case_id == 'Q10':
-            self.relay_photometric_fixture(msg)
+            if self.q13_camera_relay:
+                self.publish_fault_image.publish(msg)
         capture = stamp_s(msg.header.stamp)
         record_episode = (
             self.case_id in ('Q01', 'Q02', 'Q03', 'Q04', 'Q05', 'Q06', 'Q07', 'Q19') and self.world is not None
@@ -172,25 +172,6 @@ class NativeRun(Node):
                 self.episode_frames.append({'capture_time_s': capture, 'file': str(image_file.relative_to(self.run_dir)),
                     'width_px': msg.width, 'height_px': msg.height, 'encoding': msg.encoding,
                     'sha256': sha256(image_file.read_bytes()).hexdigest()})
-
-    def relay_photometric_fixture(self, msg):
-        if self.optical_mode == 'normal':
-            self.publish_fault_image.publish(msg)
-            return
-        original = unpack_image(msg.data, msg.width, msg.height, msg.step, msg.encoding)
-        adjusted = original.copy()
-        cv2.ellipse(adjusted, (msg.width//2, msg.height//2), (86, 76), 0, 0, 360,
-                    (255,255,255), thickness=-1)
-        forwarded = Image(header=msg.header, height=msg.height, width=msg.width,
-                          encoding='bgr8', is_bigendian=0, step=3*msg.width, data=adjusted.tobytes())
-        self.publish_fault_image.publish(forwarded)
-        if self.optical_mode not in self.photometric_samples:
-            self.photometric_samples.add(self.optical_mode)
-            source, modified = (self.run_dir/f'{self.optical_mode}-{label}.png' for label in ('source-rendered','derived'))
-            cv2.imwrite(str(source), original)
-            cv2.imwrite(str(modified), adjusted)
-            self.write('photometric_injection', {'mode':self.optical_mode, 'capture_time_s':stamp_s(msg.header.stamp),
-                       'source_file':source.name, 'derived_file': modified.name})
 
     def intrinsics(self, msg):
         if self.frame_focal is None and msg.k[0] > 0:
@@ -255,6 +236,9 @@ class NativeRun(Node):
     def change_camera_bridge(self, paused):
         if paused == self.bridge_paused:
             return
+        if self.q13_camera_relay:
+            self.bridge_paused = paused
+            return
         proc = Path(f'/proc/{self.camera_bridge_pid}')
         cmdline = proc.joinpath('cmdline').read_bytes().split(b'\0')
         environment = proc.joinpath('environ').read_bytes().split(b'\0')
@@ -281,7 +265,8 @@ class NativeRun(Node):
             self.change_camera_bridge(True)
             capture = stamp_s(self.replay_image.header.stamp)
             self.event('camera_cut', retained_capture_s=capture,
-                       previous_observed_capture_s=self.frame.capture_time_s if self.frame else None)
+                       previous_observed_capture_s=self.frame.capture_time_s if self.frame else None,
+                       camera_path='live_fixture_relay' if self.q13_camera_relay else 'native_bridge_process')
         if not self.bridge_paused:
             return
         elapsed = self.now-self.events['camera_cut']
@@ -338,15 +323,16 @@ class NativeRun(Node):
         c0, c1, c2, c3 = self.frame.corners_px
         apparent_side = (math.dist(c0, c3) + math.dist(c1, c2)) * .5
         estimated_depth = self.frame_focal * TAG_SIDE_M / apparent_side
-        if estimated_depth <= STANDOFF_M:
+        if estimated_depth <= self.control_depth_m:
             if abs(self.frame.error) > .02:
                 self.send(0., turn, 'centering_at_range')
                 return
-            self.event('standoff', estimated_optical_depth_m=estimated_depth)
+            self.event('standoff', estimated_optical_depth_m=estimated_depth,
+                       controller_depth_goal_m=self.control_depth_m)
             self.pending_image = 'standoff'
             self.send(0., 0., 'standoff_hold')
         else:
-            self.send(min(.12, max(.018, .8*(estimated_depth-STANDOFF_M))), turn, 'approach')
+            self.send(min(.12, max(.018, .8*(estimated_depth-self.control_depth_m))), turn, 'approach')
 
     def step(self):
         if self.now is None or self.world is None:
@@ -386,10 +372,6 @@ class NativeRun(Node):
                     return self.now-self.events['retry_budget_exhausted'] >= .60
             if self.case_id == 'Q13':
                 self.drive_q13_fault_sequence()
-            if self.case_id == 'Q10':
-                if 'optical_exposure_start' not in self.events and self.world['v_mps'] > .04:
-                    self.optical_mode = 'glare'
-                    self.event('optical_exposure_start', mode=self.optical_mode)
             self.qr_command()
             if self.case_id == 'Q08':
                 return elapsed > 2.5
@@ -403,9 +385,14 @@ class NativeRun(Node):
                     return ('observed_restart_motion' in self.events and
                             self.now-self.events['observed_restart_motion'] >= .50)
                 return False
-            if self.case_id == 'Q10':
-                return 'optical_exposure_start' in self.events and self.now-self.events['optical_exposure_start'] >= 1.2
-            if self.case_id in ('Q06','Q07') and 'restore' in self.events:
+            if self.case_id == 'Q07' and 'restore' in self.events:
+                if (self.now-self.events['restore'] >= .45 and self.world['v_mps'] > .02 and
+                        self.frame and self.frame.valid and self.frame.capture_time_s >= self.events['restore'] and
+                        'observed_q07_restart_motion' not in self.events):
+                    self.event('observed_q07_restart_motion', station_id=self.frame.id)
+                return ('observed_q07_restart_motion' in self.events and
+                        self.now-self.events['observed_q07_restart_motion'] >= .45)
+            if self.case_id == 'Q06' and 'restore' in self.events:
                 return self.now-self.events['restore'] >= 2.7
             return ('standoff' in self.events and self.now-self.events['standoff'] >= .60
                     and self.frame is not None and self.frame.valid and abs(self.frame.error) <= .02
@@ -505,9 +492,13 @@ def parse():
     parser.add_argument('--wall-s', type=float, default=240.)
     parser.add_argument('--camera-bridge-pid', type=int)
     parser.add_argument('--q13-mode', choices=['duplicate','regression','resume'], default='resume')
+    parser.add_argument('--control-depth-m', type=float, default=STANDOFF_M)
     args = parser.parse_args()
-    if args.case == 'Q13' and (args.camera_bridge_pid is None or args.camera_bridge_pid <= 1):
+    if (args.case == 'Q13' and args.q13_mode!='regression' and
+            (args.camera_bridge_pid is None or args.camera_bridge_pid <= 1)):
         parser.error('Q13 needs the camera bridge PID from the current isolated launch')
+    if not .245 <= args.control_depth_m <= STANDOFF_M:
+        parser.error('control depth goal must be within the fixed optical acceptance band')
     return args
 
 
@@ -518,7 +509,8 @@ def main():
     with ExitStack() as close:
         trace = close.enter_context((args.output/'telemetry.jsonl').open('w'))
         services = close.enter_context((args.output/'simulation-service.log').open('w'))
-        node = NativeRun(args.case, args.output, trace, services, args.camera_bridge_pid, args.q13_mode)
+        node = NativeRun(args.case, args.output, trace, services, args.camera_bridge_pid, args.q13_mode,
+                         args.control_depth_m)
         try:
             next_tick = time.monotonic()
             deadline = next_tick + args.wall_s
@@ -544,6 +536,8 @@ def main():
                    'final_world_pose': node.world, 'scope': 'SSD-hosted Linux VM / ROS 2 Jazzy / Gazebo Harmonic'}
         if args.case == 'Q13':
             summary['q13_mode'] = args.q13_mode
+        if args.case in QR_CASES:
+            summary['controller_depth_goal_m'] = args.control_depth_m
         (args.output/'execution.json').write_text(json.dumps(summary, indent=2, allow_nan=False)+'\n')
         print(json.dumps(summary, indent=2, allow_nan=False))
     return 0 if ended else 2

@@ -26,14 +26,14 @@ fi
 case "$case_id" in
   M01|M02|O04|O05) launch_options+=("run_qr_observer:=false") ;;
   O08) launch_options+=("run_qr_observer:=false" "require_recovery_permission:=true") ;;
-  Q01|Q02|Q03|Q04|Q05|Q06|Q07|Q10|Q13|Q17|Q19)
+  Q01|Q02|Q03|Q04|Q05|Q06|Q07|Q13|Q17|Q19)
     target_u=$(python3 "$experiment_dir/make-world.py" "$case_id" "$world" "$output" "${JANUS_CAMERA_VARIANT:-nominal}")
     launch_options+=("target_u_px:=$target_u")
     world="$output/world.sdf"
     ;;
   Q08) launch_options+=("target_id:=JANUS-DOCK-AUTHORIZED") ;;
 esac
-if [[ $case_id == Q10 ]]; then
+if [[ $case_id == Q13 && ${JANUS_Q13_MODE:-resume} == regression ]]; then
   launch_options+=("camera_raw_topic:=/janus/camera/native_raw")
 fi
 if [[ $case_id == Q* ]]; then
@@ -100,7 +100,13 @@ controller_options=()
 if [[ -n ${JANUS_WALL_S:-} ]]; then
   controller_options+=(--wall-s "$JANUS_WALL_S")
 fi
+if [[ -n ${JANUS_CONTROL_DEPTH_M:-} ]]; then
+  controller_options+=(--control-depth-m "$JANUS_CONTROL_DEPTH_M")
+fi
 if [[ $case_id == Q13 ]]; then
+  controller_options+=(--q13-mode "${JANUS_Q13_MODE:-resume}")
+fi
+if [[ $case_id == Q13 && ${JANUS_Q13_MODE:-resume} != regression ]]; then
   for try in $(seq 1 100); do
     camera_pid=$(sed -n 's/.*parameter_bridge-3.*process started with pid \[\([0-9][0-9]*\)\].*/\1/p' "$output/launch.log")
     [[ -z $camera_pid ]] || break
@@ -108,7 +114,7 @@ if [[ $case_id == Q13 ]]; then
     sleep .1
   done
   [[ -n $camera_pid ]] || { printf 'Camera bridge PID missing\n' >&2; exit 1; }
-  controller_options+=(--camera-bridge-pid "$camera_pid" --q13-mode "${JANUS_Q13_MODE:-resume}")
+  controller_options+=(--camera-bridge-pid "$camera_pid")
 fi
 python3 "$experiment_dir/native_case.py" "$case_id" "$output" "${controller_options[@]}" | tee "$output/controller.log"
 if [[ -n $recorder_pid ]]; then

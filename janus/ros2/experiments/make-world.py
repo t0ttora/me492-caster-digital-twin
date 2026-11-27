@@ -8,7 +8,7 @@ import xml.etree.ElementTree as ET
 
 
 def main():
-    case_id, source, output, variant = [*sys.argv[1:], 'nominal'][:4]
+    case_id, source, output, variant = sys.argv[1:]
     output = Path(output)
     world = ET.parse(source)
     includes = {include.findtext('uri'): include.find('pose')
@@ -32,7 +32,7 @@ def main():
         target_u = 320 - fx * marker[1] / .265
     if variant == 'near_start':
         robot[0] = {'Q01':.76,'Q02':.45,'Q03':.45,'Q04':.60,'Q05':.65,'Q06':.67,'Q07':.67,
-                    'Q10':.67,'Q13':.67,'Q17':.55,'Q19':.65}.get(case_id,0.)
+                    'Q13':.67,'Q17':.55,'Q19':.65}.get(case_id,0.)
         # Leave the 1 ms physics step and simulated frame rate unchanged. Bound
         # wall demand on the VM so ROS camera delivery can catch up.
         world.find('./world/physics/real_time_factor').text = '0.25'

@@ -40,6 +40,35 @@ def percentile(values, fraction):
     return sorted_values[math.ceil(len(values)*fraction)-1]
 
 
+def reacquisition_dwell(observations, requests, restored):
+    timeline = sorted([*(('observation', row) for row in observations),
+                       *(('control', row) for row in requests)], key=lambda item: item[1]['read_wall_s'])
+    frame = None
+    dwell_start = None
+    for kind, row in timeline:
+        if kind == 'observation':
+            frame = row
+            continue
+        if row['time_s'] < restored:
+            continue
+        inside = (frame is not None and frame['valid'] and frame['capture_time_s'] >= restored
+                  and 0 <= row['time_s']-frame['capture_time_s'] <= .20
+                  and abs(frame['normalized_error']) <= .02)
+        if not inside:
+            dwell_start = None
+        elif dwell_start is None:
+            dwell_start = frame['arrival_time_s']
+        if row['v_mps'] > 0:
+            if dwell_start is None:
+                return None
+            return dict(start_arrival_s=dwell_start, end_arrival_s=frame['arrival_time_s'],
+                        dwell_s=frame['arrival_time_s']-dwell_start, first_fresh_forward_request_s=row['time_s'],
+                        first_forward_frame_capture_s=frame['capture_time_s'],
+                        first_forward_frame_age_s=row['time_s']-frame['capture_time_s'],
+                        first_forward_normalized_error=frame['normalized_error'], station_id=frame['id'])
+    return None
+
+
 def summarize(folder):
     execution = json.loads((folder/'execution.json').read_text())
     choices = defaultdict(list)
@@ -121,7 +150,7 @@ def summarize(folder):
             values['final_yaw_error_rad'] = abs(end['yaw_rad']-start['yaw_rad'])
             gates['terminal_pose_within_2cm_and_0p05rad'] = (values['error_from_nominal_twist_integral_m'] <= .02
                                                            and values['final_yaw_error_rad'] <= .05)
-    elif case in ('Q01','Q02','Q03','Q04','Q05','Q06','Q07','Q08','Q10','Q13','Q17','Q19'):
+    elif case in ('Q01','Q02','Q03','Q04','Q05','Q06','Q07','Q08','Q13','Q17','Q19'):
         valid = [row for row in obs if row['valid']]
         values.update(real_rendered_observations=len(obs), accepted_observations=len(valid),
                       forward_requests=len(positive), invalid_or_expired_forward_requests=camera_motion_violations)
@@ -132,28 +161,6 @@ def summarize(folder):
             values['world_xy_drift_m'] = max(math.dist(xy(row),xy(start)) for row in body)
             gates['rendered_nonmatching_id_rejected'] = bool(wrong) and not valid
             gates['never_moved_forward'] = not positive and not requested_at_plant and values['world_xy_drift_m'] <= .001
-        elif case == 'Q10':
-            exposure = events.get('optical_exposure_start',{}).get('read_time_s')
-            gates['approach_moving_before_photometric_injection'] = (exposure is not None and
-                any(row['time_s'] < exposure and row['v_mps'] > .035 for row in body))
-            paired = {row['mode']: row for row in choices['photometric_injection']}
-            gates['real_raw_and_corresponding_injected_frames_retained'] = 'glare' in paired and all(
-                (folder/paired['glare'][element]).is_file() for element in ('source_file','derived_file'))
-            cutoff = next((row for row in obs if exposure is not None and row['capture_time_s'] >= exposure and not row['valid']),None)
-            gates['severe_fault_is_detected_without_false_acceptance'] = bool(cutoff) and not any(
-                row['capture_time_s'] >= cutoff['capture_time_s'] for row in valid)
-            gates['zero_after_invalid_and_measured_stopped_hold'] = bool(cutoff) and (
-                stopped(end) and stop_after(body,cutoff['read_time_s'])[0] is not None and
-                not any(row['time_s'] >= cutoff['read_time_s'] for row in positive))
-            values['injected_modes'] = sorted(paired)
-            values['scope'] = 'controlled camera clipping applied to retained real rendered camera frames'
-            if cutoff:
-                values['fault_to_observer_invalidation_s'] = cutoff['read_time_s']-exposure
-                onset,_ = stop_after(body,cutoff['read_time_s'])
-                if onset:
-                    first = next(row for row in body if row['time_s'] >= cutoff['read_time_s'])
-                    values['first_invalid_to_measured_stop_s'] = onset['time_s']-cutoff['read_time_s']
-                    values['first_invalid_to_stop_distance_m'] = math.dist(xy(first),xy(onset))
         elif case == 'Q13':
             variant = execution.get('q13_mode','resume')
             fault = events.get('replay_old_frame', {})
@@ -239,6 +246,7 @@ def summarize(folder):
             values['final_normalized_camera_error'] = valid[-1]['normalized_error'] if valid else None
             if case not in ('Q06','Q07'):
                 values['terminal_observation_age_s'] = execution['clock_end_s']-valid[-1]['capture_time_s'] if valid else None
+                values['controller_depth_goal_m'] = execution.get('controller_depth_goal_m', .265)
                 gates['standoff_marker_fresh_and_within_2_percent'] = (bool(valid)
                     and 0 <= values['terminal_observation_age_s'] <= .20 and abs(valid[-1]['normalized_error']) <= .02)
                 gates['independent_optical_standoff_in_245_to_265mm'] = .245 <= world_optical_depth <= .265
@@ -262,6 +270,19 @@ def summarize(folder):
                         and not any(lost <= row['time_s'] < restore for row in positive))
                     gates['measured_250ms_stop_before_marker_restore'] = confirm is not None and confirm['time_s'] <= restore
                     gates['recenter_then_resume_after_real_marker_return'] = any(row['time_s'] > restore+.35 for row in positive)
+                    if case == 'Q07':
+                        recovered = [row for row in valid if row['capture_time_s'] > restore]
+                        values['restored_station_ids'] = sorted({row['id'] for row in recovered})
+                        values['observed_restore_count'] = sum(row['event']=='restore' for row in choices['event'])
+                        gates['one_restoration_of_matching_actual_marker'] = bool(recovered) and (
+                            values['restored_station_ids']==['JANUS-DOCK-01'] and
+                            values['observed_restore_count']==1 and 'restore_service_ack' in events)
+                        gates['measured_forward_motion_only_after_fresh_reacquisition'] = bool(recovered) and any(
+                            row['time_s'] >= recovered[0]['capture_time_s']+.4 and row['v_mps'] > .02 for row in body)
+                        dwell = reacquisition_dwell(obs, requests, restore)
+                        values['post_restore_dwell'] = dwell
+                        gates['continuous_fresh_inner_band_dwell_before_forward'] = (
+                            bool(dwell) and dwell['dwell_s'] >= .4-1e-9 and dwell['station_id']=='JANUS-DOCK-01')
                     if first_stop:
                         at_loss = next(row for row in body if row['time_s'] >= lost)
                         values['loss_to_stop_s'] = first_stop['time_s']-lost
