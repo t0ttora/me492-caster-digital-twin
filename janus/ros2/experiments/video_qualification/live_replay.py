@@ -320,7 +320,10 @@ def main():
     cli.add_argument("out", type=Path)
     cli.add_argument("--period", type=float, choices=(0.05, 0.10), default=PERIOD)
     cli.add_argument("--direct-observer-source", type=Path)
+    cli.add_argument("--timeout-wall-s", type=float, default=720)
     args = cli.parse_args()
+    if not math.isfinite(args.timeout_wall_s) or args.timeout_wall_s <= 0:
+        cli.error("--timeout-wall-s must be finite and positive")
     args.out.mkdir(parents=True)
     cv2.setNumThreads(1)
     manifest = json.loads((args.fixtures / "manifest.json").read_text())
@@ -332,6 +335,7 @@ def main():
         "opencv_version": cv2.__version__, "driver_opencv_threads": cv2.getNumThreads(),
         "observer_opencv_threads": 1,
         "requested_velocity_mps": VELOCITY, "period_s": args.period, "guard_request_tick_wall_s": TICK,
+        "wall_timeout_s": args.timeout_wall_s,
         "freshness_s": 0.2, "center_dwell_s": 0.4, "suite": trials, "expected_frames": len(captures),
     }, indent=2) + "\n")
     stopping = False
@@ -351,7 +355,7 @@ def main():
         with (args.out / "trace.jsonl").open("w", buffering=1) as stream:
             node = Replay(images, captures, trials, stream, direct)
             try:
-                while not (node.finished or stopping) and monotonic() - start < 540:
+                while not (node.finished or stopping) and monotonic() - start < args.timeout_wall_s:
                     rclpy.spin_once(node, timeout_sec=.1)
                 if node.index != len(captures) or not node.finished:
                     reason = "operator stop" if stopping else "timeout"

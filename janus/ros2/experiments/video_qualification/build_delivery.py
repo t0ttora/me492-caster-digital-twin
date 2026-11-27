@@ -156,6 +156,9 @@ def main():
                "- The 20 Hz DDS comparison was terminated after detecting an extra bridge from the native capture "
                "launcher. A clean 10 Hz DDS comparison and a paced 10 Hz DDS comparison record dropped/stale "
                "frames and incomplete stop coverage. All three raw traces are retained.",
+               "- The first direct replay hit a wall-time limit near the final recovery and contained a clock-skew "
+               "rejection during the strong-glare run-up. A short repeat was terminated to extend the wall-time "
+               "budget. Both raw traces are retained.",
                "- The prepatch PNG is retained with its offline outcome. It has no exact capture timestamp attached "
                "to the saved PNG. The first two-station render resolved both placards to ID 01 and is also retained. "
                "The repeat used distinct mesh, material and texture resource names.",
@@ -172,7 +175,7 @@ def main():
     report.append(f"- [Raw ROS trace](../{primary.name}/recording/trace.jsonl) · "
                   "[fixture strengths and full frame lineage](../fixtures/manifest.json) · "
                   "[offline decoding and station input verification](../offline-scan.json)")
-    for name in ("replay-a", "replay-b", "replay-c", "replay-d"):
+    for name in ("replay-a", "replay-b", "replay-c", "replay-d", "replay-e"):
         file = lane / "results" / name / "recording/trace.jsonl"
         if file.exists() and name != primary.name:
             data = [json.loads(line) for line in file.read_text().splitlines()]

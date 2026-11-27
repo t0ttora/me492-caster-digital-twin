@@ -26,18 +26,18 @@ The asset check uses OpenSSL 3. Set `--openssl` to its executable when the host 
 python scripts/fixtures_video.py originals results/fixtures
 python scripts/scan_fixtures.py results/fixtures results/offline-scan.json --originals originals
 JANUS_VIDEO_REALTIME_FACTOR=0.15 JANUS_VIDEO_DIRECT_CALLBACK=1 \
-  bash scripts/run_live_replay.sh "$guest_workdir" replay-e --period 0.10
+  bash scripts/run_live_replay.sh "$guest_workdir" replay-f --period 0.10
 ```
 
 For analysis set `PYTHONPATH` to the pinned `caster-physics-python-v2` directory. The source tests and normal JANUS CLI keep their existing tiers. A fresh run should use a fresh result directory and record its own outcome.
 
 ```bash
-python scripts/analyze_replay.py results/replay-e/recording results/fixtures/manifest.json \
+python scripts/analyze_replay.py results/replay-f/recording results/fixtures/manifest.json \
   results/offline-scan.json results/qualification
-python scripts/render_evidence.py results/fixtures results/qualification results/replay-e/recording
+python scripts/render_evidence.py results/fixtures results/qualification results/replay-f/recording
 python scripts/encode_replay.py results/qualification results/fixtures
-python scripts/verify_package.py . results/replay-e results/qualification
-python scripts/build_delivery.py . results/qualification results/replay-e
+python scripts/verify_package.py . results/replay-f results/qualification
+python scripts/build_delivery.py . results/qualification results/replay-f
 ```
 
 The `delivered-rgb.mkv` files are lossless viewing copies in replay capture order. The matching video index records original frame sequence and capture timestamps. Use the raw ROS trace to inspect intermission, delivery deadlines and output timing.
