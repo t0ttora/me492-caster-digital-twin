@@ -32,7 +32,7 @@ camera-mount case derives its optical target from the declared mechanical
 dock pose and measures final model error of 4.615 mm and 0.472°. This
 uses a projected camera and virtual contact.
 
-The final V2.3 regression suite passed 81 tests. The V1 baseline passed
+The final V2.3 regression suite passed 83 tests. The V1 baseline passed
 54 tests in its separate verification run.
 
 [Python source and reproduction](https://github.com/t0ttora/me492-caster-digital-twin/tree/main/caster-physics-python-v2) ·
@@ -65,6 +65,14 @@ The case-specific proof comes from the joined raw trace.
 The final ROS suite passed 37 tests on Linux. The Mac offline suite
 passed 36 and skipped the optional ZBar test. Seven mission-contract
 regressions passed separately.
+
+In Q08, the live decoder read 47 wrong-station observations. The lab
+controller reached its 3.200 s simulation deadline with
+`search_timeout:wrong_id`. Forward and success counts were both zero.
+In O05, the Python plant and Linux Gazebo independently held stop while
+fresh odometry returned and unauthorized requests were rejected. An
+explicit authorization and a separate new request preceded measured
+motion in both environments.
 
 Q10 uses Gazebo-rendered RGB with separately labeled glare derivatives.
 The live plant stopped from motion under hotspot, reflection and whiteout

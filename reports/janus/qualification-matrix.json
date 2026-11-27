@@ -440,9 +440,11 @@
         },
         "Gazebo Linux": {
           "status": "passed",
-          "measurement_tr": "Gerçek Gazebo kamera karelerinde 15 yanlış ID çözüldü, iki kare çözülemedi. Sıfır kabul, sıfır ileri istek ve yaklaşık sıfır poz kayması kaydedildi."
+          "measurement_tr": "47 canlı yanlış kimlik çözümü. Laboratuvar denetleyicisi 3,200 s’de search_timeout:wrong_id ile abort verdi. Son yanlış kare 22 ms eski. Tek 202 ms örneğinde de komut sıfır, toplam başarı ve ileri istek sıfır."
         }
-      }
+      },
+      "figure": "qualification/Q08.png",
+      "figure_scope_tr": "Canlı Gazebo kamerası, yanlış ID kararları, denetleyici zaman aşımı ve ölçülen hareketsizlik."
     },
     {
       "case_id": "Q09",
@@ -773,7 +775,7 @@
       "components": {
         "Python": {
           "status": "passed",
-          "measurement_tr": "Sentetik odom yayını kaybında sıfır komut 1,65 s, duruş teyidi 2,74 s. Geri damga aynı örnekte reddedildi ve 2,43 s’de duruş teyit edildi. Teker encoder kaynağı ayrı bir testtir."
+          "measurement_tr": "Aynı koşuda kesintide komut 1,65 s’de sıfır, taze odom 2,00 s. 24 yetkisiz istek reddedildi. Duruş 2,74 s’de teyit, duruş bandı korundu. İzin 3,31 s, ayrı yeni komut 3,62 s, ölçülen hareket 3,72 s."
         },
         "ROS 2 Linux": {
           "status": "passed",
@@ -781,7 +783,7 @@
         }
       },
       "figure": "qualification/O05.png",
-      "figure_scope_tr": "Canlı ROS 2 ve Gazebo. Geri damga, taze ama yetkisiz istekler, ayrı izin ve yeni hareket."
+      "figure_scope_tr": "Python düzlemsel plant ve CommandGuard. Taze odom, yetki ve yeni hareket aynı koşudan."
     },
     {
       "case_id": "O06",
