@@ -86,6 +86,27 @@ class DashboardTests(unittest.TestCase):
             for file in (f'{case}-telemetry.csv', f'{case}-acceptance.json'):
                 self.assertIn(f'href="reports/janus/ros2/live/{file}"', page)
 
+    def test_each_case_has_a_replay_and_video(self):
+        output = ROOT / '_site/scenes'
+        index = json.loads((output / 'data/index.json').read_text())['cases']
+        self.assertEqual(len(index), 40)
+        self.assertEqual(sum(case['variants'] for case in index), 59)
+        page = self.pages['results']
+        for case in index:
+            code = case['id']
+            entry = page.split(f'id="case-{code}"', 1)[1].split('</details>', 1)[0]
+            self.assertIn(f'href="scenes/?vaka={code}"', entry)
+            self.assertIn(f'data-case-video="scenes/clips/{code}.mp4"', entry)
+            self.assertIn(f'href="scenes/clips/{code}.mp4"', entry)
+            with (output / f'clips/{code}.mp4').open('rb') as clip:
+                self.assertEqual(clip.read(8)[4:8], b'ftyp')
+            tracks = json.loads((output / f'data/{code}.json').read_text())['tracks']
+            self.assertEqual(len(tracks), case['variants'])
+            for track in tracks:
+                self.assertNotIn('source', track)
+                self.assertNotIn('fixtureFile', track['setup'])
+        self.assertTrue((output / 'assets/janus-kit.glb').exists())
+
     def test_weekly_and_gate_views_share_task_status_and_evidence(self):
         fixture = json.loads((ROOT / 'site/issue-snapshot.json').read_text())['issues']
         by_number = {issue['number']: issue for issue in fixture}

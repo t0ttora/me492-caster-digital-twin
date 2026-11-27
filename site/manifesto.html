@@ -1,10 +1,10 @@
 <section id="manifesto" class="section manifesto">
 <header class="results-heading"><h1>How I work</h1></header>
 <div class="principles">
-  <article><div><h2>Measure the robot separately</h2><p>I use simulation to see how the model behaves under known inputs. To check its accuracy on the robot, I need an independent record of the robot’s motion under the same commands.</p></div></article>
-  <article><div><h2>Keep the first run</h2><p>When a test fails, I keep its trace beside the rerun. The first rounded-square run touched the wall. Both traces show what changed when I revised the corner radius and route.</p></div></article>
-  <article><div><h2>Give each model a job</h2><p>I use Python for controller changes I can replay quickly. Simscape measures loads and caster motion. Gazebo runs the ROS 2 nodes against a camera stream and lets me check how they react when a message is late or missing.</p></div></article>
-  <article><div><h2>Leave confirmation runs untouched</h2><p>I record the settings and inputs used for each test. Once the physical comparison is set, I’ll hold the confirmation runs back until evaluation.</p></div></article>
+  <article><div><h2>Measure the robot separately</h2><p>I can give the simulator a known command and see how the model responds. To check its accuracy, I need to measure the real robot’s motion independently while giving it the same command.</p></div></article>
+  <article><div><h2>Keep the first run</h2><p>The first rounded-square run caught the wall. I kept it beside the rerun so I could see the effect of the new corner radius and route.</p></div></article>
+  <article><div><h2>What I use each model for</h2><p>I try controller changes in Python because I can replay them quickly. I look at loads and caster motion in Simscape. In Gazebo I can run the ROS 2 nodes with a camera stream and see what they do when a message is late or missing.</p></div></article>
+  <article><div><h2>Leave confirmation runs untouched</h2><p>I record the settings and inputs used for each test. When I set up the physical comparison, I’ll reserve the confirmation runs for evaluation.</p></div></article>
 </div>
 <ul class="evidence-links"><li><a href="results.html#case-M07">Rounded-square case</a></li><li><a href="records/docs/progress/2026-11-27-janus-experiments.html">Experiment record and reproduction notes</a></li></ul>
 </section>

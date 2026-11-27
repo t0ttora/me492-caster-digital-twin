@@ -200,13 +200,15 @@ def qualification_summary(matrix):
 <dl aria-label="Checks passed by environment">{''.join(rows)}</dl>
 <p class="muted small">Some cases run in more than one environment. The ROS 2 / Gazebo checks include live runs and camera replay.</p>
 <p class="qualification-links"><a href="results.html#cases">Read all 40 cases</a>
+<a href="scenes/">Watch in 3D</a>
 <a href="results.html#run-data">Open ROS 2 run data</a>
 <a href="report-Arche_JANUS_Vaka_Kartlari_TR.html">Illustrated case cards</a></p>
 </article>'''
 
 
-def case_index(cases, notes):
-    assert set(notes) == {case['case_id'] for case in cases}, 'Every published case needs a summary'
+def case_index(cases, notes, scenes):
+    codes = {case['case_id'] for case in cases}
+    assert set(notes) == set(scenes) == codes, 'Every published case needs a summary and a scene'
     sections = []
     for prefix, anchor, heading in [('M', 'motion-cases', 'Motion'), ('Q', 'docking-cases', 'QR docking'), ('O', 'operating-cases', 'Operations')]:
         rows = []
@@ -218,7 +220,17 @@ def case_index(cases, notes):
             environments = ', '.join(ENVIRONMENTS[environment] for environment in case['components'])
             measurements = ''.join(f'<div><dt>{escape(ENVIRONMENTS[environment])}</dt><dd lang="tr">{escape(check["measurement_tr"])}</dd></div>' for environment, check in case['components'].items())
             result = 'Passed' if case['status'] == 'passed' else escape(case['status'].replace('_', ' ').capitalize())
-            rows.append(f'<details class="case-entry" id="case-{escape(code)}"><summary><span>{escape(code)}</span><span class="case-title">{escape(title)}</span><span class="case-result">{result}</span></summary><div class="case-body"><p>{escape(summary)}</p><p class="muted small">{escape(environments)}</p><p lang="tr"><strong>Kabul ölçütü</strong> {escape(case["acceptance_tr"])}</p><dl>{measurements}</dl></div></details>')
+            scenes_url = f'scenes/?vaka={code}'
+            video_url = f'scenes/clips/{code}.mp4'
+            poster_url = f'scenes/clips/{code}.jpg'
+            clip = escape(scenes[code])
+            media = f'''<figure class="case-media">
+  <video controls playsinline preload="none" aria-label="{escape(title, quote=True)} replay"
+    data-case-video="{video_url}" data-poster="{poster_url}" width="800" height="432"></video>
+  <figcaption>{clip} simulation replay. The clock shows time from the simulation log.</figcaption>
+</figure>
+<p class="case-media-links"><a href="{scenes_url}">Explore {code} in 3D</a><a href="{video_url}">Open MP4</a></p>'''
+            rows.append(f'<details class="case-entry" id="case-{code}"><summary><span>{code}</span><span class="case-title">{escape(title)}</span><span class="case-result">{result}</span></summary><div class="case-body"><p>{escape(summary)}</p>{media}<p class="muted small">{escape(environments)}</p><p lang="tr"><strong>Kabul ölçütü</strong> {escape(case["acceptance_tr"])}</p><dl>{measurements}</dl></div></details>')
         sections.append(f'<section class="case-group" id="{anchor}"><h3>{heading} <span>({len(rows)})</span></h3>{"".join(rows)}</section>')
     return ''.join(sections)
 
@@ -230,6 +242,7 @@ def build(issues, comments):
         shutil.rmtree(OUT)
     OUT.mkdir()
     shutil.copytree(ROOT / 'site/assets', OUT / 'assets')
+    shutil.copytree(ROOT / 'site/scenes', OUT / 'scenes')
     for name in ('index.html', 'style.css', 'app.js'):
         shutil.copyfile(ROOT / 'site' / name, OUT / name)
     shutil.copytree(ROOT / 'reports', OUT / 'reports', ignore=shutil.ignore_patterns('*.md'))
@@ -318,7 +331,17 @@ def build(issues, comments):
     qualification = json.loads((ROOT / 'reports/janus/qualification-matrix.json').read_text())
     tokens = {'RUN_COUNT': str(run_count), 'ACCESS_SNAPSHOT': escape((ROOT / access).read_text().split('\n\n')[1]), 'STATUS_TABLE': status_table, 'COMMITS': ''.join(commits), 'ACCESS': markdown((ROOT / access).read_text(), access, embedded=True), 'DECISIONS': markdown((ROOT / decisions).read_text(), decisions, embedded=True), 'FOCUS': focus, 'PROGRESS': ''.join(item[1] for item in journal), 'SYNC': f'Published {short_date(built.isoformat())} (Istanbul).', 'TASKS': ''.join(tasks), 'ROADMAP': ''.join(roadmap), 'DOCUMENTS': ''.join(doc_links)}
     tokens['JANUS_QUALIFICATION'] = qualification_summary(qualification)
-    tokens['CASE_INDEX'] = case_index(qualification['cases'], json.loads((ROOT / 'site/case-notes.json').read_text()))
+    scenes_dir = ROOT / 'site/scenes'
+    scene_cases = json.loads((scenes_dir / 'data/index.json').read_text())['cases']
+    scene_environments = {}
+    for scene in scene_cases:
+        code = scene['id']
+        assert re.fullmatch(r'[MQO][0-9]{2}', code), f'Invalid scene code: {code}'
+        tracks = json.loads((scenes_dir / f'data/{code}.json').read_text())['tracks']
+        assert len(tracks) == scene['variants'], f'Wrong run count: {code}'
+        assert (scenes_dir / f'clips/{code}.jpg').is_file(), f'Missing poster: {code}'
+        scene_environments[code] = tracks[0]['environment']
+    tokens['CASE_INDEX'] = case_index(qualification['cases'], json.loads((ROOT / 'site/case-notes.json').read_text()), scene_environments)
     tokens['WEEKLY_PROGRESS'] = ''.join(weekly_progress)
     tokens['GATE_PROGRESS'] = ''.join(gate_progress)
     layout = (ROOT / 'site/layout.html').read_text()

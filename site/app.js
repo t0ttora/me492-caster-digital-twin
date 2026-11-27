@@ -83,6 +83,16 @@ const oldPage = location.hash.slice(1);
 if (/\/(?:index\.html)?$/.test(location.pathname) && ['progress','vision','manifesto','tasks','roadmap','decisions','library','about'].includes(oldPage)) location.replace(`${oldPage}.html`);
 
 if (document.body.classList.contains('page-results')) {
+  for (const entry of document.querySelectorAll('.case-entry')) {
+    const video = entry.querySelector('[data-case-video]');
+    entry.addEventListener('toggle', () => {
+      if (entry.open && !video.hasAttribute('src')) {
+        video.poster = video.dataset.poster;
+        video.src = video.dataset.caseVideo;
+      }
+      if (!entry.open) video.pause();
+    });
+  }
   const openLinkedCase = () => {
     const target = document.getElementById(location.hash.slice(1));
     if (target?.classList.contains('case-entry')) target.open = true;

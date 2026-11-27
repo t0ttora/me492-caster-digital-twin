@@ -4,28 +4,35 @@
   <h1>JANUS simulation results</h1>
 </header>
 {{JANUS_QUALIFICATION}}
-<p class="muted">The suite covers 12 motion cases, 20 QR docking cases and eight operating scenarios.</p>
+<div class="scene-feature">
+  <div>
+    <h2>Watch the tests</h2>
+    <p>I made 3D replays from the recorded paths. You can follow the robot from above or switch to its simulated camera. Each case below also has a short video and a note on what I measured.</p>
+    <ul class="evidence-links"><li><a href="scenes/?vaka=Q04">Open the 3D viewer</a></li><li><a href="#cases">Browse all 40 cases</a></li></ul>
+  </div>
+  <a href="scenes/?vaka=Q04"><img src="scenes/clips/Q04.jpg" width="800" height="432" alt="Q04 replay with the robot, QR stand and recorded path through the test area"></a>
+</div>
 
 <section class="result-section" id="python">
-  <header><h2>Python V2.3</h2><p>I use the Python model to run caster motion, waypoint tracking and QR docking. It records the controller command, the torque applied to each drive wheel and the motion of the simulated robot.</p></header>
+  <header><h2>Python V2.3</h2><p>I run routes and QR approaches in Python. The model logs what the controller requests, the torque at each drive wheel and how the robot moves.</p></header>
   <div class="result-reading">
     <dl class="measured-values"><div><dt>Regression tests passed</dt><dd>83</dd></div><div><dt>S-path tracking error (RMSE)</dt><dd>12.62 mm</dd></div><div><dt>Square, both directions</dt><dd>32.50 s</dd></div></dl>
-    <p>Each 0.50 m square completed four edges and four turns. A separate 50-variant development sweep retains 36 passes, 11 partial results and three failures alongside the final qualification.</p>
+    <p>Each 0.50 m square completed four edges and four turns. In an earlier development sweep of 50 variants, 36 passed, 11 met part of the criteria and three failed. Those runs are still in the record.</p>
     <ul class="evidence-links"><li><a href="https://github.com/t0ttora/me492-caster-digital-twin/tree/main/caster-physics-python-v2">Python code and run instructions</a></li><li><a href="reports/janus/python/M04-python-nominal/motion.html">Play the S-path run</a></li><li><a href="reports/janus/python/measurements.csv">Python measurements (CSV)</a></li></ul>
   </div>
 </section>
 
 <section class="result-section" id="simscape">
-  <header><h2>Native Simscape</h2><p>The multibody model ran in MATLAB R2026b. It records axle pose, caster motion, torque and contact loads. Eight runs replayed the same left and right axle torque streams from Python.</p></header>
+  <header><h2>Native Simscape</h2><p>I ran the multibody model in MATLAB R2026b and recorded axle pose, caster motion, torque and contact loads. In eight runs I fed it the left and right axle torques from Python.</p></header>
   <div class="result-reading">
     <dl class="measured-values"><div><dt>S-path tracking error (RMSE)</dt><dd>1.15 mm</dd></div><div><dt>Matched torque replays</dt><dd>8</dd></div><div><dt>Smallest solver step tested</dt><dd>6.25 µs</dd></div></dl>
-    <p>The solver study still exceeded the swivel-rate convergence threshold. The direct 180° pivot also missed its 20 mm tolerance. The case index records the alternate sequence and its measured result.</p>
+    <p>The swivel-rate results stayed above the convergence threshold at the finest tested step. The direct 180° pivot also missed its 20 mm tolerance. In M09 you can play that run and the sequence with a short launch.</p>
     <ul class="evidence-links"><li><a href="https://github.com/t0ttora/me492-caster-digital-twin/tree/main/models/simscape-janus">Native model and MATLAB code</a></li><li><a href="reports/janus/native-m04-s-path.png">Native S-path plot</a></li><li><a href="reports/janus/native-equal-torque-reviewed.csv">Matched torque measurements (CSV)</a></li></ul>
   </div>
 </section>
 
 <section class="result-section" id="ros2">
-  <header><h2>ROS 2 and Gazebo</h2><p>Four packages built on Ubuntu 24.04 arm64 with ROS 2 Jazzy and Gazebo Harmonic. The live runs recorded the simulator clock, camera detections, wheel joints, odometry, world pose and velocity commands after the guard.</p></header>
+  <header><h2>ROS 2 and Gazebo</h2><p>On Ubuntu 24.04 arm64 I built four packages with ROS 2 Jazzy and Gazebo Harmonic. The live logs include the simulator clock, camera detections, wheel joints and odometry. They also record world pose and the commands that passed the guard.</p></header>
   <div class="result-reading">
     <dl class="measured-values"><div><dt>Linux regression tests passed</dt><dd>37</dd></div><div><dt>M02 brake to stop band</dt><dd>63 ms</dd></div><div><dt>Q08 wrong station observations</dt><dd>47</dd></div></dl>
     <p>In Q08, the controller read the wrong station tag, kept forward requests at zero and ended the search after 3.200 s of simulation time. In O05, it rejected 18 unauthorized requests while fresh odometry returned. Motion resumed after authorization and a new command.</p>
@@ -39,13 +46,13 @@
       <li><span>Q08 · Wrong station QR</span><a href="reports/janus/ros2/live/Q08-telemetry.csv">Telemetry CSV</a><a href="reports/janus/ros2/live/Q08-acceptance.json">Acceptance JSON</a></li>
       <li><span>O05 · Odometry recovery</span><a href="reports/janus/ros2/live/O05-telemetry.csv">Telemetry CSV</a><a href="reports/janus/ros2/live/O05-acceptance.json">Acceptance JSON</a></li>
     </ul>
-    <p class="muted small">The CSV files contain selected columns from the captured simulation traces. Rows retain the original units and simulation timestamps where recorded.</p>
+    <p class="muted small">The CSVs include selected columns from the simulation logs, with the units and simulation timestamps recorded at the time.</p>
     <ul class="evidence-links"><li><a href="https://github.com/t0ttora/me492-caster-digital-twin/tree/main/janus/ros2">ROS 2 code and runbook</a></li><li><a href="reports/janus/qualification/Q07.png">Q07 reacquisition trace</a></li><li><a href="records/docs/research/janus-ros-live-data.html">How to read the live data</a></li><li><a href="reports/janus/ros2/case_results.csv">Earlier Mac offline fixtures (CSV)</a></li></ul>
   </div>
 </section>
 
 <section class="result-section result-cases" id="cases">
-  <header><h2>All 40 cases</h2><p>Open a case to read its acceptance criteria and the measurements from each environment. The illustrated case cards collect the plots in one PDF.</p></header>
+  <header><h2>All 40 cases</h2><p>Choose a case to watch it and read what counted as a pass. The list covers 12 motion cases, 20 QR docking cases and eight operating scenarios.</p></header>
   <div class="result-reading">
     <ul class="evidence-links"><li><a href="reports/janus/qualification-matrix.tsv">Qualification matrix (TSV)</a></li><li><a href="report-Arche_JANUS_Vaka_Kartlari_TR.html">Illustrated case cards</a></li></ul>
     <nav class="jump-links" aria-label="Case groups"><a href="#motion-cases">Motion</a><a href="#docking-cases">QR docking</a><a href="#operating-cases">Operations</a></nav>
@@ -53,9 +60,9 @@
   </div>
 </section>
 <section class="result-section" id="physical-pilot">
-  <header><h2>Robot pilot</h2><p>The public run inventory has {{RUN_COUNT}} physical entries. A supervised session will check the platform geometry, timing and data quality before calibration and confirmation runs.</p></header>
+  <header><h2>Robot pilot</h2><p>There are {{RUN_COUNT}} physical runs in the public inventory. I’ll use a supervised pilot to check the robot geometry and make sure I can line up the logs before running the calibration and confirmation tests.</p></header>
   <div class="result-reading">
-    <p>The pilot needs synchronized approach video, commands, encoder, IMU and BMS or charger logs, camera and tag mounting measurements, and an independent pose reference.</p>
+    <p>For the pilot I need approach video on the same clock as the commands, encoder, IMU and BMS or charger logs. I also need the camera and tag mounting dimensions and an independent measure of the robot’s pose.</p>
     <ul class="evidence-links"><li><a href="decisions.html">Access and approvals</a></li><li><a href="records/docs/research/experiment-protocol.html">Physical experiment protocol</a></li><li><a href="records/docs/progress/2026-11-27-janus-experiments.html">Complete experiment record</a></li></ul>
   </div>
 </section>

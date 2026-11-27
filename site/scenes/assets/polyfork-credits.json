@@ -1,0 +1,52 @@
+[
+  {
+    "role": "cone",
+    "id": "traffic-cone-33e81e",
+    "name": "Traffic Cone",
+    "url": "https://polyfork.dev/asset/traffic-cone-33e81e",
+    "download": "https://polyfork.dev/dl/traffic-cone-33e81e.glb",
+    "license": "CC BY 4.0",
+    "changes": "Blender import, origin normalized, scaled and placed in laboratory scenes.",
+    "sourceSha256": "f15e87c7d6ce452c2ddca95cab397fd8f2fcebdbc3a3036990c5ed3e6f687251"
+  },
+  {
+    "role": "rack",
+    "id": "small-server-rack-8ae0a4",
+    "name": "Small Server Rack",
+    "url": "https://polyfork.dev/asset/small-server-rack-8ae0a4",
+    "download": "https://polyfork.dev/dl/small-server-rack-8ae0a4.glb",
+    "license": "CC BY 4.0",
+    "changes": "Blender import, origin normalized, scaled and placed in laboratory scenes.",
+    "sourceSha256": "5eb929c6b3fb18a8aab30cdb5140b8d354fc14d099756d44a4682f6b9aa7def6"
+  },
+  {
+    "role": "pallet",
+    "id": "timber-eur-pallet-a1f655",
+    "name": "Timber EUR Pallet",
+    "url": "https://polyfork.dev/asset/timber-eur-pallet-a1f655",
+    "download": "https://polyfork.dev/dl/timber-eur-pallet-a1f655.glb",
+    "license": "CC BY 4.0",
+    "changes": "Blender import, origin normalized, scaled and placed in laboratory scenes.",
+    "sourceSha256": "569c501c7d12dc0c3f85bd602d33901beea689cbe874cb1f8ec05356faa8a300"
+  },
+  {
+    "role": "stack",
+    "id": "stretch-wrapped-pallet-load-b4169b",
+    "name": "Stretch-Wrapped Pallet Load",
+    "url": "https://polyfork.dev/asset/stretch-wrapped-pallet-load-b4169b",
+    "download": "https://polyfork.dev/dl/stretch-wrapped-pallet-load-b4169b.glb",
+    "license": "CC BY 4.0",
+    "changes": "Blender import, origin normalized, scaled and placed in laboratory scenes.",
+    "sourceSha256": "39a3161771acd6efb43d8f7c25cf1bc258ce8f6d18840cdc23c8a162f1d34d73"
+  },
+  {
+    "role": "jack",
+    "id": "manual-pallet-jack-1a842e",
+    "name": "Manual Pallet Jack",
+    "url": "https://polyfork.dev/asset/manual-pallet-jack-1a842e",
+    "download": "https://polyfork.dev/dl/manual-pallet-jack-1a842e.glb",
+    "license": "CC BY 4.0",
+    "changes": "Blender import, origin normalized, scaled and placed in laboratory scenes.",
+    "sourceSha256": "bb285c4077db07318ccc7907131973aa7a8a683f3f4ed1bfc52220c3cbdb685b"
+  }
+]

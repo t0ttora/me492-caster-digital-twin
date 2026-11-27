@@ -200,3 +200,15 @@
 .document-catalog>h2{font-size:26px;margin-bottom:20px}
 .original-plan{margin-top:26px}
 .original-plan summary{cursor:pointer;margin-bottom:12px}
+
+.scene-feature{display:grid;grid-template-columns:minmax(0,.88fr) minmax(0,1.12fr);gap:32px;align-items:center;padding:24px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:30px 0}
+.scene-feature h2{font-size:29px;margin-bottom:10px}
+.scene-feature p,.case-media figcaption{color:var(--muted);font-size:14px}
+.scene-feature picture,.scene-feature img,.case-media video{display:block;width:100%;height:auto;aspect-ratio:800/432;background:#dadcd2}
+.scene-feature a:has(img){display:block;border:1px solid var(--line)}
+.case-media{margin:18px 0 9px}
+.case-media video{width:min(100%,780px);border:1px solid var(--line)}
+.case-media figcaption{margin-top:8px;padding:0;border:0;font-size:12px}
+.case-media-links{display:flex;align-items:center;gap:8px 20px;flex-wrap:wrap;margin:11px 0 14px}
+.case-media-links a{color:#d8ecf9;text-decoration:underline;text-underline-offset:4px;font-size:14px}
+@media(max-width:760px){.scene-feature{grid-template-columns:1fr;gap:18px;margin:22px 0}.scene-feature h2{font-size:25px}.case-media{margin-top:12px}}

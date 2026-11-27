@@ -52,7 +52,7 @@ with sync_playwright() as p:
             assert not page.locator('#site-navigation').is_visible()
             page.locator('.nav-toggle').click()
             assert page.locator('#site-navigation').is_visible()
-            assert page.locator('#site-navigation a').count() == 11
+            assert page.locator('#site-navigation a').count() == 12
             page.get_by_role('link', name='Roadmap', exact=True).press('Escape')
             assert page.locator('.nav-toggle').get_attribute('aria-expanded') == 'false'
         else:

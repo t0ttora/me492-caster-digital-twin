@@ -3,16 +3,16 @@
 {{JANUS_QUALIFICATION}}
 <nav class="jump-links" aria-label="On this page"><a href="results.html">Code and measurements</a><a href="#journal">Research journal</a><a href="#weekly-progress">Weekly progress</a></nav>
 <section class="result-section" id="latest-work">
-<header><h2>27 November update</h2><p>Python, native Simscape and ROS 2/Gazebo completed the required simulation checks. The operator-assisted pilot is the next step for measuring the robot.</p></header>
+<header><h2>27 November update</h2><p>The Python, Simscape and ROS 2/Gazebo runs passed their required simulation checks. I’m preparing an operator-assisted pilot to start collecting measurements on the robot.</p></header>
 <div class="result-reading">
-  <p>Python V2.3 recorded route and docking behavior and passed 83 regression tests. The native Simscape runs measured caster motion and contact. In live Gazebo, the controller rejected a wrong station tag, timed out, and held its forward command at zero.</p>
+  <p>Python V2.3 passed 83 regression tests and recorded the route and docking runs. Simscape supplied caster and contact measurements. In the live Gazebo wrong-station test, the forward command stayed at zero until the search timed out.</p>
   <p>The public inventory has <b>{{RUN_COUNT}}</b> physical robot runs. Pilot data will establish what can be calibrated and which physical tests can go ahead.</p>
   <ul class="evidence-links"><li><a href="results.html#ros2">Live Linux run data</a></li><li><a href="records/docs/progress/2026-11-27-janus-experiments.html">Experiment record</a></li><li><a href="records/docs/access/access-register.html">Robot access register</a></li></ul>
 </div>
 </section>
 <section class="progress-review" id="weekly-progress">
 <h2>Weekly progress</h2>
-<p>The semester tracker marks a week verified once its full acceptance criteria are met. For example, W04 has working caster simulations and still needs a usable robot pilot log.</p>
+<p>I mark a week verified when it meets all of its criteria. W04 already has caster simulations. I’m still waiting for a usable pilot log.</p>
 {{STATUS_TABLE}}
 <div class="table-scroll" role="region" aria-label="Weekly progress table" tabindex="0">
 <table class="data-table"><thead><tr><th scope="col">Week</th><th scope="col">Planned period</th><th scope="col">Deliverable</th><th scope="col">Status</th><th scope="col">Work done and next step</th></tr></thead><tbody>{{WEEKLY_PROGRESS}}</tbody></table>
