@@ -2,6 +2,8 @@
 
 Secondary objective | Motion prediction within 28 hours
 
+**27 November evidence review.** The ViNT offline inference and Gazebo replay interface check belong to the JANUS docking study. The RQ3 telemetry yaw-error predictor, matched baselines and held-out evaluation still need suitable run-level data. [JANUS experiment record](../progress/2026-11-27-janus-experiments.md)
+
 ## Prediction task
 
 RQ3, a secondary objective, reuses RQ1/RQ2 recordings to test predictive value beyond simple baselines. Predict yaw tracking-error magnitude 0.5 seconds ahead from roughly 0.5 seconds of causal commands, speed, yaw rate, acceleration and recent error. Include caster angle/current only if reliable. Freeze the horizon and channels on development data. This is a motion-disturbance proxy; caster attribution requires caster measurements.

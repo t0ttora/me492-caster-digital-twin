@@ -2,6 +2,8 @@
 
 Dependencies that determine the permitted conclusions
 
+**27 November evidence review.** G1–G4 are blocked on the company data route, usable pilot, independent pose or physical calibration. G5–G6 are planned and await evidence review. The dates below are the original decision targets. Follow the [live gate records](https://t0ttora.github.io/me492-caster-digital-twin/decisions.html) and the [access register](../access/access-register.md).
+
 | Gate | Evidence and decision |
 | --- | --- |
 | G1 16 Oct | Platform/software identified, allowed data exports and robot slots recorded. Pose-reference approach agreed. Otherwise freeze a provisional robot model and request the missing items with a due date. |

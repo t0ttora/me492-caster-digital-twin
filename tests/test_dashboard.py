@@ -49,7 +49,7 @@ class DashboardTests(unittest.TestCase):
         self.assertIn('<dialog id="task-inspector"', page)
         self.assertIn('data-kind-filter="weekly"', page)
         self.assertIn('10 person-hours planned', page)
-        self.assertIn('Decision due 2026-10-16', page)
+        self.assertIn('Planned decision date 2026-10-16', page)
         url = build_site.GH + '/blob/main/reports/ME492_Timetable_EN.pdf'
         self.assertEqual(build_site.safe_link(url), 'report-ME492_Timetable_EN.html')
 
@@ -75,6 +75,21 @@ class DashboardTests(unittest.TestCase):
             self.assertIn(f'Simulation cases passed</dt><dd>{passed} / {len(matrix["cases"])}</dd>', page)
             self.assertIn(f'Physical runs in the public inventory</dt><dd>{self.data["published_runs"]}</dd>', page)
             self.assertIn('href="reports/janus/qualification-matrix.tsv"', page)
+
+    def test_weekly_and_gate_views_share_task_status_and_evidence(self):
+        fixture = json.loads((ROOT / 'site/issue-snapshot.json').read_text())['issues']
+        by_number = {issue['number']: issue for issue in fixture}
+        for slug, numbers in [('progress', range(1, 17)), ('roadmap', range(1, 17)), ('decisions', range(17, 23))]:
+            page = self.pages[slug]
+            self.assertEqual(page.count('data-progress-issue='), len(numbers))
+            for number in numbers:
+                issue = by_number[number]
+                row = page.split(f'<tr data-progress-issue="{number}">')[1].split('</tr>')[0]
+                self.assertIn(build_site.badge(build_site.state(issue)), row)
+                self.assertIn(f'href="tasks.html#task-{number}"', row)
+                review = build_site.evidence_review(issue)
+                self.assertTrue(review)
+                self.assertIn(review, row)
 
     def test_embedded_report_readers(self):
         for name, title in build_site.REPORTS:

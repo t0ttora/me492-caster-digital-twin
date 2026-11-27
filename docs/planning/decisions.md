@@ -1,5 +1,11 @@
 # Decision log
 
+## 27 November 2026 · Evidence update
+
+Native Simscape and a Linux ROS 2 Jazzy/Gazebo Harmonic environment now have execution records. The 40-case qualification covers the specified simulation checks. G1–G4 remain blocked on platform access, pilot data, independent pose and calibration. G5–G6 await their decisions. [JANUS experiment record](../progress/2026-11-27-janus-experiments.md) · [Gate requirements](decision-gates.md)
+
+## Recorded decisions
+
 | ID | Date | Decision / rationale | Evidence and authority | State |
 | --- | --- | --- | --- | --- |
 | D01 | Reported 30 Sep 2026 | Individual execution with advisor supervision | Student's report of advisor discussion | Reported agreement; no company access implied |

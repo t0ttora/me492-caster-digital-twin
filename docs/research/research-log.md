@@ -1,5 +1,13 @@
 # Research notebook
 
+## 27 November 2026 · JANUS simulation results
+
+- **RQ1 · Caster-aware dynamics.** Matched-input Python and Simscape replay and native caster reversal checks provide simulation evidence. Platform geometry and synchronized, independent pose measurements are still needed for physical calibration and model error. [JANUS experiment record](../progress/2026-11-27-janus-experiments.md)
+- **RQ2 · Motion profiles.** V2.3 compares baseline and smoother profiles on synthetic surface presets. The planned robot comparison still needs approved physical surfaces, an agreed profile and an independent confirmation set. [V2.3 synthetic study](python-v2-3-synthetic-study.md)
+- **RQ3 · Short-horizon prediction.** The protocol specifies yaw-error prediction from telemetry with run-level splits and simple baselines. ViNT offline inference and a Gazebo replay interface check are documented separately. The telemetry predictor and held-out comparison remain open. [Learning work package](learning-task.md) · [JANUS experiment record](../progress/2026-11-27-janus-experiments.md)
+
+The [qualification matrix](../../reports/janus/qualification-matrix.tsv) records the 40 simulation cases. The [weekly evidence review](../progress/2026-11-27-weekly-review.md) links the semester schedule and the outstanding approvals.
+
 ## 30 September 2026 - scope and protocol revision
 
 **Question:** how can an individual semester study answer specific mechanical and predictive questions within uncertain company access?

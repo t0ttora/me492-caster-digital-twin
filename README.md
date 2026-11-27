@@ -83,7 +83,7 @@ Physical validation depends on suitable robot access, logs and reference measure
 
 ## Project status and participation
 
-The [JANUS experiments](docs/progress/2026-11-27-janus-experiments.md) track the new motion and QR evidence. The [modelling update](docs/progress/2026-11-27-simulation-and-source.md) links the MATLAB, Simscape and Python models and recorded simulation evidence. Physical calibration and company access remain open in the public record. Dated updates belong in the [progress history](docs/progress/README.md); live task status belongs in [issues](https://github.com/t0ttora/me492-caster-digital-twin/issues) and [milestones](https://github.com/t0ttora/me492-caster-digital-twin/milestones).
+The [JANUS experiments](docs/progress/2026-11-27-janus-experiments.md) record 40 passing simulation cases across Python, native Simscape and ROS 2/Gazebo. The [weekly evidence review](docs/progress/2026-11-27-weekly-review.md) covers all 16 semester weeks and six decision gates. The [modelling update](docs/progress/2026-11-27-simulation-and-source.md) links the MATLAB, Simscape and Python models and recorded simulation evidence. Physical calibration and company access remain open in the public record. Dated updates belong in the [progress history](docs/progress/README.md); live task status belongs in [issues](https://github.com/t0ttora/me492-caster-digital-twin/issues) and [milestones](https://github.com/t0ttora/me492-caster-digital-twin/milestones).
 
 The semester plan allocates 252 working hours plus 32 contingency hours. Academic deadlines and weekly acceptance evidence are maintained in the [timetable](docs/planning/timetable.md). Completing an issue records task progress; it does not establish research validity or company approval.
 

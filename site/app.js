@@ -106,11 +106,11 @@ if (refresh) {
         if (page === 10) throw new Error('Incomplete issue list');
       }
       const byNumber = new Map(issues.map(issue => [issue.number, issue]));
-      for (const task of tasks) {
-        const issue = byNumber.get(Number(task.dataset.issue));
+      for (const record of document.querySelectorAll('.task, [data-progress-issue]')) {
+        const issue = byNumber.get(Number(record.dataset.issue ?? record.dataset.progressIssue));
         const state = issue ? issueStatus(issue) : 'unlabelled';
-        task.dataset.status = state;
-        const badge = task.querySelector('.badge');
+        record.dataset.status = state;
+        const badge = record.querySelector('.badge');
         badge.className = `badge ${state}`;
         badge.textContent = labels[state];
       }
@@ -138,7 +138,7 @@ if (refresh) {
       }
       if (focus && !active.length) {const heading = document.createElement('h3');heading.textContent = 'No task is marked in progress.';focus.append(heading);}
       const checked = new Intl.DateTimeFormat('en-GB',{dateStyle:'short',timeStyle:'short',timeZone:'Europe/Istanbul'}).format(new Date());
-      syncStatus.textContent = `Task statuses refreshed from GitHub · ${checked} (Istanbul). Research entries and comments reflect the last published snapshot.`;
+      syncStatus.textContent = `Task statuses refreshed from GitHub · ${checked} (Istanbul). Evidence notes and comments reflect the last published snapshot.`;
       updateTasks();
       if (inspector?.open && selectedTask) showTask(selectedTask);
     } catch {

@@ -127,3 +127,10 @@
 .qualification-summary dd{margin:4px 0 0;font-size:34px;line-height:1.1;font-variant-numeric:tabular-nums}
 .qualification-links{display:flex;flex-wrap:wrap;gap:6px 24px;font-size:13px;margin-top:12px}
 .qualification-links a{text-decoration:underline;text-underline-offset:3px}
+
+.progress-review{margin:32px 0}
+.progress-review h2{font-size:26px;margin-bottom:18px}
+.progress-review th[scope=row]{white-space:nowrap}
+.progress-review .evidence-review{width:46%;min-width:240px;line-height:1.5}
+.progress-review .review-date{display:block;font-size:11px;margin-bottom:4px}
+.progress-review>p:last-child{margin-top:16px}

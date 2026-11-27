@@ -6,6 +6,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
+fixture = json.loads((ROOT / 'site/issue-snapshot.json').read_text())['issues']
 OUT = ROOT / '_qa'
 OUT.mkdir(exist_ok=True)
 server = subprocess.Popen(['python3', '-m', 'http.server', '8766', '--bind', '127.0.0.1', '--directory', str(ROOT / '_site')], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -25,13 +26,15 @@ with sync_playwright() as p:
     page.keyboard.press('Escape')
     assert not page.locator('#task-inspector').is_visible()
     page.get_by_role('button', name='In progress', exact=True).click()
-    assert page.locator('.task:visible').count() == 1
+    assert page.locator('.task:visible').count() == sum(any(label['name'] == 'status:in-progress' for label in issue['labels']) for issue in fixture)
     page.get_by_role('button', name='Verified', exact=True).click()
-    assert page.locator('#empty-tasks').is_visible()
+    assert page.locator('#task-1').is_visible()
+    assert not page.locator('#task-2').is_visible()
     page.get_by_role('button', name='Decision gates', exact=True).click()
     assert page.locator('.task:visible').count() == 6
     page.get_by_role('searchbox').fill('freeze')
-    assert page.locator('.task:visible').count() == 3
+    assert page.locator('#task-21').is_visible()
+    assert not page.locator('#task-1').is_visible()
     page.goto('http://127.0.0.1:8766/roadmap.html')
     page.locator('.roadmap-task').first.click()
     assert page.locator('#task-inspector').is_visible()
@@ -55,14 +58,16 @@ with sync_playwright() as p:
         else:
             assert page.locator('#site-navigation').is_visible()
         page.screenshot(path=str(OUT / f'{width}.png'))
-    fixture = json.loads((ROOT / 'site/issue-snapshot.json').read_text())['issues']
-    fixture[0]['labels'] = [{'name':'status:blocked'}, {'name':'type:gate'}]
+    issue = next(issue for issue in fixture if issue['number'] == 1)
+    issue['state'] = 'open'
+    issue['labels'] = [{'name':'status:blocked'}, {'name':'type:weekly'}]
     page.unroute_all()
     page.route('https://api.github.com/**', lambda route: route.fulfill(status=200, content_type='application/json', body=json.dumps(fixture)))
     page.goto('http://127.0.0.1:8766/progress.html')
     page.get_by_role('button', name='Refresh GitHub status').click()
     page.wait_for_function("!document.querySelector('#refresh').disabled")
     assert 'refreshed' in page.locator('#sync-status').inner_text()
+    assert page.locator('#weekly-progress [data-progress-issue="1"] .badge').inner_text() == 'Blocked'
     page.goto('http://127.0.0.1:8766/report-ME492_Timetable_EN.html')
     page.get_by_text('Page 1 of 2', exact=True).wait_for()
     page.get_by_role('button', name='Next page', exact=True).click()

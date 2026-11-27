@@ -4,6 +4,8 @@ Decisions actions and advisor visibility
 
 **7 October update:** the student set the current preparation deadline to Friday 9 October, 11:00 Europe/Istanbul. Follow the [pre-visit roadmap](pre-visit-roadmap-2026-10-07.md). Earlier 6/7 October targets below are historical planning assumptions; they do not override this deadline or confirm a company appointment.
 
+**27 November evidence review.** The current public record has no confirmed technical-visit outcome or pilot booking. The next request is a 60–90-minute operator-assisted logging pilot for synchronized approach video, robot telemetry, mounting measurements and independent pose. The [access register](../access/access-register.md) tracks confirmations, and the [weekly review](../progress/2026-11-27-weekly-review.md) tracks the affected tasks.
+
 ## Before and after the visit
 
 By 2 October, prepare the deck and ask the advisor to coordinate the 6/7 October visit. Two working days before the confirmed meeting, provide the short agenda and request that Arche’s technical contact attend. During the meeting, the student records decisions while the advisor confirms academic boundaries. No firm commitment is assumed without a named owner.

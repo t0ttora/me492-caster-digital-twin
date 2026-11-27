@@ -2,6 +2,8 @@
 
 One platform two surfaces and four maneuver families
 
+**27 November evidence review.** The session dates below are original requests. Start with a 60–90-minute operator-assisted logging pilot once access is confirmed. Check synchronized approach video, commands, encoder/IMU/BMS streams and independent pose before scheduling the full sessions. Physical records are pending in the [access register](../access/access-register.md).
+
 Use two accessible, safe patches selected with Arche. Start with a smooth indoor surface and a second contrasting approved surface. Pavers, ramps and extra payloads are extensions after the core runs succeed. Record the exact patch rather than assigning universal friction values to a material name.
 
 | Session request | Purpose and target |

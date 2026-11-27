@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-09-30T19:23:57.629317+00:00",
+  "checked_at": "2026-11-27T06:35:37Z",
   "issues": [
     {
       "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/issues/22",
@@ -122,7 +122,7 @@
       },
       "comments": 0,
       "created_at": "2026-09-30T09:18:45Z",
-      "updated_at": "2026-09-30T09:18:45Z",
+      "updated_at": "2026-11-27T06:35:36Z",
       "closed_at": null,
       "assignee": {
         "login": "t0ttora",
@@ -158,7 +158,7 @@
         "blocking": 0,
         "total_blocking": 0
       },
-      "body": "## Decision required by 2026-12-18\nMain results, figures and scope frozen. Remaining work is correction, packaging and defense.\n\n## Gate record\n- [ ] Evidence/artifact IDs and the measured limitations linked.\n- [ ] Decision recorded as Pass, Conditional or Reduced scope, with rationale.\n- [ ] Student/advisor review recorded; company permissions recorded where needed.\n- [ ] Next action and responsible person recorded.\n\nCurrent result: **not reviewed / no pass claimed**. This issue tracks a future decision. Milestone completion percentage is task closure, not physical validation or gate approval.\n",
+      "body": "## Decision required by 2026-12-18\nMain results, figures and scope frozen. Remaining work is correction, packaging and defense.\n\n## Gate record\n- [ ] Evidence/artifact IDs and the measured limitations linked.\n- [ ] Decision recorded as Pass, Conditional or Reduced scope, with rationale.\n- [ ] Student/advisor review recorded; company permissions recorded where needed.\n- [ ] Next action and responsible person recorded.\n\nCurrent result: **decision pending**. Gate approval requires a recorded decision and supporting evidence.\n\n**27 Nov 2026 · Evidence review.** Simulation results, figures and the case-level limitations are published. Final academic claims and scope await the evidence review and a recorded decision. [JANUS technical report](https://t0ttora.github.io/me492-caster-digital-twin/report-Arche_JANUS_Teknik_Rapor_TR.html) · [Qualification matrix](https://t0ttora.github.io/me492-caster-digital-twin/reports/janus/qualification-matrix.tsv)\n",
       "closed_by": null,
       "reactions": {
         "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/issues/22/reactions",
@@ -298,7 +298,7 @@
       },
       "comments": 0,
       "created_at": "2026-09-30T09:18:44Z",
-      "updated_at": "2026-09-30T09:18:44Z",
+      "updated_at": "2026-11-27T06:35:36Z",
       "closed_at": null,
       "assignee": {
         "login": "t0ttora",
@@ -334,7 +334,7 @@
         "blocking": 0,
         "total_blocking": 0
       },
-      "body": "## Decision required by 2026-12-06\nModel, input/target definition and test protocol frozen. If labels or independent runs are inadequate, deliver a feasibility analysis and rule/numerical baseline instead of an unsupported performance claim.\n\n## Gate record\n- [ ] Evidence/artifact IDs and the measured limitations linked.\n- [ ] Decision recorded as Pass, Conditional or Reduced scope, with rationale.\n- [ ] Student/advisor review recorded; company permissions recorded where needed.\n- [ ] Next action and responsible person recorded.\n\nCurrent result: **not reviewed / no pass claimed**. This issue tracks a future decision. Milestone completion percentage is task closure, not physical validation or gate approval.\n",
+      "body": "## Decision required by 2026-12-06\nModel, input/target definition and test protocol frozen. If labels or independent runs are inadequate, deliver a feasibility analysis and rule/numerical baseline instead of an unsupported performance claim.\n\n## Gate record\n- [ ] Evidence/artifact IDs and the measured limitations linked.\n- [ ] Decision recorded as Pass, Conditional or Reduced scope, with rationale.\n- [ ] Student/advisor review recorded; company permissions recorded where needed.\n- [ ] Next action and responsible person recorded.\n\nCurrent result: **decision pending**. Gate approval requires a recorded decision and supporting evidence.\n\n**27 Nov 2026 · Evidence review.** The short-horizon yaw prediction protocol defines telemetry inputs, baselines and run-level splitting. The matched dataset, evaluation freeze or documented feasibility route remain open. ViNT provides a separate offline interface check. [Learning work package](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/research/learning-task.html) · [JANUS experiment record](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/progress/2026-11-27-janus-experiments.html)\n",
       "closed_by": null,
       "reactions": {
         "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/issues/21/reactions",
@@ -387,13 +387,13 @@
       },
       "labels": [
         {
-          "id": 12468042827,
-          "node_id": "LA_kwDOU0vjOM8AAAAC5yc8Sw",
-          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:planned",
-          "name": "status:planned",
-          "color": "d9d9d9",
+          "id": 12468043562,
+          "node_id": "LA_kwDOU0vjOM8AAAAC5yc_Kg",
+          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:blocked",
+          "name": "status:blocked",
+          "color": "f4d5ce",
           "default": false,
-          "description": "Planned, not yet executed",
+          "description": "Current output prevented by a dependency",
           "archived_at": null,
           "archived_by": null
         },
@@ -474,7 +474,7 @@
       },
       "comments": 0,
       "created_at": "2026-09-30T09:18:42Z",
-      "updated_at": "2026-09-30T09:18:43Z",
+      "updated_at": "2026-11-27T06:35:36Z",
       "closed_at": null,
       "assignee": {
         "login": "t0ttora",
@@ -510,7 +510,7 @@
         "blocking": 0,
         "total_blocking": 0
       },
-      "body": "## Decision required by 2026-11-20\nCalibration complete enough to define a defensible comparison. Lock the finalist profile before the confirmation dataset. Simplify unidentifiable parameters.\n\n## Gate record\n- [ ] Evidence/artifact IDs and the measured limitations linked.\n- [ ] Decision recorded as Pass, Conditional or Reduced scope, with rationale.\n- [ ] Student/advisor review recorded; company permissions recorded where needed.\n- [ ] Next action and responsible person recorded.\n\nCurrent result: **not reviewed / no pass claimed**. This issue tracks a future decision. Milestone completion percentage is task closure, not physical validation or gate approval.\n",
+      "body": "## Decision required by 2026-11-20\nCalibration complete enough to define a defensible comparison. Lock the finalist profile before the confirmation dataset. Simplify unidentifiable parameters.\n\n## Gate record\n- [ ] Evidence/artifact IDs and the measured limitations linked.\n- [ ] Decision recorded as Pass, Conditional or Reduced scope, with rationale.\n- [ ] Student/advisor review recorded; company permissions recorded where needed.\n- [ ] Next action and responsible person recorded.\n\nCurrent result: **decision pending**. Gate approval requires a recorded decision and supporting evidence.\n\n**27 Nov 2026 · Evidence review.** The synthetic baseline and smoother profile comparison is available. Physical identification and a documented finalist profile lock require usable pilot and calibration data. [V2.3 synthetic study](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/research/python-v2-3-synthetic-study.html) · [Access register](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/access/access-register.html)\n",
       "closed_by": null,
       "reactions": {
         "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/issues/20/reactions",
@@ -563,13 +563,13 @@
       },
       "labels": [
         {
-          "id": 12468042827,
-          "node_id": "LA_kwDOU0vjOM8AAAAC5yc8Sw",
-          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:planned",
-          "name": "status:planned",
-          "color": "d9d9d9",
+          "id": 12468043562,
+          "node_id": "LA_kwDOU0vjOM8AAAAC5yc_Kg",
+          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:blocked",
+          "name": "status:blocked",
+          "color": "f4d5ce",
           "default": false,
-          "description": "Planned, not yet executed",
+          "description": "Current output prevented by a dependency",
           "archived_at": null,
           "archived_by": null
         },
@@ -650,7 +650,7 @@
       },
       "comments": 0,
       "created_at": "2026-09-30T09:18:41Z",
-      "updated_at": "2026-09-30T09:18:41Z",
+      "updated_at": "2026-11-27T06:35:34Z",
       "closed_at": null,
       "assignee": {
         "login": "t0ttora",
@@ -686,7 +686,7 @@
         "blocking": 0,
         "total_blocking": 0
       },
-      "body": "## Decision required by 2026-11-06\nData route, independent pose and experiment access pass quality review. Without them, seek advisor agreement by 9 Nov for the reduced validation scope.\n\n## Gate record\n- [ ] Evidence/artifact IDs and the measured limitations linked.\n- [ ] Decision recorded as Pass, Conditional or Reduced scope, with rationale.\n- [ ] Student/advisor review recorded; company permissions recorded where needed.\n- [ ] Next action and responsible person recorded.\n\nCurrent result: **not reviewed / no pass claimed**. This issue tracks a future decision. Milestone completion percentage is task closure, not physical validation or gate approval.\n",
+      "body": "## Decision required by 2026-11-06\nData route, independent pose and experiment access pass quality review. Without them, seek advisor agreement by 9 Nov for the reduced validation scope.\n\n## Gate record\n- [ ] Evidence/artifact IDs and the measured limitations linked.\n- [ ] Decision recorded as Pass, Conditional or Reduced scope, with rationale.\n- [ ] Student/advisor review recorded; company permissions recorded where needed.\n- [ ] Next action and responsible person recorded.\n\nCurrent result: **decision pending**. Gate approval requires a recorded decision and supporting evidence.\n\n**27 Nov 2026 · Evidence review.** The physical data route, independent pose quality review and experiment slot are pending. Any reduced validation scope still requires a recorded advisor decision. [Access register](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/access/access-register.html) · [Physical experiment protocol](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/research/experiment-protocol.html)\n",
       "closed_by": null,
       "reactions": {
         "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/issues/19/reactions",
@@ -739,13 +739,13 @@
       },
       "labels": [
         {
-          "id": 12468042827,
-          "node_id": "LA_kwDOU0vjOM8AAAAC5yc8Sw",
-          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:planned",
-          "name": "status:planned",
-          "color": "d9d9d9",
+          "id": 12468043562,
+          "node_id": "LA_kwDOU0vjOM8AAAAC5yc_Kg",
+          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:blocked",
+          "name": "status:blocked",
+          "color": "f4d5ce",
           "default": false,
-          "description": "Planned, not yet executed",
+          "description": "Current output prevented by a dependency",
           "archived_at": null,
           "archived_by": null
         },
@@ -826,7 +826,7 @@
       },
       "comments": 0,
       "created_at": "2026-09-30T09:18:39Z",
-      "updated_at": "2026-09-30T09:18:40Z",
+      "updated_at": "2026-11-27T06:35:34Z",
       "closed_at": null,
       "assignee": {
         "login": "t0ttora",
@@ -862,7 +862,7 @@
         "blocking": 0,
         "total_blocking": 0
       },
-      "body": "## Decision required by 2026-10-23\nStable nominal/caster simulations and one usable logging pilot. If CAD is unavailable, use measured simplified geometry and retain that limitation.\n\n## Gate record\n- [ ] Evidence/artifact IDs and the measured limitations linked.\n- [ ] Decision recorded as Pass, Conditional or Reduced scope, with rationale.\n- [ ] Student/advisor review recorded; company permissions recorded where needed.\n- [ ] Next action and responsible person recorded.\n\nCurrent result: **not reviewed / no pass claimed**. This issue tracks a future decision. Milestone completion percentage is task closure, not physical validation or gate approval.\n",
+      "body": "## Decision required by 2026-10-23\nStable nominal/caster simulations and one usable logging pilot. If CAD is unavailable, use measured simplified geometry and retain that limitation.\n\n## Gate record\n- [ ] Evidence/artifact IDs and the measured limitations linked.\n- [ ] Decision recorded as Pass, Conditional or Reduced scope, with rationale.\n- [ ] Student/advisor review recorded; company permissions recorded where needed.\n- [ ] Next action and responsible person recorded.\n\nCurrent result: **decision pending**. Gate approval requires a recorded decision and supporting evidence.\n\n**27 Nov 2026 · Evidence review.** Nominal drive and passive caster simulations have run and are reproducible. The usable operator-assisted robot pilot with synchronized logging and independent pose is pending. [JANUS experiment record](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/progress/2026-11-27-janus-experiments.html) · [Access register](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/access/access-register.html)\n",
       "closed_by": null,
       "reactions": {
         "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/issues/18/reactions",
@@ -915,13 +915,13 @@
       },
       "labels": [
         {
-          "id": 12468042827,
-          "node_id": "LA_kwDOU0vjOM8AAAAC5yc8Sw",
-          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:planned",
-          "name": "status:planned",
-          "color": "d9d9d9",
+          "id": 12468043562,
+          "node_id": "LA_kwDOU0vjOM8AAAAC5yc_Kg",
+          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:blocked",
+          "name": "status:blocked",
+          "color": "f4d5ce",
           "default": false,
-          "description": "Planned, not yet executed",
+          "description": "Current output prevented by a dependency",
           "archived_at": null,
           "archived_by": null
         },
@@ -1002,7 +1002,7 @@
       },
       "comments": 0,
       "created_at": "2026-09-30T09:18:38Z",
-      "updated_at": "2026-09-30T09:18:38Z",
+      "updated_at": "2026-11-27T06:35:34Z",
       "closed_at": null,
       "assignee": {
         "login": "t0ttora",
@@ -1038,7 +1038,7 @@
         "blocking": 0,
         "total_blocking": 0
       },
-      "body": "## Decision required by 2026-10-16\nPlatform/software identified, allowed data exports and robot slots recorded. Pose-reference approach agreed. Otherwise freeze a provisional robot model and request the missing items with a due date.\n\n## Gate record\n- [ ] Evidence/artifact IDs and the measured limitations linked.\n- [ ] Decision recorded as Pass, Conditional or Reduced scope, with rationale.\n- [ ] Student/advisor review recorded; company permissions recorded where needed.\n- [ ] Next action and responsible person recorded.\n\nCurrent result: **not reviewed / no pass claimed**. This issue tracks a future decision. Milestone completion percentage is task closure, not physical validation or gate approval.\n",
+      "body": "## Decision required by 2026-10-16\nPlatform/software identified, allowed data exports and robot slots recorded. Pose-reference approach agreed. Otherwise freeze a provisional robot model and request the missing items with a due date.\n\n## Gate record\n- [ ] Evidence/artifact IDs and the measured limitations linked.\n- [ ] Decision recorded as Pass, Conditional or Reduced scope, with rationale.\n- [ ] Student/advisor review recorded; company permissions recorded where needed.\n- [ ] Next action and responsible person recorded.\n\nCurrent result: **decision pending**. Gate approval requires a recorded decision and supporting evidence.\n\n**27 Nov 2026 · Evidence review.** Python, native Simscape and ROS 2/Gazebo development routes are available. Platform geometry, allowed company exports, a robot slot and independent pose route still need confirmation. [Access register](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/access/access-register.html)\n",
       "closed_by": null,
       "reactions": {
         "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/issues/17/reactions",
@@ -1178,7 +1178,7 @@
       },
       "comments": 0,
       "created_at": "2026-09-30T09:18:36Z",
-      "updated_at": "2026-09-30T09:18:36Z",
+      "updated_at": "2026-11-27T06:35:33Z",
       "closed_at": null,
       "assignee": {
         "login": "t0ttora",
@@ -1214,7 +1214,7 @@
         "blocking": 0,
         "total_blocking": 0
       },
-      "body": "## Planned output\nResolve last advisor comments. Submit the final report by 13 Jan, 23:59. Present on 14 Jan within the published 09:30–12:00 session window.\n\n**Period:** 11–14 Jan · **Budget:** 12 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nSubmission receipt and defense. Individual presentation slot follows the course announcement.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded. Experiment results: not yet collected.\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
+      "body": "## Planned output\nResolve last advisor comments. Submit the final report by 13 Jan, 23:59. Present on 14 Jan within the published 09:30–12:00 session window.\n\n**Period:** 11–14 Jan · **Budget:** 12 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nSubmission receipt and defense. Individual presentation slot follows the course announcement.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded. Experiment results: not yet collected.\n**27 Nov 2026 · Evidence review.** The final submission receipt, advisor closeout and defense remain pending. The published course window is 14 January 2027, 09:30–12:00 Istanbul time. The individual slot follows the course announcement. [Course calendar](https://yeditepe-me492.github.io/2026-Fall/)\n\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
       "closed_by": null,
       "reactions": {
         "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/issues/16/reactions",
@@ -1354,7 +1354,7 @@
       },
       "comments": 0,
       "created_at": "2026-09-30T09:18:35Z",
-      "updated_at": "2026-09-30T09:18:35Z",
+      "updated_at": "2026-11-27T06:35:32Z",
       "closed_at": null,
       "assignee": {
         "login": "t0ttora",
@@ -1390,7 +1390,7 @@
         "blocking": 0,
         "total_blocking": 0
       },
-      "body": "## Planned output\nPrepare the submission PDF, archive and demonstration recording. Rehearse the method, assumptions, graphs and failure cases. Target submission-ready files on 8 Jan.\n\n**Period:** 4–10 Jan · **Budget:** 10 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nFinal files verified by 8 Jan. Two rehearsals and a backup demonstration ready by 10 Jan.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded. Experiment results: not yet collected.\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
+      "body": "## Planned output\nPrepare the submission PDF, archive and demonstration recording. Rehearse the method, assumptions, graphs and failure cases. Target submission-ready files on 8 Jan.\n\n**Period:** 4–10 Jan · **Budget:** 10 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nFinal files verified by 8 Jan. Two rehearsals and a backup demonstration ready by 10 Jan.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded. Experiment results: not yet collected.\n**27 Nov 2026 · Evidence review.** The illustrated case directory and motion evidence can support the defense demonstration. The academic submission files, rehearsals and backup demonstration remain scheduled. [JANUS case cards](https://t0ttora.github.io/me492-caster-digital-twin/report-Arche_JANUS_Vaka_Kartlari_TR.html) · [JANUS experiment record](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/progress/2026-11-27-janus-experiments.html)\n\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
       "closed_by": null,
       "reactions": {
         "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/issues/15/reactions",
@@ -1530,7 +1530,7 @@
       },
       "comments": 0,
       "created_at": "2026-09-30T09:18:34Z",
-      "updated_at": "2026-09-30T09:18:34Z",
+      "updated_at": "2026-11-27T06:35:32Z",
       "closed_at": null,
       "assignee": {
         "login": "t0ttora",
@@ -1566,7 +1566,7 @@
         "blocking": 0,
         "total_blocking": 0
       },
-      "body": "## Planned output\nUse a reduced project load during university finals. Correct report text and broken reproduction steps. New experiments require a specific unresolved claim.\n\n**Period:** 28 Dec–3 Jan · **Budget:** 8 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nReviewed report and checked references. No expansion of the main scope.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded. Experiment results: not yet collected.\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
+      "body": "## Planned output\nUse a reduced project load during university finals. Correct report text and broken reproduction steps. New experiments require a specific unresolved claim.\n\n**Period:** 28 Dec–3 Jan · **Budget:** 8 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nReviewed report and checked references. No expansion of the main scope.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded. Experiment results: not yet collected.\n**27 Nov 2026 · Evidence review.** Use the published simulation report and case evidence as the starting point for the scheduled corrections and reference checks. The finals-period review remains ahead. [JANUS technical report](https://t0ttora.github.io/me492-caster-digital-twin/report-Arche_JANUS_Teknik_Rapor_TR.html) · [JANUS case cards](https://t0ttora.github.io/me492-caster-digital-twin/report-Arche_JANUS_Vaka_Kartlari_TR.html)\n\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
       "closed_by": null,
       "reactions": {
         "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/issues/14/reactions",
@@ -1706,7 +1706,7 @@
       },
       "comments": 0,
       "created_at": "2026-09-30T09:18:32Z",
-      "updated_at": "2026-09-30T09:18:32Z",
+      "updated_at": "2026-11-27T06:35:32Z",
       "closed_at": null,
       "assignee": {
         "login": "t0ttora",
@@ -1742,7 +1742,7 @@
         "blocking": 0,
         "total_blocking": 0
       },
-      "body": "## Planned output\nDeliver an internal final report by 23 Dec and a reproducible package by 25 Dec. Finish pending corrections before finals begin on 26 Dec.\n\n**Period:** 21–27 Dec · **Budget:** 16 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nAdvisor review copy, data/model inventory, reproduction instructions and final presentation outline.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded. Experiment results: not yet collected.\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
+      "body": "## Planned output\nDeliver an internal final report by 23 Dec and a reproducible package by 25 Dec. Finish pending corrections before finals begin on 26 Dec.\n\n**Period:** 21–27 Dec · **Budget:** 16 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nAdvisor review copy, data/model inventory, reproduction instructions and final presentation outline.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded. Experiment results: not yet collected.\n**27 Nov 2026 · Evidence review.** The simulation report, case cards and reproduction references are available for packaging. The internal final report and advisor review remain scheduled. [JANUS technical report](https://t0ttora.github.io/me492-caster-digital-twin/report-Arche_JANUS_Teknik_Rapor_TR.html) · [JANUS case cards](https://t0ttora.github.io/me492-caster-digital-twin/report-Arche_JANUS_Vaka_Kartlari_TR.html)\n\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
       "closed_by": null,
       "reactions": {
         "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/issues/13/reactions",
@@ -1882,7 +1882,7 @@
       },
       "comments": 0,
       "created_at": "2026-09-30T09:18:30Z",
-      "updated_at": "2026-09-30T09:18:30Z",
+      "updated_at": "2026-11-27T06:35:30Z",
       "closed_at": null,
       "assignee": {
         "login": "t0ttora",
@@ -1918,7 +1918,7 @@
         "blocking": 0,
         "total_blocking": 0
       },
-      "body": "## Planned output\nResolve specific mismatches. Quantify uncertainty and feasible caster recommendations. Prepare the final report, graphs and a short reproducible demonstration.\n\n**Period:** 14–20 Dec · **Budget:** 20 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nG6 on 18 Dec. Main experiments and features frozen. Traceable figures, limitations and conclusions.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded. Experiment results: not yet collected.\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
+      "body": "## Planned output\nResolve specific mismatches. Quantify uncertainty and feasible caster recommendations. Prepare the final report, graphs and a short reproducible demonstration.\n\n**Period:** 14–20 Dec · **Budget:** 20 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nG6 on 18 Dec. Main experiments and features frozen. Traceable figures, limitations and conclusions.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded. Experiment results: not yet collected.\n**27 Nov 2026 · Evidence review.** JANUS records solver and model sensitivity, unsuccessful variants and reproducible figures. The semester analysis still needs final claim review and the G6 scope decision. [JANUS technical report](https://t0ttora.github.io/me492-caster-digital-twin/report-Arche_JANUS_Teknik_Rapor_TR.html) · [Qualification matrix](https://t0ttora.github.io/me492-caster-digital-twin/reports/janus/qualification-matrix.tsv)\n\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
       "closed_by": null,
       "reactions": {
         "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/issues/12/reactions",
@@ -2058,7 +2058,7 @@
       },
       "comments": 0,
       "created_at": "2026-09-30T09:18:29Z",
-      "updated_at": "2026-09-30T09:18:29Z",
+      "updated_at": "2026-11-27T06:35:31Z",
       "closed_at": null,
       "assignee": {
         "login": "t0ttora",
@@ -2094,7 +2094,7 @@
         "blocking": 0,
         "total_blocking": 0
       },
-      "body": "## Planned output\nOpen the final holdout once. Compare ideal/caster-aware twins, baseline/improved profiles and persistence/rule/learned predictors. Use Tue 8 Dec or Wed 9 Dec only for a justified retry.\n\n**Period:** 7–13 Dec · **Budget:** 20 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nHeld-out error, spread, completion time and model usefulness. Negative findings retained. Repeated tuning needs a new test set.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded. Experiment results: not yet collected.\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
+      "body": "## Planned output\nOpen the final holdout once. Compare ideal/caster-aware twins, baseline/improved profiles and persistence/rule/learned predictors. Use Tue 8 Dec or Wed 9 Dec only for a justified retry.\n\n**Period:** 7–13 Dec · **Budget:** 20 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nHeld-out error, spread, completion time and model usefulness. Negative findings retained. Repeated tuning needs a new test set.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded. Experiment results: not yet collected.\n**27 Nov 2026 · Evidence review.** An independent review covers the 40-case simulation qualification. The semester evaluation still requires a separate held-out set, locked comparisons and traceable run IDs. [JANUS experiment record](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/progress/2026-11-27-janus-experiments.html) · [Physical experiment protocol](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/research/experiment-protocol.html)\n\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
       "closed_by": null,
       "reactions": {
         "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/issues/11/reactions",
@@ -2147,13 +2147,13 @@
       },
       "labels": [
         {
-          "id": 12468042827,
-          "node_id": "LA_kwDOU0vjOM8AAAAC5yc8Sw",
-          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:planned",
-          "name": "status:planned",
-          "color": "d9d9d9",
+          "id": 12468043063,
+          "node_id": "LA_kwDOU0vjOM8AAAAC5yc9Nw",
+          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:in-progress",
+          "name": "status:in-progress",
+          "color": "d4e5f4",
           "default": false,
-          "description": "Planned, not yet executed",
+          "description": "Work under way; no completion claimed",
           "archived_at": null,
           "archived_by": null
         },
@@ -2234,7 +2234,7 @@
       },
       "comments": 0,
       "created_at": "2026-09-30T09:18:28Z",
-      "updated_at": "2026-09-30T09:18:28Z",
+      "updated_at": "2026-11-27T06:35:31Z",
       "closed_at": null,
       "assignee": {
         "login": "t0ttora",
@@ -2270,7 +2270,7 @@
         "blocking": 0,
         "total_blocking": 0
       },
-      "body": "## Planned output\nComplete methods and initial development results. Submit the draft on Fri 4 Dec. Fit one compact learned predictor and lock all evaluation settings by 6 Dec.\n\n**Period:** 30 Nov–6 Dec · **Budget:** 18 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nDraft report submitted. G5 on 6 Dec. Model artifact or documented data-feasibility result, baselines and frozen metrics.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded. Experiment results: not yet collected.\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
+      "body": "## Planned output\nComplete methods and initial development results. Submit the draft on Fri 4 Dec. Fit one compact learned predictor and lock all evaluation settings by 6 Dec.\n\n**Period:** 30 Nov–6 Dec · **Budget:** 18 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nDraft report submitted. G5 on 6 Dec. Model artifact or documented data-feasibility result, baselines and frozen metrics.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded. Experiment results: not yet collected.\n**27 Nov 2026 · Evidence review.** Simulation methods and initial development results are documented ahead of the draft week. The draft submission, evaluation freeze and predictor or feasibility baseline remain open. [JANUS technical report](https://t0ttora.github.io/me492-caster-digital-twin/report-Arche_JANUS_Teknik_Rapor_TR.html) · [Learning work package](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/research/learning-task.html)\n\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
       "closed_by": null,
       "reactions": {
         "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/issues/10/reactions",
@@ -2323,13 +2323,13 @@
       },
       "labels": [
         {
-          "id": 12468042827,
-          "node_id": "LA_kwDOU0vjOM8AAAAC5yc8Sw",
-          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:planned",
-          "name": "status:planned",
-          "color": "d9d9d9",
+          "id": 12468043562,
+          "node_id": "LA_kwDOU0vjOM8AAAAC5yc_Kg",
+          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:blocked",
+          "name": "status:blocked",
+          "color": "f4d5ce",
           "default": false,
-          "description": "Planned, not yet executed",
+          "description": "Current output prevented by a dependency",
           "archived_at": null,
           "archived_by": null
         },
@@ -2410,7 +2410,7 @@
       },
       "comments": 0,
       "created_at": "2026-09-30T09:18:26Z",
-      "updated_at": "2026-09-30T09:18:27Z",
+      "updated_at": "2026-11-27T06:23:44Z",
       "closed_at": null,
       "assignee": {
         "login": "t0ttora",
@@ -2446,7 +2446,7 @@
         "blocking": 0,
         "total_blocking": 0
       },
-      "body": "## Planned output\nTarget Tue 24 Nov or Wed 25 Nov for 48 paired baseline/improved-profile runs. Seal final test files. Build causal features and a small regression baseline from development data.\n\n**Period:** 23–29 Nov · **Budget:** 18 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nSeparate calibration, development and final-test run IDs. Confirmation matrix recorded without tuning on final results.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded. Experiment results: not yet collected.\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
+      "body": "## Planned output\nTarget Tue 24 Nov or Wed 25 Nov for 48 paired baseline/improved-profile runs. Seal final test files. Build causal features and a small regression baseline from development data.\n\n**Period:** 23–29 Nov · **Budget:** 18 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nSeparate calibration, development and final-test run IDs. Confirmation matrix recorded without tuning on final results.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded.\n\n**27 Nov 2026 · Evidence review.** JANUS simulated results and the ViNT interface check are published. The physical paired confirmation set and the separate prediction baseline still need the planned data splits and run IDs. [JANUS evidence](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/progress/2026-11-27-janus-experiments.html) · [Access register](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/access/access-register.html)\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
       "closed_by": null,
       "reactions": {
         "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/issues/9/reactions",
@@ -2499,13 +2499,13 @@
       },
       "labels": [
         {
-          "id": 12468042827,
-          "node_id": "LA_kwDOU0vjOM8AAAAC5yc8Sw",
-          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:planned",
-          "name": "status:planned",
-          "color": "d9d9d9",
+          "id": 12468043063,
+          "node_id": "LA_kwDOU0vjOM8AAAAC5yc9Nw",
+          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:in-progress",
+          "name": "status:in-progress",
+          "color": "d4e5f4",
           "default": false,
-          "description": "Planned, not yet executed",
+          "description": "Work under way; no completion claimed",
           "archived_at": null,
           "archived_by": null
         },
@@ -2586,7 +2586,7 @@
       },
       "comments": 0,
       "created_at": "2026-09-30T09:18:24Z",
-      "updated_at": "2026-09-30T09:18:25Z",
+      "updated_at": "2026-11-27T06:23:44Z",
       "closed_at": null,
       "assignee": {
         "login": "t0ttora",
@@ -2622,7 +2622,7 @@
         "blocking": 0,
         "total_blocking": 0
       },
-      "body": "## Planned output\nEvaluate caster/contact sensitivity in simulation. Select one smoother speed/turn profile using the same path tracker. Reserve untouched physical test runs.\n\n**Period:** 16–22 Nov · **Budget:** 20 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nG4 on 20 Nov. Twin parameters and finalist profile locked before confirmation trials. First comparative plots.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded. Experiment results: not yet collected.\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
+      "body": "## Planned output\nEvaluate caster/contact sensitivity in simulation. Select one smoother speed/turn profile using the same path tracker. Reserve untouched physical test runs.\n\n**Period:** 16–22 Nov · **Budget:** 20 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nG4 on 20 Nov. Twin parameters and finalist profile locked before confirmation trials. First comparative plots.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded.\n\n**27 Nov 2026 · Evidence review.** Baseline and smoother speed profiles were compared on synthetic surfaces. JANUS adds execution and sensitivity traces. The physical model and finalist profile lock remains open at G4. [V2.3 synthetic study](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/research/python-v2-3-synthetic-study.html) · [JANUS evidence](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/progress/2026-11-27-janus-experiments.html)\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
       "closed_by": null,
       "reactions": {
         "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/issues/8/reactions",
@@ -2675,13 +2675,13 @@
       },
       "labels": [
         {
-          "id": 12468042827,
-          "node_id": "LA_kwDOU0vjOM8AAAAC5yc8Sw",
-          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:planned",
-          "name": "status:planned",
-          "color": "d9d9d9",
+          "id": 12468043562,
+          "node_id": "LA_kwDOU0vjOM8AAAAC5yc_Kg",
+          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:blocked",
+          "name": "status:blocked",
+          "color": "f4d5ce",
           "default": false,
-          "description": "Planned, not yet executed",
+          "description": "Current output prevented by a dependency",
           "archived_at": null,
           "archived_by": null
         },
@@ -2762,7 +2762,7 @@
       },
       "comments": 0,
       "created_at": "2026-09-30T09:18:23Z",
-      "updated_at": "2026-09-30T09:18:23Z",
+      "updated_at": "2026-11-27T06:23:44Z",
       "closed_at": null,
       "assignee": {
         "login": "t0ttora",
@@ -2798,7 +2798,7 @@
         "blocking": 0,
         "total_blocking": 0
       },
-      "body": "## Planned output\nTarget Tue 10 Nov or Wed 11 Nov for 24 nominal-profile runs. Fit measured geometry, drive delay and a small caster/contact parameter set.\n\n**Period:** 9–15 Nov · **Budget:** 20 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nCalibration dataset and data-quality report. Parameter bounds, fitted values and simple-model comparison.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded. Experiment results: not yet collected.\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
+      "body": "## Planned output\nTarget Tue 10 Nov or Wed 11 Nov for 24 nominal-profile runs. Fit measured geometry, drive delay and a small caster/contact parameter set.\n\n**Period:** 9–15 Nov · **Budget:** 20 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nCalibration dataset and data-quality report. Parameter bounds, fitted values and simple-model comparison.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded.\n\n**27 Nov 2026 · Evidence review.** The calibration dataset and fitted physical parameters depend on the operator-assisted pilot, platform measurements and synchronized telemetry. [Access register](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/access/access-register.html)\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
       "closed_by": null,
       "reactions": {
         "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/issues/7/reactions",
@@ -2851,13 +2851,13 @@
       },
       "labels": [
         {
-          "id": 12468042827,
-          "node_id": "LA_kwDOU0vjOM8AAAAC5yc8Sw",
-          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:planned",
-          "name": "status:planned",
-          "color": "d9d9d9",
+          "id": 12468043562,
+          "node_id": "LA_kwDOU0vjOM8AAAAC5yc_Kg",
+          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:blocked",
+          "name": "status:blocked",
+          "color": "f4d5ce",
           "default": false,
-          "description": "Planned, not yet executed",
+          "description": "Current output prevented by a dependency",
           "archived_at": null,
           "archived_by": null
         },
@@ -2938,7 +2938,7 @@
       },
       "comments": 0,
       "created_at": "2026-09-30T09:18:21Z",
-      "updated_at": "2026-09-30T09:18:21Z",
+      "updated_at": "2026-11-27T06:23:42Z",
       "closed_at": null,
       "assignee": {
         "login": "t0ttora",
@@ -2974,7 +2974,7 @@
         "blocking": 0,
         "total_blocking": 0
       },
-      "body": "## Planned output\nFix logging defects and freeze calibration/test separation. Keep the week light for GDS on Fri 6 Nov, 12:00–15:00.\n\n**Period:** 2–8 Nov · **Budget:** 10 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nG3 on 6 Nov. Valid data route, pose-reference quality and approved test slots. No new major subsystem.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded. Experiment results: not yet collected.\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
+      "body": "## Planned output\nFix logging defects and freeze calibration/test separation. Keep the week light for GDS on Fri 6 Nov, 12:00–15:00.\n\n**Period:** 2–8 Nov · **Budget:** 10 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nG3 on 6 Nov. Valid data route, pose-reference quality and approved test slots. No new major subsystem.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded.\n\n**27 Nov 2026 · Evidence review.** Calibration and validation have separate planned run sets. The approved test slots, physical data route and independent pose quality review required for G3 are pending. [Access register](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/access/access-register.html)\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
       "closed_by": null,
       "reactions": {
         "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/issues/6/reactions",
@@ -3027,13 +3027,13 @@
       },
       "labels": [
         {
-          "id": 12468042827,
-          "node_id": "LA_kwDOU0vjOM8AAAAC5yc8Sw",
-          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:planned",
-          "name": "status:planned",
-          "color": "d9d9d9",
+          "id": 12468043063,
+          "node_id": "LA_kwDOU0vjOM8AAAAC5yc9Nw",
+          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:in-progress",
+          "name": "status:in-progress",
+          "color": "d4e5f4",
           "default": false,
-          "description": "Planned, not yet executed",
+          "description": "Work under way; no completion claimed",
           "archived_at": null,
           "archived_by": null
         },
@@ -3114,7 +3114,7 @@
       },
       "comments": 0,
       "created_at": "2026-09-30T09:18:19Z",
-      "updated_at": "2026-09-30T09:18:19Z",
+      "updated_at": "2026-11-27T06:23:42Z",
       "closed_at": null,
       "assignee": {
         "login": "t0ttora",
@@ -3150,7 +3150,7 @@
         "blocking": 0,
         "total_blocking": 0
       },
-      "body": "## Planned output\nSupport two surface patches and four maneuvers. Replay identical commands. Check time alignment, sensor gaps and contact-step sensitivity. Allow for the 28–29 Oct holiday.\n\n**Period:** 26 Oct–1 Nov · **Budget:** 16 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nVersioned run manifest, identical command replay and automated metric export. Reference protocol frozen.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded. Experiment results: not yet collected.\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
+      "body": "## Planned output\nSupport two surface patches and four maneuvers. Replay identical commands. Check time alignment, sensor gaps and contact-step sensitivity. Allow for the 28–29 Oct holiday.\n\n**Period:** 26 Oct–1 Nov · **Budget:** 16 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nVersioned run manifest, identical command replay and automated metric export. Reference protocol frozen.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded.\n\n**27 Nov 2026 · Evidence review.** Versioned synthetic benchmark outputs cover four manoeuvres and two surface presets. Equal-input replay, timing faults and solver-step comparisons have published evidence. The reference protocol freeze remains open. [V2.3 synthetic study](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/research/python-v2-3-synthetic-study.html) · [JANUS evidence](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/progress/2026-11-27-janus-experiments.html)\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
       "closed_by": null,
       "reactions": {
         "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/issues/5/reactions",
@@ -3203,13 +3203,13 @@
       },
       "labels": [
         {
-          "id": 12468042827,
-          "node_id": "LA_kwDOU0vjOM8AAAAC5yc8Sw",
-          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:planned",
-          "name": "status:planned",
-          "color": "d9d9d9",
+          "id": 12468043562,
+          "node_id": "LA_kwDOU0vjOM8AAAAC5yc_Kg",
+          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:blocked",
+          "name": "status:blocked",
+          "color": "f4d5ce",
           "default": false,
-          "description": "Planned, not yet executed",
+          "description": "Current output prevented by a dependency",
           "archived_at": null,
           "archived_by": null
         },
@@ -3290,7 +3290,7 @@
       },
       "comments": 0,
       "created_at": "2026-09-30T09:18:17Z",
-      "updated_at": "2026-09-30T09:18:18Z",
+      "updated_at": "2026-11-27T06:23:41Z",
       "closed_at": null,
       "assignee": {
         "login": "t0ttora",
@@ -3326,7 +3326,7 @@
         "blocking": 0,
         "total_blocking": 0
       },
-      "body": "## Planned output\nAdd passive swivel/rolling joints and a small friction/damping model. Run a supervised logging pilot on Tue 20 Oct or Wed 21 Oct.\n\n**Period:** 19–25 Oct · **Budget:** 18 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nG2 on 23 Oct. One usable real log with independent pose where permitted. Stable caster reversal simulation.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded. Experiment results: not yet collected.\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
+      "body": "## Planned output\nAdd passive swivel/rolling joints and a small friction/damping model. Run a supervised logging pilot on Tue 20 Oct or Wed 21 Oct.\n\n**Period:** 19–25 Oct · **Budget:** 18 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nG2 on 23 Oct. One usable real log with independent pose where permitted. Stable caster reversal simulation.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded.\n\n**27 Nov 2026 · Evidence review.** Passive caster, reversal and both initial-angle variants have simulation evidence. One usable robot pilot log with independent pose is still pending. [JANUS evidence](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/progress/2026-11-27-janus-experiments.html) · [Access register](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/access/access-register.html)\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
       "closed_by": null,
       "reactions": {
         "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/issues/4/reactions",
@@ -3379,13 +3379,13 @@
       },
       "labels": [
         {
-          "id": 12468042827,
-          "node_id": "LA_kwDOU0vjOM8AAAAC5yc8Sw",
-          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:planned",
-          "name": "status:planned",
-          "color": "d9d9d9",
+          "id": 12468043562,
+          "node_id": "LA_kwDOU0vjOM8AAAAC5yc_Kg",
+          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:blocked",
+          "name": "status:blocked",
+          "color": "f4d5ce",
           "default": false,
-          "description": "Planned, not yet executed",
+          "description": "Current output prevented by a dependency",
           "archived_at": null,
           "archived_by": null
         },
@@ -3466,7 +3466,7 @@
       },
       "comments": 0,
       "created_at": "2026-09-30T09:18:16Z",
-      "updated_at": "2026-09-30T09:18:16Z",
+      "updated_at": "2026-11-27T06:23:40Z",
       "closed_at": null,
       "assignee": {
         "login": "t0ttora",
@@ -3502,7 +3502,7 @@
         "blocking": 0,
         "total_blocking": 0
       },
-      "body": "## Planned output\nMeasure or import the chassis, drive wheels and caster geometry. Implement the ideal differential-drive baseline. Agree pose-reference and logging methods.\n\n**Period:** 12–18 Oct · **Budget:** 18 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nG1 on 16 Oct. Correct straight/circle motion, explicit units and frames, agreed physical access route.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded. Experiment results: not yet collected.\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
+      "body": "## Planned output\nMeasure or import the chassis, drive wheels and caster geometry. Implement the ideal differential-drive baseline. Agree pose-reference and logging methods.\n\n**Period:** 12–18 Oct · **Budget:** 18 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nG1 on 16 Oct. Correct straight/circle motion, explicit units and frames, agreed physical access route.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded.\n\n**27 Nov 2026 · Evidence review.** The [ideal-drive model](https://github.com/t0ttora/me492-caster-digital-twin/tree/main/models/caster-m0) has synthetic motion checks and published units and frames. Measured platform geometry and an agreed physical pose and logging route are pending. [Access register](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/access/access-register.html)\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
       "closed_by": null,
       "reactions": {
         "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/issues/3/reactions",
@@ -3555,13 +3555,13 @@
       },
       "labels": [
         {
-          "id": 12468042827,
-          "node_id": "LA_kwDOU0vjOM8AAAAC5yc8Sw",
-          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:planned",
-          "name": "status:planned",
-          "color": "d9d9d9",
+          "id": 12468043562,
+          "node_id": "LA_kwDOU0vjOM8AAAAC5yc_Kg",
+          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:blocked",
+          "name": "status:blocked",
+          "color": "f4d5ce",
           "default": false,
-          "description": "Planned, not yet executed",
+          "description": "Current output prevented by a dependency",
           "archived_at": null,
           "archived_by": null
         },
@@ -3642,7 +3642,7 @@
       },
       "comments": 0,
       "created_at": "2026-09-30T09:18:15Z",
-      "updated_at": "2026-09-30T09:18:15Z",
+      "updated_at": "2026-11-27T06:23:40Z",
       "closed_at": null,
       "assignee": {
         "login": "t0ttora",
@@ -3678,7 +3678,7 @@
         "blocking": 0,
         "total_blocking": 0
       },
-      "body": "## Planned output\nTarget Tue 6 Oct or Wed 7 Oct. Inspect the actual platform, software and data. Select the compatible simulation environment. Record access decisions.\n\n**Period:** 5–11 Oct · **Budget:** 18 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nVisit record with owners and due dates. Nominal robot dimensions and a sample telemetry file requested.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded. Experiment results: not yet collected.\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
+      "body": "## Planned output\nTarget Tue 6 Oct or Wed 7 Oct. Inspect the actual platform, software and data. Select the compatible simulation environment. Record access decisions.\n\n**Period:** 5–11 Oct · **Budget:** 18 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nVisit record with owners and due dates. Nominal robot dimensions and a sample telemetry file requested.\n\n## Completion checklist\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded.\n\n**27 Nov 2026 · Evidence review.** Visit preparation is published. The visit record, agreed owners and company measurements are pending in the [Access register](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/access/access-register.html).\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
       "closed_by": null,
       "reactions": {
         "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/issues/2/reactions",
@@ -3731,13 +3731,13 @@
       },
       "labels": [
         {
-          "id": 12468043063,
-          "node_id": "LA_kwDOU0vjOM8AAAAC5yc9Nw",
-          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:in-progress",
-          "name": "status:in-progress",
-          "color": "d4e5f4",
+          "id": 12468044086,
+          "node_id": "LA_kwDOU0vjOM8AAAAC5ydBNg",
+          "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/labels/status:verified",
+          "name": "status:verified",
+          "color": "cde5d2",
           "default": false,
-          "description": "Work under way; no completion claimed",
+          "description": "Acceptance evidence checked",
           "archived_at": null,
           "archived_by": null
         },
@@ -3753,7 +3753,7 @@
           "archived_by": null
         }
       ],
-      "state": "open",
+      "state": "closed",
       "locked": false,
       "assignees": [
         {
@@ -3818,8 +3818,8 @@
       },
       "comments": 0,
       "created_at": "2026-09-30T09:18:13Z",
-      "updated_at": "2026-09-30T09:22:52Z",
-      "closed_at": null,
+      "updated_at": "2026-11-27T06:23:40Z",
+      "closed_at": "2026-11-27T06:23:39Z",
       "assignee": {
         "login": "t0ttora",
         "id": 126760395,
@@ -3854,8 +3854,28 @@
         "blocking": 0,
         "total_blocking": 0
       },
-      "body": "## Planned output\nConsolidate the existing research report. Define hypotheses, four maneuvers and required channels. Prepare the visit and verify the available development computer.\n\n**Period:** 30 Sep–4 Oct · **Budget:** 10 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nAccess checklist, experiment outline and a reproducible ideal-drive calculation.\n\n## Completion checklist\n- [x] Revised English [execution baseline](https://github.com/t0ttora/me492-caster-digital-twin/blob/main/reports/ME492_Final_Roadmap_and_Arche_Visit_EN.pdf) prepared and published.\n- [ ] Planned work executed; record the artifact/run IDs.\n- [ ] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded. Experiment results: not yet collected.\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
-      "closed_by": null,
+      "body": "## Planned output\nConsolidate the existing research report. Define hypotheses, four maneuvers and required channels. Prepare the visit and verify the available development computer.\n\n**Period:** 30 Sep–4 Oct · **Budget:** 10 person-hours · **Owner:** Oluş Emre Demir\n\n## Acceptance evidence\nAccess checklist, experiment outline and a reproducible ideal-drive calculation.\n\n## Completion checklist\n- [x] Revised English [execution baseline](https://github.com/t0ttora/me492-caster-digital-twin/blob/main/reports/ME492_Final_Roadmap_and_Arche_Visit_EN.pdf) prepared and published.\n- [x] Planned work executed; record the artifact/run IDs.\n- [x] Acceptance evidence linked and its verification limits stated.\n- [ ] Actual hours, blockers and next output recorded.\n- [ ] Related gate/decision updated where applicable.\n\n## Progress record\nActual hours: not yet recorded.\n\n**27 Nov 2026 · Evidence review.** The execution baseline and visit preparation are published. The [pre-visit roadmap](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/planning/pre-visit-roadmap-2026-10-07.html) records development-host capability and the experiment outline. The [access checklist](https://t0ttora.github.io/me492-caster-digital-twin/records/docs/access/access-register.html) and reproducible [M0 ideal-drive calculation](https://github.com/t0ttora/me492-caster-digital-twin/tree/main/models/caster-m0) cover the acceptance evidence. Company access follows the G1 review.\nUse issue comments for dated progress and evidence. Close only after the acceptance evidence is linked; a closed task does not itself approve a decision gate.\n\n## Data handling\nPublic summaries and explicitly permitted evidence only. CAD, raw telemetry and company model files require separate permission before publication.\n",
+      "closed_by": {
+        "login": "t0ttora",
+        "id": 126760395,
+        "node_id": "U_kgDOB441yw",
+        "avatar_url": "https://avatars.githubusercontent.com/u/126760395?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/t0ttora",
+        "html_url": "https://github.com/t0ttora",
+        "followers_url": "https://api.github.com/users/t0ttora/followers",
+        "following_url": "https://api.github.com/users/t0ttora/following{/other_user}",
+        "gists_url": "https://api.github.com/users/t0ttora/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/t0ttora/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/t0ttora/subscriptions",
+        "organizations_url": "https://api.github.com/users/t0ttora/orgs",
+        "repos_url": "https://api.github.com/users/t0ttora/repos",
+        "events_url": "https://api.github.com/users/t0ttora/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/t0ttora/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+      },
       "reactions": {
         "url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/issues/1/reactions",
         "total_count": 0,
@@ -3870,7 +3890,7 @@
       },
       "timeline_url": "https://api.github.com/repos/t0ttora/me492-caster-digital-twin/issues/1/timeline",
       "performed_via_github_app": null,
-      "state_reason": null,
+      "state_reason": "completed",
       "pinned_comment": null
     }
   ]

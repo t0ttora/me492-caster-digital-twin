@@ -151,6 +151,14 @@ def issue_url(issue):
     return issue.get('html_url') or issue['url']
 
 
+def evidence_review(issue):
+    reviews = re.findall(r'^\*\*(\d{1,2} [A-Za-z]+ \d{4}) · Evidence review\.\*\* +([^\r\n]+)', issue.get('body') or '', re.M)
+    if not reviews:
+        return ''
+    date, summary = reviews[-1]
+    return f'<span class="review-date">{escape(date)}</span>{inline(summary)}'
+
+
 def short_date(value):
     return datetime.fromisoformat(value.replace('Z', '+00:00')).astimezone(ZoneInfo('Europe/Istanbul')).strftime('%d %b %Y, %H:%M')
 
@@ -224,6 +232,7 @@ def build(issues, comments):
     issues = sorted((i for i in issues if 'pull_request' not in i), key=lambda i: i['number'])
     tasks, journal = [], []
     weekly = [i for i in issues if any((l if isinstance(l, str) else l['name']) == 'type:weekly' for l in i['labels'])]
+    weekly_by_code = {i['title'].split('|', 1)[0].strip(): i for i in weekly}
     def label_names(issue):
         return [label if isinstance(label, str) else label['name'] for label in issue['labels']]
     for issue in issues:
@@ -236,7 +245,7 @@ def build(issues, comments):
         body_text = (issue.get('body') or '').replace('**', '')
         period = re.search(r'^Period: (.+?) · Budget: ([^·\n]+)', body_text, re.M)
         deadline = re.search(r'^## Decision required by (\d{4}-\d{2}-\d{2})', body_text, re.M)
-        meta = f'{period[1]} · {period[2].strip()} planned' if period else f'Decision due {deadline[1]}' if deadline else 'See deliverable and acceptance evidence'
+        meta = f'{period[1]} · {period[2].strip()} planned' if period else f'Planned decision date {deadline[1]}' if deadline else 'See deliverable and acceptance evidence'
         history = []
         for comment in comments:
             if comment['issue_url'].endswith(f'/{issue["number"]}'):
@@ -250,15 +259,31 @@ def build(issues, comments):
         number = int(comment['issue_url'].rsplit('/', 1)[1])
         journal.append((comment['created_at'], f'<article class="journal-entry"><time datetime="{comment["created_at"]}">{short_date(comment["created_at"])}</time><h3>Task #{number} update</h3><p>{escape(comment["user"]["login"])} posted this update on GitHub.</p><details><summary>Read update +</summary><div class="prose">{markdown(comment.get("body") or "", embedded=True)}</div></details><a class="text-link" href="{escape(comment["html_url"])}">Source comment ↗</a></article>'))
     journal.sort(key=lambda item: item[0], reverse=True)
-    roadmap = []
+    roadmap, weekly_progress, gate_progress = [], [], []
     weeks = []
     for line in (ROOT / 'docs/planning/timetable.md').read_text().splitlines():
         if not re.match(r'^\| W\d+', line):
             continue
         week, period, hours, output, evidence = [cell.strip() for cell in line.strip('|').split('|')]
-        task_number = int(week[1:])
-        weeks.append({'id': week, 'hours': int(hours), 'period': period, 'output': output, 'evidence': evidence})
-        roadmap.append(f'<tr><th scope="row">{week}</th><td>{escape(period)}</td><td><strong>{escape(output)}</strong><p>{escape(evidence)}</p></td><td>{hours}</td><td><a href="tasks.html#task-{task_number}" class="roadmap-task">Task ↗</a></td></tr>')
+        issue = weekly_by_code.get(week)
+        number = issue['number'] if issue else None
+        status = state(issue) if issue else 'unclassified'
+        review = evidence_review(issue) if issue else ''
+        task_link = f'<a href="tasks.html#task-{number}" class="roadmap-task">{week} <span class="sr-only">task</span>↗</a>' if issue else week
+        row = f'<tr data-progress-issue="{number}"><th scope="row">{task_link}</th><td>{escape(period)}</td>'
+        current = f'<td>{badge(status)}</td><td class="evidence-review">{review or "No evidence update recorded."}</td>'
+        weeks.append({'id': week, 'hours': int(hours), 'period': period, 'output': output, 'evidence': evidence, 'status': status, 'issue': number})
+        roadmap.append(f'{row}<td><strong>{escape(output)}</strong><p>{escape(evidence)}</p></td><td>{hours}</td>{current}</tr>')
+        weekly_progress.append(f'{row}<td>{escape(output)}</td>{current}</tr>')
+    for issue in issues:
+        if 'type:gate' not in label_names(issue):
+            continue
+        number = issue['number']
+        code, _, title = issue['title'].partition('|')
+        deadline = re.search(r'^## Decision required by (\d{4}-\d{2}-\d{2})', issue.get('body') or '', re.M)
+        deadline_label = deadline[1] if deadline else 'Unscheduled'
+        review = evidence_review(issue) or 'No evidence update recorded.'
+        gate_progress.append(f'<tr data-progress-issue="{number}"><th scope="row"><a href="tasks.html#task-{number}">{escape(code.strip())} ↗</a></th><td>{escape(title.strip())}</td><td>{deadline_label}</td><td>{badge(state(issue))}</td><td class="evidence-review">{review}</td></tr>')
     counts = {s: sum(state(i) == s for i in weekly) for s in STATUS}
     status_table = '<div class="table-scroll"><table class="data-table status-table"><thead><tr>' + ''.join(f'<th scope="col">{label}</th>' for label in ['In progress', 'Verified', 'Blocked', 'Total weekly tasks']) + '</tr></thead><tbody><tr>' + ''.join(f'<td class="metric-value">{count:02d}</td>' for count in [counts['in-progress'], counts['verified'], counts['blocked'], len(weekly)]) + '</tr></tbody></table></div>'
     active = [i for i in weekly if state(i) == 'in-progress']
@@ -276,6 +301,8 @@ def build(issues, comments):
     qualification = json.loads((ROOT / 'reports/janus/qualification-matrix.json').read_text())
     tokens = {'COMPLETION': progress_summary(issues), 'RUN_COUNT': str(run_count), 'ACCESS_SNAPSHOT': escape((ROOT / access).read_text().split('\n\n')[1]), 'STATUS_TABLE': status_table, 'COMMITS': ''.join(commits), 'ACCESS': markdown((ROOT / access).read_text(), access, embedded=True), 'DECISIONS': markdown((ROOT / decisions).read_text(), decisions, embedded=True), 'FOCUS': focus, 'PROGRESS': ''.join(item[1] for item in journal), 'SYNC': f'GitHub and repository snapshot · Published: {short_date(built.isoformat())} (Istanbul).', 'TASKS': ''.join(tasks), 'ROADMAP': ''.join(roadmap), 'DOCUMENTS': ''.join(doc_links)}
     tokens['JANUS_QUALIFICATION'] = qualification_summary(qualification, run_count)
+    tokens['WEEKLY_PROGRESS'] = ''.join(weekly_progress)
+    tokens['GATE_PROGRESS'] = ''.join(gate_progress)
     layout = (ROOT / 'site/layout.html').read_text()
     for slug, title in PAGES:
         body = (ROOT / 'site' / f'{slug}.html').read_text()

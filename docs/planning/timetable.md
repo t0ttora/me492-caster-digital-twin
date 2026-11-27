@@ -4,6 +4,8 @@
 
 **7 October update:** Onshape parametric CAD, a MATLAB-primary baseline and a minimal Gazebo scene are the pre-visit working direction. Preparation is due **9 October, 11:00 Europe/Istanbul**. The [pre-visit roadmap](pre-visit-roadmap-2026-10-07.md) allocates 9h45 inside W02, including 45 minutes of recovery buffer; these are not extra semester hours. Actual hours remain to be logged. Runtime and company access are still evidence-dependent.
 
+**27 November evidence review.** Weekly statuses and next steps are published in the [current weekly table](https://t0ttora.github.io/me492-caster-digital-twin/roadmap.html#weekly-progress). The table below preserves the planned dates, budgets and acceptance criteria. See the [review record](../progress/2026-11-27-weekly-review.md) for the simulation progress and physical dependencies.
+
 | Week | Period | Hours | Output | Acceptance evidence |
 | --- | --- | ---: | --- | --- |
 | W01 | 30 Sep–4 Oct | 10 | Scope and preparation | Access checklist, experiment outline and a reproducible ideal-drive calculation. |
