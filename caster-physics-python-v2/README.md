@@ -214,9 +214,21 @@ python run_janus.py --case M07 --variant narrow-replanned --output-dir NEW_DIREC
   0.05 rad/s. The settle window after the range stop is 1.5 s. Pose and speed
   must stay inside those limits through confirmation by a fresh post-contact
   virtual BMS event. Loss of hold aborts the attempt.
-- O04/O05 report the scheduled stop reason and sampled post-trigger braking.
-  Their case status is partial because they use injected stop reasons and
-  leave timeout detection, encoder dropout and watchdog timing unmeasured.
+- O04 `stream-watchdog` and `stream-operator` drive the shared command guard
+  before measuring the planar stop. O05 `guard-odometry-cut` and
+  `guard-odometry-rewind` record delivered and accepted odometry stamps, the
+  guard's rejection reason and post-cut braking. The original injected-stop
+  runs are preserved. These fixtures use synthetic clocks and inputs.
+- Q13 `regressive-capture` delivers a still-fresh backward capture stamp and
+  checks inhibition at its first control sample. Separate Q13 variants cover
+  repeated stamps, latency and loss of the camera stream.
+- Q04 `staged-lateral` estimates a preparation pose from the projected QR
+  corners. The sampled steering and forward request both cut if the marker is
+  lost during staging. The camera centering dwell and virtual contact checks
+  follow the staging pose gates.
+- M11 `brake-reference`, `brake-high-drag` and `brake-boundary` log the actual
+  brake step and the later measured stop dwell. The boundary variant crosses
+  the configured surface edge before the brake command.
 - The optional OpenCV PNG decoder exercise has its own evidence scope and can be
   run with `python janus_decode.py --output-dir NEW_DIRECTORY`. It decodes static
   generated images. The projection controller's timing and optics are distinct.
