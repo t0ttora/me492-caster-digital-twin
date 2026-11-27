@@ -1,0 +1,51 @@
+<section class="section">
+  <header class="research-heading">
+    <p class="eyebrow">Technical work · Python</p>
+    <h1>Python simulation</h1>
+    <p>Integrates planar chassis and caster dynamics from the two driven-wheel torques. The tracking controller adds reference paths and terminal pose recovery. JANUS experiments extend the model with QR observations, docking and recovery conditions.</p>
+  </header>
+  <nav class="jump-links result-nav" aria-label="On this page"><a href="#experiment">Run in browser</a><a href="#terminal">Terminal app</a><a href="#source">Source code</a><a href="results.html#python">Recorded results</a></nav>
+  <section class="technical-section" id="experiment">
+    <h2>Run a trajectory in the browser</h2>
+    <p>The experiment runs the Python kernel and simulation adapter used by the terminal app. The first run downloads the WebAssembly runtime and NumPy. Results are generated on this device using synthetic inputs.</p>
+    <form id="python-run" class="experiment-form">
+      <label>Model <select name="model"><option value="V2">Trajectory tracking</option><option value="V1">Torque-driven mechanical baseline</option></select></label>
+      <label id="maneuver-field">Path <select name="maneuver"><option value="s_turn">S turn</option><option value="straight">Straight line</option><option value="arc_turn">Arc</option><option value="reversal">Forward and reverse</option></select></label>
+      <label id="profile-field">Timing <select name="profile"><option value="baseline">Baseline</option><option value="smooth">Quintic smooth</option></select></label>
+      <label>Initial caster angle (°) <input name="caster" type="number" value="45" min="-180" max="180" step="1" required></label>
+      <button type="submit" disabled>Run simulation</button>
+      <button type="button" id="cancel-run" hidden>Stop</button>
+    </form>
+    <p id="python-status" role="status" aria-live="polite">Ready to run.</p>
+    <noscript><p>The interactive experiment requires JavaScript. <a href="#terminal">Run the terminal app locally</a> or <a href="reports/janus/python/M04-python-nominal/motion.html">open a saved run</a>.</p></noscript>
+    <div id="python-output" hidden>
+      <dl class="run-metrics" id="python-metrics"></dl>
+      <div class="research-figures">
+        <figure><canvas id="plot-path" width="660" height="275" role="img" aria-label="Drive axle trajectory in metres"></canvas><figcaption>Drive axle path · X and Y, m</figcaption></figure>
+        <figure><canvas id="plot-caster" width="660" height="275" role="img" aria-label="Caster angle over time"></canvas><figcaption>Caster swivel relative to chassis · time, s / angle, °</figcaption></figure>
+      </div>
+      <button type="button" id="download-run">Download generated CSV</button>
+    </div>
+  </section>
+  <section class="technical-section" id="terminal">
+    <h2>Arche Caster Lab TUI</h2>
+    <p>The local terminal app exposes geometry, inertia, contact parameters, controller gains, archived runs and detailed plots. Use <kbd>O</kbd> to inspect a recorded run in a standalone browser viewer.</p>
+    <div class="research-figures">
+      <figure><a href="assets/tui-setup.webp"><img src="assets/tui-setup.webp" loading="lazy" width="1524" height="944" alt="Arche Caster Lab terminal showing trajectory model experiment inputs"></a><figcaption>Trajectory setup in the terminal app</figcaption></figure>
+      <figure><a href="assets/tui-plots.webp"><img src="assets/tui-plots.webp" loading="lazy" width="1524" height="944" alt="Arche Caster Lab terminal showing recorded caster and motion plots"></a><figcaption>Simulation plots in the terminal app</figcaption></figure>
+    </div>
+    <p>Clone the project and follow the <a class="text-link" href="https://github.com/t0ttora/me492-caster-digital-twin/tree/main/arche-tui">terminal setup and keyboard guide ↗</a>. On macOS, the launcher is <code>./Start_Arche_TUI.command</code>.</p>
+  </section>
+  <section class="technical-section" id="source">
+    <h2>Source and outputs</h2>
+    <ul class="evidence-links">
+      <li><a href="https://github.com/t0ttora/me492-caster-digital-twin/tree/main/caster-physics-python">Planar physics kernel ↗</a></li>
+      <li><a href="https://github.com/t0ttora/me492-caster-digital-twin/tree/main/caster-physics-python-v2">Tracking and JANUS docking source ↗</a></li>
+      <li><a href="https://github.com/t0ttora/me492-caster-digital-twin/blob/main/arche-tui/backend.py">Terminal and browser simulation adapter ↗</a></li>
+      <li><a href="downloads/arche-python-lab.zip" download>Browser model sources · ZIP ↓</a></li>
+      <li><a href="reports/janus/python/measurements.csv">Published JANUS measurements · CSV</a></li>
+      <li><a href="records/docs/research/python-v2-3-synthetic-study.html">Synthetic profile comparison ↗</a></li>
+    </ul>
+  </section>
+</section>
+<script src="assets/python-lab.mjs" type="module"></script>

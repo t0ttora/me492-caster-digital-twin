@@ -51,6 +51,7 @@ const fmt = new Intl.NumberFormat('en-GB',{minimumFractionDigits:2,maximumFracti
 const short = new Intl.NumberFormat('en-GB',{maximumFractionDigits:1});
 const eventName = key => eventLabels[key] || String(key).replaceAll('_',' ');
 const embedded = document.documentElement.dataset.embed === 'true';
+const assetVersion = new URL(import.meta.url).search;
 const compactLayout = matchMedia('(max-width: 760px)');
 const cache=new Map();
 let list=[],filter='',current=null,track=null,viewer=null,view='overview',renderError=null,requestNumber=0;
@@ -62,6 +63,8 @@ const cameraTools=query('.camera-tools button:not(#fullscreen)');
 const playbackTools=query('.transport button, .transport select, .transport input');
 const caseTitle=c=>c.titleEn || c.title;
 const video=$('camera-video');
+const cameraInput=$('camera-input');
+const sensorButton=views.find(button => button.dataset.view === 'sensor');
 
 function button(text, classes) {
   const node=document.createElement('button');
@@ -113,7 +116,7 @@ function setCameraTools() {
   cameraTools.forEach(control => {control.disabled=Boolean(renderError || !track || view==='sensor');});
 }
 async function getJson(path) {
-  const result=await fetch(path);
+  const result=await fetch(path+assetVersion);
   if (!result.ok) throw new Error(path+' ('+result.status+')');
   return result.json();
 }
@@ -141,7 +144,7 @@ async function selectCase(id,startVariant=0,update=false) {
   playbackTools.forEach(control=>{control.disabled=true;});
   views.forEach(control=>{control.disabled=true;});
   $('variant').disabled=true;
-  const clip='clips/'+id+'.mp4';
+  const clip='clips/'+id+'.mp4'+assetVersion;
   $('clip-link').href=clip;
   $('fallback-clip').href=clip;
   $('result-link').href='../results.html#case-'+id;
@@ -217,6 +220,14 @@ function installTrack() {
   $('origin').textContent=poseLabels[track.basis] || track.basis;
   $('raw-path').textContent=track.sourceSha256;
   $('fixture-path').textContent=track.setup.fixtureProvenance;
+  const fixtureNote = $('fixture-note');
+  fixtureNote.hidden = !track.setup.fixtureNote;
+  fixtureNote.textContent = track.setup.fixtureNote || '';
+  const clip = track.media || 'clips/' + current.meta.id + '.mp4' + assetVersion;
+  $('clip-link').href = clip;
+  $('clip-link').textContent = track.media ? 'Camera input MP4 ↗' : 'MP4 ↗';
+  $('fallback-clip').href = clip;
+  sensorButton.textContent = track.media ? 'Camera input' : 'Camera';
   $('seek').max=track.end;
   $('event-count').textContent=track.events.length || '';
   $('show-section').hidden=!track.setup.boxes.some(b=>b.style==='guard');
@@ -236,10 +247,9 @@ function installTrack() {
     $('event-marks').append(marker);
   }
   video.pause();
-  $('video-box').hidden=!track.media;
-  $('video-box').open=false;
-  if (track.media && !embedded) video.src=track.media;
-  else {video.removeAttribute('src');video.load();}
+  video.removeAttribute('src');
+  if (!cameraInput.hidden) video.load();
+  cameraInput.hidden = true;
   if (viewer && !renderError) {
     try {
       viewer.setupCase(current.meta,track);
@@ -281,7 +291,10 @@ function seek(t) {
   if (!renderError) {
     const qr=latestAt(track.qr,time);
     let state=track.environment;
-    if (qr && track.setup.markers.length) state=qr[1] ? 'QR · '+(qr[2]===null?'valid':short.format(qr[2])+' px') : 'QR · '+eventName(qr[3]||'invalid');
+    if (qr && (track.setup.markers.length || track.media)) state=qr[1] ? 'QR · '+(qr[2]===null?'valid':short.format(qr[2])+' px') : 'QR · '+eventName(qr[3]||'invalid');
+    const markerShift = latestAt(track.setup.markerTimeline || [],time);
+    if (markerShift && markerShift[1] === null) state = 'Test fixture · tag hidden';
+    else if (markerShift) state = 'Test fixture · tag returned 120 mm left';
     $('tracking-status').textContent=state;
   }
 }
@@ -299,7 +312,7 @@ function tick(now) {
 }
 
 function play(nextDirection=1) {
-  if (!track || renderError) return;
+  if (!track || renderError || !cameraInput.hidden) return;
   if (direction===nextDirection) { pause(); return; }
   pause();
   if (nextDirection>0 && time>=track.end) seek(0);
@@ -319,6 +332,16 @@ function pause() {
 
 function setView(next) {
   view=next;
+  const cameraReplay = view === 'sensor' && Boolean(track?.media);
+  cameraInput.hidden = !cameraReplay;
+  if (cameraReplay) {
+    pause();
+    if (!video.getAttribute('src')) video.src = track.media;
+  } else {
+    video.pause();
+  }
+  document.getElementById('scene').classList.toggle('camera-input-view',cameraReplay);
+  playbackTools.forEach(control => {control.disabled = cameraReplay || Boolean(renderError);});
   viewer?.setView(view);
   for (const b of views) b.setAttribute('aria-pressed',String(b.dataset.view===view));
   $('pan-mode').setAttribute('aria-pressed',String(view==='top'));
@@ -335,7 +358,7 @@ function stopRecording() {
 
 function record() {
   if (recording) { stopRecording(); return; }
-  if (renderError || !track || !window.MediaRecorder || !viewer.renderer.domElement.captureStream) return;
+  if (renderError || !track || !cameraInput.hidden || !window.MediaRecorder || !viewer.renderer.domElement.captureStream) return;
   pause();seek(0);
   const stream=viewer.renderer.domElement.captureStream(30);
   const format=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/mp4'].find(type=>MediaRecorder.isTypeSupported(type));

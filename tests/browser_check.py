@@ -18,6 +18,8 @@ with sync_playwright() as p:
     page.on('pageerror', lambda error: errors.append(str(error)))
     page.route('https://api.github.com/**', lambda route: route.fulfill(status=403, content_type='application/json', body='{"message":"Rate limit"}'))
     page.goto('http://127.0.0.1:8766/tasks.html', wait_until='networkidle')
+    assert page.locator('.task:visible').count() == 0
+    page.locator('#semester-issues > summary').click()
     assert page.locator('.task:visible').count() == 22
     page.locator('#task-1 > summary').click()
     assert page.locator('#task-inspector').is_visible()
@@ -37,7 +39,7 @@ with sync_playwright() as p:
     assert page.locator('#task-21').is_visible()
     assert not page.locator('#task-1').is_visible()
     page.goto('http://127.0.0.1:8766/roadmap.html')
-    page.locator('.roadmap-stops a[href="#week-W01"]').click()
+    page.locator('.gantt-bar[href="#week-W01"]').click()
     assert page.locator('#week-W01').evaluate("(week) => week.matches(':target')")
     page.locator('#week-W01').get_by_role('link', name='W01 ↗', exact=True).click()
     page.locator('#task-inspector[open]').wait_for()
@@ -55,7 +57,7 @@ with sync_playwright() as p:
             assert not page.locator('#site-navigation').is_visible()
             page.locator('.nav-toggle').click()
             assert page.locator('#site-navigation').is_visible()
-            assert page.locator('#site-navigation a').count() == 12
+            assert page.locator('#site-navigation a').count() == 11
             page.get_by_role('link', name='Roadmap', exact=True).press('Escape')
             assert page.locator('.nav-toggle').get_attribute('aria-expanded') == 'false'
         else:
@@ -85,6 +87,7 @@ with sync_playwright() as p:
     nojs = browser.new_context(java_script_enabled=False, viewport={'width':390,'height':844})
     static = nojs.new_page()
     static.goto('http://127.0.0.1:8766/tasks.html')
+    static.locator('#semester-issues > summary').click()
     assert static.locator('.task:visible').count() == 22
     assert not errors, errors
     browser.close()

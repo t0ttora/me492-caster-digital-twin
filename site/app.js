@@ -49,9 +49,12 @@ function showTask(task) {
 }
 function openLinkedTask() {
   const id = location.hash.slice(1);
+  const issueList = document.getElementById('semester-issues');
+  if (id === 'semester-issues') issueList.open = true;
   if (!/^task-\d+$/.test(id)) return;
   const task = document.getElementById(id);
   if (!task) return;
+  issueList.open = true;
   filter = 'all'; kind = 'all'; search.value = ''; updateTasks(); showTask(task);
 }
 if (search) {
@@ -80,14 +83,14 @@ if (search) {
 }
 // Preserve old shared section URLs while all navigation uses real pages.
 const oldPage = location.hash.slice(1);
-if (/\/(?:index\.html)?$/.test(location.pathname) && ['progress','vision','manifesto','tasks','roadmap','decisions','library','about'].includes(oldPage)) location.replace(`${oldPage}.html`);
+if (/\/(?:index\.html)?$/.test(location.pathname) && ['progress','vision','manifesto','tasks','roadmap','decisions','library','about'].includes(oldPage)) location.replace(`${oldPage === 'manifesto' ? 'vision' : oldPage}.html`);
 
 if (document.body.classList.contains('page-results')) {
   for (const entry of document.querySelectorAll('.case-entry')) {
     const video = entry.querySelector('[data-case-video]');
     entry.addEventListener('toggle', () => {
       if (entry.open && !video.hasAttribute('src')) {
-        video.poster = video.dataset.poster;
+        if (video.dataset.poster) video.poster = video.dataset.poster;
         video.src = video.dataset.caseVideo;
       }
       if (!entry.open) video.pause();
@@ -180,14 +183,26 @@ if (menuToggle) {
   });
 }
 
-const weekLinks = [...document.querySelectorAll('.roadmap-stops a')];
-if (weekLinks.length) {
-  function markWeek() {
-    for (const link of weekLinks) {
-      if (link.hash === location.hash) link.setAttribute('aria-current', 'location');
-      else link.removeAttribute('aria-current');
+const weekDetails = document.querySelector('details#weekly-progress');
+if (weekDetails) {
+  function showWeek() {
+    if (location.hash === '#weekly-progress' || /^#week-W\d+$/.test(location.hash)) {
+      weekDetails.open = true;
+      requestAnimationFrame(() => document.getElementById(location.hash.slice(1))?.scrollIntoView());
     }
   }
-  if (location.hash) markWeek();
-  window.addEventListener('hashchange', markWeek);
+  showWeek();
+  window.addEventListener('hashchange', showWeek);
+}
+
+const librarySearch = document.querySelector('#library-search');
+if (librarySearch) {
+  librarySearch.closest('label').hidden = false;
+  const rows = [...document.querySelectorAll('#research-index tbody tr')];
+  librarySearch.addEventListener('input', () => {
+    const query = librarySearch.value.trim().toLowerCase();
+    for (const row of rows) row.hidden = !row.textContent.toLowerCase().includes(query);
+    const count = rows.filter(row => !row.hidden).length;
+    document.querySelector('#library-count').textContent = query ? `${count} matching records` : '';
+  });
 }

@@ -163,3 +163,68 @@ html:has(.research-frame) { scroll-padding-top: calc(var(--ruler) + 72px); }
   .measurement-context { display: block; color: var(--muted); font-size: .72rem; }
   .research-frame .qualification-panel { gap: 4px; }
 }
+
+.checkpoint { display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px 38px; padding-block: 18px; border-block: 1px solid var(--line); }
+.checkpoint h2 { margin: 5px 0 7px; }
+.checkpoint h3 { font-size: 1.05rem; margin-bottom: 7px; }
+.checkpoint p:not(.eyebrow),.technical-section > p { color: var(--muted); }
+.checkpoint p + a { display: inline-block; margin-top: 8px; }
+.checkpoint .evidence-links { margin-top: 0; }
+.workstreams,.technical-section { padding-top: 20px; margin-block: 18px; border-top: 1px solid var(--line); }
+.workstreams .research-ledger div,.technical-ledger div { grid-template-columns: minmax(130px, .35fr) minmax(0,1fr); }
+.workstreams .research-ledger dt { font-size: 1rem; }
+.research-ledger dd a,.technical-section .evidence-links a { text-decoration: underline; text-underline-offset: 3px; }
+.technical-section h2,.library-heading { margin-bottom: 9px; }
+.library-heading { margin-top: 18px; }
+.library-search { display: flex; gap: 9px; align-items: center; flex-wrap: wrap; margin: 10px 0; font-size: .875rem; }
+.library-search input,.experiment-form input,.experiment-form select,.experiment-form button,#download-run {
+  min-height: 44px; color: var(--paper); background: var(--surface);
+  border: 1px solid var(--line); padding: 6px 9px; border-radius: 0; font: inherit;
+}
+.library-search input { width: min(100%, 320px); }
+.research-figures { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 17px; max-width: 1250px; margin: 15px 0; }
+.research-figures img,.research-figures canvas { display: block; width: 100%; height: auto; background: var(--surface); border: 1px solid var(--line); }
+.research-figures img { object-fit: contain; }
+.research-figures figcaption { color: var(--muted); font-size: .8125rem; margin-top: 6px; }
+.experiment-form { display: flex; flex-wrap: wrap; align-items: end; gap: 9px 12px; margin: 16px 0 8px; }
+.experiment-form label { display: grid; gap: 4px; font-size: .875rem; }
+.experiment-form select,.experiment-form input { font-size: 1rem; }
+.experiment-form input { width: 8rem; }
+.experiment-form button[type=submit] { color: #142125; background: var(--accent); }
+.experiment-form button:disabled { opacity: .55; cursor: wait; }
+.run-metrics { display: flex; gap: 10px 32px; flex-wrap: wrap; border-block: 1px solid var(--line); padding: 10px 0; }
+.run-metrics dt { font-size: .8125rem; color: var(--muted); }
+.run-metrics dd { margin: 3px 0 0; font-variant-numeric: tabular-nums; }
+.gantt-scroll { overflow: auto; max-width: 100%; margin: 14px 0 8px; }
+.gantt { min-width: 660px; border: 1px solid var(--line); }
+.gantt-row { display: grid; grid-template-columns: 218px minmax(0,1fr); border-top: 1px solid var(--line); }
+.gantt-axis { border-top: 0; min-height: 39px; font: .72rem ui-monospace,monospace; color: var(--muted); }
+.gantt-axis > span,.gantt-label { padding: 8px 10px; }
+.gantt-label { font-size: .875rem; }
+.gantt-label small { display: block; color: var(--muted); }
+.gantt-lane,.gantt-months { position: relative; border-left: 1px solid var(--line); }
+.gantt-lane { background: repeating-linear-gradient(to right, transparent 0 calc(100% * 7 / 107 - 1px), var(--line) calc(100% * 7 / 107 - 1px) calc(100% * 7 / 107)); }
+.gantt-lane::after { content: ''; position: absolute; inset-block: 0; left: var(--review); width: 1px; background: #e9b285; pointer-events: none; }
+.gantt-months span { position: absolute; top: 8px; display: block; padding-left: 3px; border-left: 1px solid var(--line); }
+.gantt-months .gantt-review-label { left: var(--review); top: 21px; color: #e9b285; border-color: #e9b285; }
+.gantt-bar { position: absolute; top: 8px; bottom: 8px; left: var(--start); width: var(--span); display: grid; place-items: center;
+  background: #243a43; border: 1px solid #537385; color: #e4f4ff; font: .75rem ui-monospace,monospace; }
+.gantt-bar:hover { background: #2c5265; color: var(--paper); }
+#weekly-progress > summary { font-size: 1rem; }
+@media (max-width: 760px) {
+  .checkpoint,.research-figures { grid-template-columns: minmax(0,1fr); }
+  .research-ledger.technical-ledger div,.workstreams .research-ledger div { grid-template-columns: minmax(105px,.45fr) minmax(0,1fr); gap: 9px; }
+  .gantt-label { font-size: .8125rem; }
+}
+.experiment-form [hidden],.library-search[hidden] { display: none; }
+.header nav a[aria-current="location"] { color: var(--paper); }
+@media (max-width: 760px) {
+  .gantt { min-width: 0; }
+  .gantt-row { grid-template-columns: minmax(0,1fr); }
+  .gantt-axis > span { display: none; }
+  .gantt-months,.gantt-lane { border-left: 0; margin-inline: 6px; }
+  .gantt-label { padding: 5px 6px 2px; }
+  .gantt-label small { margin-left: 6px; display: inline; }
+  .gantt-lane { height: 28px; }
+  .gantt-bar { inset-block: 2px; font-size: .656rem; }
+}

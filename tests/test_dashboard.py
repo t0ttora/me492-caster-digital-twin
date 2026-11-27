@@ -1,5 +1,7 @@
 import csv
 import json
+import math
+from zipfile import ZipFile
 import re
 import subprocess
 import unittest
@@ -32,7 +34,7 @@ class DashboardTests(unittest.TestCase):
     def test_real_content_without_javascript(self):
         self.assertEqual(self.html.count('class="task"'), 22)
         self.assertEqual(self.html.count('data-kind="gate"'), 6)
-        for phrase in ['Scope and preparation', 'How I work', 'Published reports', 'Oluş Emre Demir']:
+        for phrase in ['Scope and preparation', 'Completed before the Arche visit', 'Published reports', 'Oluş Emre Demir']:
             self.assertIn(phrase, self.html)
 
     def test_links_and_public_artifact(self):
@@ -54,7 +56,7 @@ class DashboardTests(unittest.TestCase):
         url = build_site.GH + '/blob/main/reports/ME492_Timetable_EN.pdf'
         self.assertEqual(build_site.safe_link(url), 'report-ME492_Timetable_EN.html')
 
-    def test_overview_and_results_share_qualification(self):
+    def test_overview_checkpoint_and_results_qualification(self):
         matrix = json.loads((ROOT / 'reports/janus/qualification-matrix.json').read_text())
         passed = sum(case['status'] == 'passed' for case in matrix['cases'])
         results = self.pages['results']
@@ -62,7 +64,12 @@ class DashboardTests(unittest.TestCase):
         self.assertIn('All 72 environment checks passed.', results)
         for track, result in [('Python V2.3', '29 / 29'), ('Native Simscape', '16 / 16'), ('ROS 2 / Gazebo', '27 / 27')]:
             self.assertIn(f'>{track}</a></dt><dd>{result}</dd>', results)
-        self.assertIn(f'<strong>{passed} of {len(matrix["cases"])}</strong> cases passed', self.pages['index'])
+        overview = self.pages['index']
+        self.assertIn('Pre-visit preparation complete', overview)
+        self.assertIn('Arche technical visit', overview)
+        self.assertNotIn('environment checks', overview)
+        for technical_page in ('python', 'simscape', 'ros-gazebo'):
+            self.assertIn(f'href="{technical_page}.html"', overview)
         self.assertNotIn('<iframe', self.pages['index'])
         self.assertIn(f'lists {self.data["published_runs"]} physical runs', results)
         self.assertEqual(self.pages['progress'].count('class="status-chart"'), 2)
@@ -93,15 +100,26 @@ class DashboardTests(unittest.TestCase):
             self.assertEqual([case['titleEn'], case['noteEn']], notes[code])
             entry = page.split(f'id="case-{code}"', 1)[1].split('</details>', 1)[0]
             self.assertIn(f'href="scenes/?vaka={code}"', entry)
-            self.assertIn(f'data-case-video="scenes/clips/{code}.mp4"', entry)
-            self.assertIn(f'href="scenes/clips/{code}.mp4"', entry)
-            with (output / f'clips/{code}.mp4').open('rb') as clip:
-                self.assertEqual(clip.read(8)[4:8], b'ftyp')
             tracks = json.loads((output / f'data/{code}.json').read_text())['tracks']
             self.assertEqual(len(tracks), case['variants'])
+            video = tracks[0]['media'] or f'clips/{code}.mp4'
+            self.assertIn(f'data-case-video="scenes/{video}"', entry)
+            self.assertIn(f'href="scenes/{video}"', entry)
+            with (output / video).open('rb') as clip:
+                self.assertEqual(clip.read(8)[4:8], b'ftyp')
             for track in tracks:
                 self.assertNotIn('source', track)
-                self.assertNotIn('fixtureFile', track['setup'])
+                setup = track['setup']
+                self.assertNotIn('fixtureFile', setup)
+                if track['media']:
+                    self.assertEqual(setup['markers'], [], 'Recorded RGB input has no in-world placard')
+                if code == 'Q07':
+                    self.assertEqual(setup['markerTimeline'], [[.866, None], [1.676, .12]])
+                if code == 'Q06':
+                    self.assertNotIn('markerTimeline', setup)
+                for a, b in zip(track['samples'], track['samples'][1:]):
+                    self.assertLess(a[0], b[0], code)
+                    self.assertLess(math.dist(a[1:3], b[1:3]) / (b[0] - a[0]), .5, code)
         self.assertTrue((output / 'assets/janus-kit.glb').exists())
 
     def test_weekly_and_gate_views_share_task_status_and_evidence(self):
@@ -119,9 +137,11 @@ class DashboardTests(unittest.TestCase):
                 self.assertTrue(review)
                 self.assertIn(review, row)
         roadmap = self.pages['roadmap']
-        for number in range(1, 17):
+        for number in (1, 5, 9, 13):
             self.assertIn(f'href="#week-W{number:02d}"', roadmap)
+        for number in range(1, 17):
             self.assertIn(f'id="week-W{number:02d}"', roadmap)
+        self.assertEqual(roadmap.count('class="gantt-bar"'), 4)
 
     def test_embedded_report_readers(self):
         for name, title in build_site.REPORTS:
@@ -146,16 +166,30 @@ class DashboardTests(unittest.TestCase):
         self.assertIn('aria-label="Arche home"', self.html)
 
     def test_separate_routes_without_invented_visuals(self):
-        self.assertEqual(len(self.pages), 10)
+        self.assertEqual(len(self.pages), 12)
         for slug, page in self.pages.items():
-            self.assertIn(f'data-page="{slug}" aria-current="page"', page)
+            if slug in ('python', 'simscape', 'ros-gazebo'):
+                self.assertIn('data-page="index" aria-current="location"', page)
+            else:
+                self.assertIn(f'data-page="{slug}" aria-current="page"', page)
+            self.assertNotIn('data-page="manifesto"', page)
             self.assertNotIn('<svg', page)
             self.assertNotIn('experiment-figure', page)
             self.assertIn('href="tasks.html"', page)
         self.assertNotIn('class="task"', self.pages['index'])
         self.assertIn('class="task"', self.pages['tasks'])
-        self.assertIn('class="roadmap-stops"', self.pages['roadmap'])
+        self.assertIn('Semester Gantt timetable', self.pages['roadmap'])
         self.assertIn('journal-entry', self.pages['progress'])
+
+    def test_downloads_ship_the_public_model_sources(self):
+        downloads = ROOT / '_site/downloads'
+        with ZipFile(downloads / 'arche-python-lab.zip') as archive:
+            self.assertEqual(archive.read('arche-tui/backend.py'), (ROOT / 'arche-tui/backend.py').read_bytes())
+            self.assertIn('caster-physics-python-v2/twin.py', archive.namelist())
+        with ZipFile(downloads / 'arche-ros2.zip') as archive:
+            self.assertEqual(archive.read('janus/ros2/src/arche_sim/worlds/janus.sdf'), (downloads / 'janus.sdf').read_bytes())
+        simscape = ROOT / 'models/simscape-v6/caster_visual_v6_measurements.slx'
+        self.assertEqual((downloads / simscape.name).read_bytes(), simscape.read_bytes())
 
     def test_untrusted_text_and_evidence_status(self):
         build_site.check()

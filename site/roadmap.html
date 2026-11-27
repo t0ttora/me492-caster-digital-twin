@@ -2,24 +2,24 @@
   <header class="research-heading">
     <p class="eyebrow">30 September 2026 – 14 January 2027</p>
     <h1>Semester roadmap</h1>
-    <p>252 planned hours and 32 hours in reserve. The weekly schedule records acceptance criteria, GitHub status and the latest evidence.</p>
+    <p>252 planned hours and 32 hours in reserve. Pre-visit preparation is complete. The Arche technical visit and operator-assisted pilot are the next checkpoint.</p>
   </header>
+  <section class="technical-section" id="semester-timeline" aria-labelledby="timeline-title">
+    <h2 id="timeline-title">Gantt timetable</h2>
+    <p class="muted small">Bars show the original planned windows. The November marker is the evidence review date.</p>
+    {{GANTT}}
+  </section>
   <section class="roadmap-dates" aria-labelledby="deadlines">
     <h2 id="deadlines">Course deadlines</h2>
     <dl class="deadline-strip"><div><dt>GDS</dt><dd><time datetime="2026-11-06">06 Nov 2026</time></dd></div><div><dt>Draft report</dt><dd><time datetime="2026-12-04">04 Dec 2026</time></dd></div><div><dt>Final report</dt><dd><time datetime="2027-01-13T23:59:00+03:00">13 Jan 2027 · 23:59</time></dd></div><div><dt>Defence session</dt><dd><time datetime="2027-01-14T09:30:00+03:00">14 Jan 2027 · 09:30–12:00</time></dd></div></dl>
     <p class="muted small">Europe/Istanbul · <a class="text-link" href="https://yeditepe-me492.github.io/2026-Fall/">Official calendar ↗</a></p>
   </section>
-  <section class="progress-review" id="weekly-progress" aria-labelledby="weeks-title">
-    <h2 id="weeks-title">Weekly progress and plan</h2>
-    <div class="roadmap-stops" aria-label="Jump to a week">{{WEEK_LINKS}}</div>
-    <p class="muted small table-hint">Scroll the table to see the status and evidence columns.</p>
+  <details class="fold progress-review" id="weekly-progress">
+    <summary>Weekly evidence and acceptance criteria</summary>
+    <p class="muted small table-hint">Scroll the table for the latest evidence.</p>
     <div class="table-scroll" role="region" aria-label="Weekly progress and planned deliverables" tabindex="0">
       <table class="data-table roadmap"><thead><tr><th scope="col">Week</th><th scope="col">Period</th><th scope="col">Deliverable / acceptance criteria</th><th scope="col">Hours</th><th scope="col">Status</th><th scope="col">Latest evidence</th></tr></thead><tbody>{{ROADMAP}}</tbody></table>
     </div>
     <div class="sync-note"><span id="sync-status" role="status">{{SYNC}}</span><button id="refresh" class="text-button" type="button" hidden>Refresh GitHub status</button></div>
-  </section>
-  <details class="fold original-plan">
-    <summary>Original roadmap drawing</summary>
-    <figure class="roadmap-map"><p><a class="text-link" href="assets/semester-roadmap-2026.png">Open the full drawing ↗</a></p><img src="assets/semester-roadmap-2026.png" width="916" height="1717" loading="lazy" alt="Original semester roadmap with weekly deliverables, decision gates and course deadlines."></figure>
   </details>
 </section>

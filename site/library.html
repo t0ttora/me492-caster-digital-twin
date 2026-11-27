@@ -1,5 +1,9 @@
 <section id="library" class="section">
-  <header class="page-intro"><p class="eyebrow">Arche research archive</p><h1>Library</h1><p>Reports, test protocols and the records behind the published results.</p></header>
+  <header class="research-heading"><p class="eyebrow">Arche research archive</p><h1>Library</h1><p>Reports, test protocols and the records behind the published results.</p></header>
+  <nav class="jump-links result-nav" aria-label="Library sections">
+    <a href="#published-reports">Reports</a><a href="#datasets">Data and models</a><a href="#research-index">All records</a><a href="vision.html">Research by question</a>
+  </nav>
+  <h2 id="published-reports" class="library-heading">Primary reports</h2>
   <div class="library-feature">
     <a href="report-Arche_JANUS_Teknik_Rapor_TR.html"><strong>JANUS motion and docking ↗</strong><span>Technical report · 27 Nov 2026 · PDF in Turkish</span></a>
     <a href="report-Arche_JANUS_Vaka_Kartlari_TR.html"><strong>Illustrated case cards ↗</strong><span>Test setups and plots · 27 Nov 2026 · PDF in Turkish</span></a>
@@ -12,6 +16,9 @@
       <tr><th scope="row"><a href="report-Arche_V2_Controller_Design_EN.html">Python V2 controller calculations ↗</a></th><td>15 Nov 2026</td><td>PDF · EN · 3 pages</td></tr>
     </tbody></table>
   </div>
-  <ul class="evidence-links"><li><a href="reports/janus/qualification-matrix.tsv">Qualification matrix (TSV)</a></li><li><a href="records/docs/progress/2026-11-27-weekly-review.html">27 November weekly review</a></li></ul>
-  <details class="fold document-catalog"><summary>Methods and research records</summary><div class="table-scroll" role="region" aria-label="Methods and records" tabindex="0"><table class="data-table"><thead><tr><th scope="col">Document</th><th scope="col">Record type</th></tr></thead><tbody>{{DOCUMENTS}}</tbody></table></div></details>
+  <section class="technical-section" id="datasets"><h2>Data and models</h2>
+  <ul class="evidence-links"><li><a href="reports/janus/qualification-matrix.tsv">Qualification matrix (TSV)</a></li><li><a href="records/docs/progress/2026-11-27-weekly-review.html">27 November weekly review</a></li><li><a href="python.html#source">Python datasets and source</a></li><li><a href="simscape.html#models">Native models</a></li><li><a href="ros-gazebo.html#evidence">ROS 2 / Gazebo telemetry</a></li></ul></section>
+  <section class="technical-section document-catalog" id="research-index"><h2>All research records</h2>
+  <label class="library-search" hidden>Find a record <input id="library-search" type="search" placeholder="Title or record type"></label>
+  <p id="library-count" class="muted small" role="status"></p><div class="table-scroll" role="region" aria-label="Methods and records" tabindex="0"><table class="data-table"><thead><tr><th scope="col">Document</th><th scope="col">Record type</th></tr></thead><tbody>{{DOCUMENTS}}</tbody></table></div></section>
 </section>

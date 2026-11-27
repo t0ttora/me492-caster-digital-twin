@@ -1,11 +1,12 @@
 """Build the public research record. Python stdlib only; GitHub is the task source."""
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from html import escape, unescape
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlsplit, quote
 from urllib.request import Request, urlopen
 from zoneinfo import ZoneInfo
+from zipfile import ZIP_DEFLATED, ZipFile
 import csv
 import subprocess
 import argparse
@@ -18,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / '_site'
 REPO = 't0ttora/me492-caster-digital-twin'
 GH = f'https://github.com/{REPO}'
-PAGES = [('index', 'Overview'), ('results', 'Results'), ('progress', 'Progress'), ('vision', 'Vision'), ('manifesto', 'Manifesto'), ('tasks', 'Tasks'), ('roadmap', 'Roadmap'), ('decisions', 'Decisions'), ('library', 'Library'), ('about', 'About')]
+PAGES = [('index', 'Overview'), ('results', 'Results'), ('progress', 'Progress'), ('vision', 'Vision'), ('python', 'Python'), ('simscape', 'Native Simscape'), ('ros-gazebo', 'ROS 2 / Gazebo'), ('tasks', 'Tasks'), ('roadmap', 'Roadmap'), ('decisions', 'Decisions'), ('library', 'Library'), ('about', 'About')]
 REPORTS = [('ME492_Final_Roadmap_and_Arche_Visit_EN', 'Execution baseline & Arche visit'), ('ME492_Timetable_EN', 'Semester timetable'),
            ('Arche_Academic_Report_Typeset_EN_2026-11-16', 'Academic simulation progress report'),
            ('Arche_V2_Controller_Design_EN', 'Python V2 controller calculations'),
@@ -245,8 +246,74 @@ def selected_measurements():
     )
 
 
+def timetable_chart(weeks):
+    start = date(2026, 9, 30)
+    finish = date(2027, 1, 15)
+    first_monday = date(2026, 10, 5)
+    review = date(2026, 11, 27)
+    span = (finish - start).days
+
+    def offset(day):
+        return (day - start).days / span * 100
+
+    phases = ['Preparation and modelling', 'Benchmarking and calibration',
+              'Confirmation and evaluation', 'Review and handoff']
+    rows = []
+    for index, label in enumerate(phases):
+        first = index * 4
+        left = start if first == 0 else first_monday + timedelta(weeks=first - 1)
+        right = finish if first == 12 else first_monday + timedelta(weeks=first + 3)
+        group = weeks[first:first+4]
+        title = f'{group[0]["id"]}–{group[-1]["id"]}'
+        window = f'{left.strftime("%d %b")} – {(right - timedelta(days=1)).strftime("%d %b")}'
+        rows.append(f'''<div class="gantt-row"><div class="gantt-label">{label}<small>{title} · {window}</small></div>
+<div class="gantt-lane"><a class="gantt-bar" href="#week-{group[0]["id"]}"
+    style="--start:{offset(left):.3f}%;--span:{offset(right)-offset(left):.3f}%"
+    aria-label="{label}, {title}, {window}. Open weekly evidence">{title}</a></div></div>''')
+    stamps = [(date(2026,10,1), 'Oct'), (date(2026,11,1), 'Nov'),
+              (date(2026,12,1), 'Dec'), (date(2027,1,1), 'Jan')]
+    ticks = ''.join(f'<span style="left:{offset(day):.3f}%">{label}</span>' for day, label in stamps)
+    return f'''<div class="gantt-scroll" role="region" aria-label="Semester Gantt timetable" tabindex="0">
+<div class="gantt" style="--review:{offset(review):.3f}%">
+<div class="gantt-row gantt-axis"><span>Planned work</span><div class="gantt-months">{ticks}<span class="gantt-review-label"><time datetime="{review}">27 Nov</time></span></div></div>
+{"".join(rows)}</div></div>'''
+
+
+def publish_downloads():
+    downloads = OUT / 'downloads'
+    downloads.mkdir()
+    models = [
+        'models/simscape-v6/caster_visual_v6_measurements.slx',
+        'models/simscape-v6/evidence_latest_alignment_replay.slx',
+        'models/simscape-janus/requalification/M04_contract_S_r1/native_M04_contract_S_r1.slx',
+        'janus/ros2/src/arche_sim/worlds/janus.sdf',
+    ]
+    for name in models:
+        path = ROOT / name
+        shutil.copyfile(path, downloads / path.name)
+
+    model_sources = [
+        ROOT / 'arche-tui/backend.py',
+        ROOT / 'caster-physics-python-v2/twin.py',
+        *sorted((ROOT / 'caster-physics-python/src/caster_physics').rglob('*.py')),
+        *sorted((ROOT / 'caster-physics-python/parameters').glob('*.json')),
+        *sorted((ROOT / 'caster-physics-python-v2/parameters').glob('*.json')),
+    ]
+    with ZipFile(downloads / 'arche-python-lab.zip', 'w', compression=ZIP_DEFLATED) as archive:
+        for path in model_sources:
+            archive.write(path, path.relative_to(ROOT))
+    ros_sources = subprocess.check_output(
+        ['git', 'ls-files', '-z', 'janus/ros2'], cwd=ROOT
+    ).decode().split('\0')
+    with ZipFile(downloads / 'arche-ros2.zip', 'w', compression=ZIP_DEFLATED) as archive:
+        for name in filter(None, ros_sources):
+            archive.write(ROOT / name, name)
+
+
 def site_header(root, current):
     header = (ROOT / 'site/header.html').read_text().replace('{{ROOT}}', root)
+    if current in {'python', 'simscape', 'ros-gazebo'}:
+        return header.replace('data-page="index"', 'data-page="index" aria-current="location"')
     return header.replace(f'data-page="{current}"', f'data-page="{current}" aria-current="page" class="active"')
 
 
@@ -267,13 +334,15 @@ def case_index(cases, notes, scenes):
             )
             result = 'Passed' if case['status'] == 'passed' else escape(case['status'].replace('_', ' ').capitalize())
             scenes_url = f'scenes/?vaka={code}'
-            video_url = f'scenes/clips/{code}.mp4'
-            poster_url = f'scenes/clips/{code}.jpg'
-            clip = escape(scenes[code])
+            environment, camera_media = scenes[code]
+            video_url = f'scenes/{camera_media}' if camera_media else f'scenes/clips/{code}.mp4'
+            poster_url = '' if camera_media else f'scenes/clips/{code}.jpg'
+            caption = ('Recorded Gazebo camera input. The clip has its own playback clock.' if camera_media
+                       else f'{escape(environment)} simulation replay. The clock shows time from the simulation log.')
             media = f'''<figure class="case-media">
   <video controls playsinline preload="none" aria-label="{escape(title, quote=True)} replay"
     data-case-video="{video_url}" data-poster="{poster_url}" width="800" height="432"></video>
-  <figcaption>{clip} simulation replay. The clock shows time from the simulation log.</figcaption>
+  <figcaption>{caption}</figcaption>
 </figure>
 <p class="case-media-links"><a href="{scenes_url}">Explore {code} in 3D</a><a href="{video_url}">Open MP4</a></p>'''
             media_links = f'<p class="case-shortcuts"><a href="{scenes_url}">3D replay</a> · <a href="{video_url}">MP4</a></p>'
@@ -296,6 +365,7 @@ def build(issues, comments):
     if OUT.exists():
         shutil.rmtree(OUT)
     OUT.mkdir()
+    publish_downloads()
     shutil.copytree(ROOT / 'site/assets', OUT / 'assets')
     shutil.copytree(ROOT / 'site/scenes', OUT / 'scenes')
     for name in ('style.css', 'journal.css', 'app.js'):
@@ -379,15 +449,6 @@ def build(issues, comments):
     with (ROOT / 'docs/research/run-inventory.csv').open() as source:
         run_count = len(list(csv.DictReader(source)))
     qualification = json.loads((ROOT / 'reports/janus/qualification-matrix.json').read_text())
-    latest_week = next((w['id'] for w in weeks if w['status'] == 'in-progress'), weeks[0]['id'])
-    phases = ('Preparation and modelling', 'Benchmarking and calibration', 'Confirmation and evaluation', 'Review and handoff')
-    week_links = []
-    for phase, offset in zip(phases, range(0, len(weeks), 4)):
-        stops = []
-        for w in weeks[offset:offset+4]:
-            selected = ' aria-current="true"' if w['id'] == latest_week else ''
-            stops.append(f'<a href="#week-{w["id"]}" aria-label="{w["id"]}, {escape(w["period"])}"{selected}>{w["id"]}</a>')
-        week_links.append(f'<div><p>{phase}</p><div>{"".join(stops)}</div></div>')
     roadmap, weekly_progress = [], []
     for week in weeks:
         code = week['id']
@@ -417,8 +478,9 @@ def build(issues, comments):
     journal_html = ''.join(journal_entries[:4])
     if journal_entries[4:]:
         journal_html += '<details class="fold older-entries"><summary>Earlier entries</summary>' + ''.join(journal_entries[4:]) + '</details>'
-    tokens = {'RUN_COUNT': str(run_count), 'ACCESS_SNAPSHOT': escape((ROOT / access).read_text().split('\n\n')[1]), 'COMMITS': ''.join(commits), 'ACCESS': markdown((ROOT / access).read_text(), access, embedded=True), 'DECISIONS': markdown((ROOT / decisions).read_text(), decisions, embedded=True), 'FOCUS': focus, 'PROGRESS': journal_html, 'SYNC': f'GitHub snapshot · {short_date(built.isoformat())} (Istanbul).', 'TASKS': ''.join(tasks), 'ROADMAP': ''.join(roadmap), 'WEEK_LINKS': ''.join(week_links), 'DOCUMENTS': ''.join(doc_links)}
+    tokens = {'RUN_COUNT': str(run_count), 'ACCESS_SNAPSHOT': escape((ROOT / access).read_text().split('\n\n')[1]), 'COMMITS': ''.join(commits), 'ACCESS': markdown((ROOT / access).read_text(), access, embedded=True), 'DECISIONS': markdown((ROOT / decisions).read_text(), decisions, embedded=True), 'FOCUS': focus, 'PROGRESS': journal_html, 'SYNC': f'GitHub snapshot · {short_date(built.isoformat())} (Istanbul).', 'TASKS': ''.join(tasks), 'ROADMAP': ''.join(roadmap), 'DOCUMENTS': ''.join(doc_links)}
     tokens['JANUS_QUALIFICATION'] = qualification_summary(qualification)
+    tokens['GANTT'] = timetable_chart(weeks)
     tokens['WEEKLY_PROGRESS'] = ''.join(weekly_progress)
     tokens['PROGRESS_CHART'] = bar_chart(status_bars)
     tokens['COVERAGE_CHART'] = bar_chart(coverage_bars, max(row[2] for row in coverage_bars))
@@ -434,7 +496,7 @@ def build(issues, comments):
         assert len(tracks) == scene['variants'], f'Wrong run count: {code}'
         for extension in ('jpg', 'mp4'):
             assert (scenes_dir / f'clips/{code}.{extension}').is_file(), f'Missing {extension}: {code}'
-        scene_environments[code] = tracks[0]['environment']
+        scene_environments[code] = (tracks[0]['environment'], tracks[0]['media'])
         scene['titleEn'], scene['noteEn'] = notes[code]
     (OUT / 'scenes/data/index.json').write_text(json.dumps(scene_index, ensure_ascii=False, separators=(',', ':')))
     for name in ('index.html', 'credits.html'):
@@ -459,17 +521,24 @@ def build(issues, comments):
         for key, value in dict(CONTENT=body, HEADER=site_header('', 'library'), TITLE=escape(title), PAGE='reader', DESCRIPTION=escape(title) + ' | Arche research report').items():
             page = page.replace('{{' + key + '}}', value)
         (OUT / f'report-{name}.html').write_text(page)
+    (OUT / 'manifesto.html').write_text(
+        '<!doctype html><html lang="en"><meta charset="utf-8">'
+        '<meta http-equiv="refresh" content="0; url=vision.html"><title>Arche vision</title>'
+        '<p><a href="vision.html">Open the research vision</a></p></html>'
+    )
     (OUT / '.nojekyll').touch()
     (OUT / 'project.json').write_text(json.dumps({'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(), 'weeks': weeks, 'gates': [i for i in issues if 'type:gate' in label_names(i)], 'published_runs': run_count}, ensure_ascii=False))
     (OUT / 'snapshot.json').write_text(json.dumps({'published_at': built.isoformat(), 'source': GH, 'issues': issues, 'comments': comments}, ensure_ascii=False, indent=2))
     version = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'], cwd=ROOT, text=True).strip()
     for path in OUT.rglob('*.html'):
         page = path.read_text()
-        for asset in ('style.css', 'journal.css', 'app.js', '../style.css', '../journal.css', '../app.js', 'assets/pdf-reader.mjs', 'assets/pdfjs/text-layer.css'):
+        for asset in ('style.css', 'journal.css', 'app.js', '../style.css', '../journal.css', '../app.js', 'assets/pdf-reader.mjs', 'assets/pdfjs/text-layer.css', 'assets/python-lab.mjs'):
             page = page.replace(f'"{asset}"', f'"{asset}?v={version}"')
         path.write_text(page)
     scene_app = OUT / 'scenes/app.js'
     scene_app.write_text(scene_app.read_text().replace("'./viewer.js'", f"'./viewer.js?v={version}'"))
+    python_lab = OUT / 'assets/python-lab.mjs'
+    python_lab.write_text(python_lab.read_text().replace("'./python-worker.mjs'", f"'./python-worker.mjs?v={version}'"))
     validate_links()
     print(f'Built {len(tasks)} tasks, {len(roadmap)} weeks, {len(documents)} documents and {len(journal)} journal entries.')
 

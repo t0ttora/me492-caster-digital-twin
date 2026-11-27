@@ -1,0 +1,31 @@
+<section class="section">
+  <header class="research-heading">
+    <p class="eyebrow">Technical work · MATLAB / Simscape Multibody</p>
+    <h1>Native Simscape</h1>
+    <p>The native multibody model resolves the caster, wheel-ground contacts and chassis motion. The JANUS models record axle pose, effort, individual normal loads and contact penetration in MATLAB R2026b.</p>
+  </header>
+  <nav class="jump-links result-nav" aria-label="On this page"><a href="#models">Model downloads</a><a href="#analysis">Analysis</a><a href="results.html#simscape">Experiment results</a></nav>
+  <section class="technical-section" id="models">
+    <h2>Model downloads</h2>
+    <dl class="research-ledger technical-ledger">
+      <div><dt>V6 instrumented model</dt><dd><a class="text-link" href="downloads/caster_visual_v6_measurements.slx" download>Download .slx ↓</a> · Full vehicle, caster and contact instrumentation.</dd></div>
+      <div><dt>Alignment replay</dt><dd><a class="text-link" href="downloads/evidence_latest_alignment_replay.slx" download>Download .slx ↓</a> · Recorded alignment scenario and an <a href="https://github.com/t0ttora/me492-caster-digital-twin/tree/main/models/simscape-v6/evidence">archived full-rate trace ↗</a>.</dd></div>
+      <div><dt>JANUS qualification</dt><dd><a class="text-link" href="downloads/native_M04_contract_S_r1.slx" download>Download the M04 S-path model ↓</a> · <a href="https://github.com/t0ttora/me492-caster-digital-twin/tree/main/models/simscape-janus">All native model variants and MATLAB source ↗</a>.</dd></div>
+    </dl>
+  </section>
+  <section class="technical-section" id="analysis">
+    <h2>Analysis</h2>
+    <p>The M04 acceptance record reports <strong>1.07 mm</strong> geometric cross-track RMSE for the two-arc qualification run. Step refinement continued to 6.25 µs. Some full-window differences in caster swivel rate exceeded the convergence threshold.</p>
+    <div class="research-figures">
+      <figure><a href="reports/janus/native-m04-s-path.png"><img src="reports/janus/native-m04-s-path.png" loading="lazy" alt="Native Simscape S-path result"></a><figcaption>M04 · Native S-path run</figcaption></figure>
+      <figure><a href="reports/janus/native-step-errors.png"><img src="reports/janus/native-step-errors.png" loading="lazy" alt="Observed error at different Simscape solver steps"></a><figcaption>Caster response under step refinement</figcaption></figure>
+    </div>
+    <ul class="evidence-links">
+      <li><a href="reports/janus/native-m04-acceptance.json">M04 acceptance · JSON</a></li>
+      <li><a href="reports/janus/native-baseline-comparisons.csv">Step comparison · CSV</a></li>
+      <li><a href="reports/janus/native-equal-torque-reviewed.csv">Equal-torque replay measurements · CSV</a></li>
+      <li><a href="records/docs/research/janus-torque-comparison.html">Comparison method and limits ↗</a></li>
+      <li><a href="https://github.com/t0ttora/me492-caster-digital-twin/blob/main/models/simscape-janus/README.md">Model dependencies and reproduction instructions ↗</a></li>
+    </ul>
+  </section>
+</section>

@@ -21,9 +21,9 @@ All 22 initial tasks and their public comments are rendered at build time. Statu
 - `case-notes.json`: English case titles and summaries, paired with the published qualification matrix
 - `progress.html`: evidence charts, weekly status, dated journal and repository history
 - `tasks.html`: filterable issue workbench
-- `roadmap.html`: weekly evidence table, hours, milestones and deadlines
-- `vision.html`: research rationale and question/evidence matrix
-- `manifesto.html`: separate editorial principles page
+- `roadmap.html`: Gantt timetable, weekly evidence, hours and deadlines
+- `vision.html`: research rationale, questions and evidence index
+- `python.html`, `simscape.html`, `ros-gazebo.html`: technical pages, browser Python experiment, model and workspace downloads
 - `decisions.html`: decision and access ledgers
 - `library.html`: report and document catalog
 - `about.html`: text profile and professional facts

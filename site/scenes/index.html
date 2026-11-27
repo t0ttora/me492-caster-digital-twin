@@ -34,6 +34,8 @@
   <div class="lab-layout">
     <section class="replay" aria-label="Interactive simulation replay">
       <div id="viewport" tabindex="0" aria-label="3D model. Use the arrow keys to pan, plus or minus to zoom, and zero to fit." aria-describedby="gesture-help" aria-busy="true">
+        <div class="lab-ruler" aria-hidden="true"><span>JANUS</span><div></div><span id="scene-width">–</span></div>
+        <div class="lab-rail" aria-hidden="true">RECORDED SIMULATION</div>
         <div class="viewport-top">
           <div class="stage-id"><span class="mono" id="stage-case">Q04</span><span id="environment" lang="tr" hidden></span></div>
           <div class="view-switch" role="group" aria-label="Camera view">
@@ -53,6 +55,10 @@
         <div class="view-footer">
           <span id="gesture-help">Drag to orbit · scroll to zoom · right-drag to pan</span>
           <span class="mono" id="tracking-status" lang="en">Loading the scene…</span>
+        </div>
+        <div id="camera-input" class="camera-input" hidden>
+          <video id="camera-video" controls preload="metadata" playsinline aria-label="Recorded Gazebo camera stimulus"></video>
+          <p>Recorded camera input · separate playback clock</p>
         </div>
         <div class="viewer-fallback" id="viewer-fallback" hidden>
           <p id="fallback-message"></p><a id="fallback-clip" href="clips/Q04.mp4">Watch the MP4</a><button type="button" id="retry-case" hidden>Retry case</button>
@@ -86,6 +92,7 @@
         <label for="variant">Recorded run</label>
         <select id="variant" disabled></select>
         <p class="data-origin" id="origin"></p>
+        <p class="fixture-note" id="fixture-note" hidden></p>
         <div class="scene-links"><a id="result-link" href="../results.html#case-Q04">Case evidence ↗</a><a id="clip-link" href="clips/Q04.mp4">MP4 ↗</a><a href="credits.html">Model credits ↗</a></div>
       </section>
       <details class="inspector-block detail-block" open>
@@ -115,10 +122,7 @@
         <p class="marker-note">The model carries a <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Rick Astley QR decal</a>. Camera view shows the experiment’s original target.</p>
         <h3>Fixture source</h3><code id="fixture-path" lang="tr"></code>
       </details>
-      <details id="video-box" class="inspector-block detail-block" hidden>
-        <summary>Gazebo camera recording</summary>
-        <video id="camera-video" controls preload="metadata" playsinline></video>
-      </details>
+
     </aside>
   </div>
 

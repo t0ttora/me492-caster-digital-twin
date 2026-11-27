@@ -1,12 +1,24 @@
 <section id="vision" class="section">
-<header class="page-intro">
-  <p class="eyebrow">Study design</p>
-  <h1>Research questions</h1>
-  <p>The two drive wheels set the motion in the ideal model. On the robot, the passive caster takes time to turn, especially during a reversal. I want to measure how far the path shifts and see whether a smoother command helps.</p>
-</header>
-<div class="result-section"><header><h2>Does the caster model predict motion more accurately?</h2></header><div class="result-reading"><p>I’ll send the same commands to both models and check their predictions against an independent pose recording from the pilot. The Python and Simscape replays already show how the models respond in simulation.</p></div></div>
-<div class="result-section"><header><h2>Do smoother commands improve tracking?</h2></header><div class="result-reading"><p>Python already compares baseline and smoother profiles on synthetic surfaces. The robot study will use repeated confirmation runs to compare position error, yaw error and completion time.</p></div></div>
-<div class="result-section"><header><h2>Can telemetry predict yaw error?</h2></header><div class="result-reading"><p>I’ll check whether a short-horizon predictor beats persistence and a simple numerical baseline. I’ll split the data by whole runs once I have a suitable dataset. The ViNT check is part of the docking study.</p></div></div>
-<p>The physical plan covers one robot configuration, two approved surfaces and four maneuver families. It requests 24 calibration runs and 48 confirmation runs. Three repetitions per condition are the starting target.</p>
-<ul class="evidence-links"><li><a href="results.html">Simulation results</a></li><li><a href="records/docs/research/experiment-protocol.html">Physical experiment protocol</a></li><li><a href="records/docs/research/research-log.html">Research notebook by question</a></li></ul>
+  <header class="research-heading">
+    <p class="eyebrow">ME492 · Study design</p>
+    <h1>Vision</h1>
+    <p>Build a caster-aware digital twin whose predictions can be checked against the same commands and measured motion on an actual robot. Use the calibrated model to decide when a smoother command profile matters.</p>
+  </header>
+  <section class="technical-section" aria-labelledby="questions">
+    <h2 id="questions">Research questions</h2>
+    <dl class="research-ledger technical-ledger">
+      <div><dt>RQ1 · Model fidelity</dt><dd>How much does explicit caster dynamics improve pose prediction? Compare the ideal and caster-aware models against command-matched independent pose measurements. <a href="records/docs/research/janus-torque-comparison.html">Matched-torque simulation record ↗</a></dd></div>
+      <div><dt>RQ2 · Motion profiles</dt><dd>Can smoother timing reduce position and yaw error within the completion-time limit? Run the baseline and selected smoother profile on the same approved surfaces. <a href="records/docs/research/python-v2-3-synthetic-study.html">Synthetic profile study ↗</a></dd></div>
+      <div><dt>RQ3 · Yaw prediction</dt><dd>Can a short-horizon predictor outperform persistence and a simple numerical baseline on held-out telemetry? <a href="records/docs/research/learning-task.html">Prediction work package ↗</a></dd></div>
+    </dl>
+  </section>
+  <section class="technical-section" aria-labelledby="research-records">
+    <h2 id="research-records">Research records</h2>
+    <dl class="research-ledger technical-ledger">
+      <div><dt>Caster mechanics</dt><dd><a href="records/docs/sources.html">Source bibliography and modelling provenance ↗</a> · <a href="report-Arche_Academic_Report_Typeset_EN_2026-11-16.html">Academic simulation report ↗</a> · <a href="report-Arche_V2_Controller_Design_EN.html">Controller design and derivations ↗</a></dd></div>
+      <div><dt>Experiment methods</dt><dd><a href="records/docs/research/experiment-protocol.html">Physical experiment protocol ↗</a> · <a href="records/docs/research/research-log.html">Notebook by research question ↗</a> · <a href="records/run-inventory.csv">Run inventory · CSV</a></dd></div>
+      <div><dt>Simulation and docking</dt><dd><a href="records/docs/progress/2026-11-27-simulation-and-source.html">Model and source inventory ↗</a> · <a href="records/docs/progress/2026-11-27-janus-experiments.html">JANUS experiment log ↗</a> · <a href="records/docs/research/janus-ros-live-data.html">ROS 2 / Gazebo data ↗</a></dd></div>
+      <div><dt>Visual navigation and VLA</dt><dd><a href="records/docs/research/janus-navigation-policy.html">Shortlist and test plan ↗</a> · <a href="https://github.com/t0ttora/me492-caster-digital-twin/tree/main/janus/vla">Primary-source review, independent audit and decision record ↗</a></dd></div>
+    </dl>
+  </section>
 </section>

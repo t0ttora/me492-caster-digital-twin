@@ -1,0 +1,29 @@
+<section class="section">
+  <header class="research-heading">
+    <p class="eyebrow">Technical work · Ubuntu 24.04 arm64</p>
+    <h1>ROS 2 / Gazebo</h1>
+    <p>ROS 2 Jazzy runs the bring-up, camera observations, command guard and data capture. Gazebo Harmonic provides the simulated robot, camera, contact fixtures and independent world pose.</p>
+  </header>
+  <nav class="jump-links result-nav" aria-label="On this page"><a href="#workspace">Workspace and downloads</a><a href="#evidence">Simulation evidence</a><a href="results.html#ros2">Full results</a></nav>
+  <section class="technical-section" id="workspace">
+    <h2>Workspace and downloads</h2>
+    <dl class="research-ledger technical-ledger">
+      <div><dt>ROS 2 workspace</dt><dd><a class="text-link" href="downloads/arche-ros2.zip" download>Download workspace ZIP ↓</a> · Launch files, robot description, bridges, tests and experiment runners.</dd></div>
+      <div><dt>Gazebo world</dt><dd><a class="text-link" href="downloads/janus.sdf" download>Download JANUS world ↓</a> · Use the workspace for the robot models, camera and docking assets referenced by the world.</dd></div>
+      <div><dt>Build and reproduce</dt><dd><a href="https://github.com/t0ttora/me492-caster-digital-twin/tree/main/janus/ros2">Build instructions, packages and runtime evidence ↗</a> · <a href="records/docs/research/janus-ros-live-data.html">Telemetry schema and capture scope ↗</a>.</dd></div>
+    </dl>
+  </section>
+  <section class="technical-section" id="evidence">
+    <h2>Simulation evidence</h2>
+    <dl class="research-ledger technical-ledger">
+      <div><dt>M02 · Braking</dt><dd>Entered the measured stop band after 63 ms. <a href="reports/janus/ros2/live/M02-telemetry.csv">Telemetry CSV ↓</a> · <a href="reports/janus/ros2/live/M02-acceptance.json">Acceptance JSON ↗</a></dd></div>
+      <div><dt>Q08 · Station identity</dt><dd>47 wrong-station observations, no forward requests and a 3.200 s simulated timeout. <a href="reports/janus/ros2/live/Q08-telemetry.csv">Telemetry CSV ↓</a> · <a href="reports/janus/ros2/live/Q08-acceptance.json">Acceptance JSON ↗</a></dd></div>
+      <div><dt>O05 · Odometry recovery</dt><dd>18 requests rejected while waiting for explicit recovery permission. <a href="reports/janus/ros2/live/O05-telemetry.csv">Telemetry CSV ↓</a> · <a href="reports/janus/ros2/live/O05-acceptance.json">Acceptance JSON ↗</a></dd></div>
+    </dl>
+    <div class="research-figures">
+      <figure><a href="reports/janus/ros2/live/Q08-gazebo-camera.png"><img src="reports/janus/ros2/live/Q08-gazebo-camera.png" loading="lazy" alt="Rendered Q08 Gazebo camera frame showing the wrong station placard"></a><figcaption>Q08 · Captured Gazebo camera frame</figcaption></figure>
+      <figure><a href="reports/janus/qualification/Q07.png"><img src="reports/janus/qualification/Q07.png" loading="lazy" alt="Q07 marker detection and forward motion time trace"></a><figcaption>Q07 · Tag reacquisition and motion trace</figcaption></figure>
+    </div>
+    <p><a class="text-link" href="scenes/?vaka=Q07">Inspect the Q07 world-pose replay ↗</a></p>
+  </section>
+</section>

@@ -91,7 +91,7 @@ export class JanusViewer {
     this.controls.maxZoom = 5;
     this.controls.minPolarAngle = .001;
     this.controls.maxPolarAngle = Math.PI/2 - .075;
-    this.controls.addEventListener('change', () => this.render());
+    this.controls.addEventListener('change', () => { this.updateRuler(); this.render(); });
     const fill = new THREE.HemisphereLight(0xf6f7e9,0x5e6867,1.36);
     this.key = new THREE.DirectionalLight(0xfff3dc, 2.25);
     this.key.castShadow = true;
@@ -156,6 +156,14 @@ export class JanusViewer {
     this.camera.top = halfSpan; this.camera.bottom = -halfSpan;
     this.camera.left = -halfSpan*aspect; this.camera.right = halfSpan*aspect;
     this.camera.updateProjectionMatrix();
+    this.updateRuler();
+  }
+
+  updateRuler() {
+    const label = this.host.querySelector('#scene-width');
+    if (!label) return;
+    const width = (this.camera.right - this.camera.left) / this.camera.zoom;
+    label.textContent = this.view === 'sensor' ? (this.track?.media ? 'Recorded RGB' : 'Perspective') : width.toFixed(2) + ' m across';
   }
 
   setView(view) {
@@ -196,6 +204,7 @@ export class JanusViewer {
       camera.zoom * 1.25 ** increment, this.controls.minZoom, this.controls.maxZoom
     );
     camera.updateProjectionMatrix();
+    this.updateRuler();
     this.controls.update();
     this.render();
   }
@@ -277,7 +286,7 @@ export class JanusViewer {
   }
 
   setupCase(meta, track) {
-    this.track = track; this.caseId = meta.id;
+    this.track = track;
     if (this.stage) {
       this.stage.traverse(obj => {
         if (obj.userData.localMesh && obj.geometry) obj.geometry.dispose();
@@ -356,7 +365,15 @@ export class JanusViewer {
       const supportBack = .059;
       this.box('Placard support arm',[supportBack - supportFront,.17,.034],[(supportFront + supportBack) / 2,0,.31],'mast',stand);
       const print = type === 'distractor' ? null : mark.getObjectByName('QR_print');
-      this.markers.push({data,mark,stand,print,originalMaterial:print?.material});
+      if (setup.markerTimeline) {
+        const lateral = setup.markerTimeline.find(change => change[1] !== null)?.[1];
+        if (lateral !== undefined) {
+          const extension = lateral - y;
+          this.box('Placard remount rail',[.030,.26 + Math.abs(extension)/.68,.030],
+            [.038,extension/(2*.68),.31],'mast',stand);
+        }
+      }
+      this.markers.push({data,mark,print,originalMaterial:print?.material});
     }
 
     for (const [x,y] of setup.targets) {
@@ -493,24 +510,13 @@ export class JanusViewer {
       const q=sampleAt(this.track.setup.actor,t);
       if (q) this.actor.position.copy(xyz(q[1],q[2],q[3]));
     }
-    if (this.caseId==='Q06' || this.caseId==='Q07') {
-      const changes=this.track.events.filter(e=>['hide','restore_service_ack','visible_loss','qr_lost','lost'].includes(e[1]));
-      const state=latestAt(changes,t)?.[1];
-      const haveMarker=!state || state==='restore_service_ack';
-      for (const {data, mark, stand} of this.markers) {
-        mark.visible=haveMarker;
-        if (this.caseId==='Q07') {
-          const restore=this.track.events.find(e=>e[1]==='restore_service_ack');
-          const y=restore&&t>=restore[0] ? .12 : data[1];
-          stand.position.z=-y;mark.position.z=-y;
-        }
+    if (this.track.setup.markerTimeline) {
+      const markerShift = latestAt(this.track.setup.markerTimeline,t);
+      for (const {data, mark} of this.markers) {
+        const y = markerShift ? markerShift[1] : data[1];
+        mark.visible = y !== null;
+        if (y !== null) mark.position.z = -y + .003 * Math.sin(data[3]);
       }
-    }
-    if (this.caseId==='Q09' && this.markers.length>1) {
-      const event=latestAt(this.track.events,t);
-      const show=event?.[1]==='duplicate_ids';
-      this.markers[1].mark.visible=show;
-      this.markers[1].stand.visible=show;
     }
     this.robot.updateMatrixWorld(true);
     this.sensor.position.copy(this.head.getWorldPosition(ZERO.clone()));
