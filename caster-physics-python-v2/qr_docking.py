@@ -101,6 +101,7 @@ class Dock:
         self.camera = camera
         self.yaw_gain = self.DEFAULT_YAW_GAIN if yaw_gain is None else yaw_gain
         self.search_sweep = search_sweep
+        self.search_started_s = 0.
         self.search_enabled = search_enabled or search_sweep
         default_limit = self.SWEEP_SEARCH_LIMIT_S if search_sweep else self.SEARCH_LIMIT_S
         self.search_limit_s = default_limit if search_limit_s is None else search_limit_s
@@ -179,7 +180,7 @@ class Dock:
             if time_s-self.stop_started_s >= self.MECHANICAL_SETTLE_TIMEOUT_S-1e-10:
                 return self.abort(time_s, "mechanical_alignment_proxy_failed")
             return 0., 0., "braking"
-        if self.acquire_s is None and time_s >= self.search_limit_s:
+        if self.acquire_s is None and time_s-self.search_started_s >= self.search_limit_s:
             return self.abort(time_s, "search_timeout:"+observation.reason)
         if not observation.valid:
             self.center.update(time_s, False)

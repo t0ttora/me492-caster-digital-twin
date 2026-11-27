@@ -93,8 +93,8 @@ def project(pose, camera, marker, identity=DOCK_ID, rng=None):
     return Candidate(identity, tuple(corners), visible and front, 1. if visible and front else 0.)
 
 
-def estimate_marker(candidate, camera, side_m):
-    """Level rectangular marker: reconstruct each vertical edge from its image height."""
+def marker_pose_in_camera(candidate, camera, side_m):
+    """Reconstruct the marker center and approach yaw in the camera's level frame."""
     tl, tr, br, bl = candidate.corners_px
 
     def horizontal(top, bottom):
@@ -106,7 +106,12 @@ def estimate_marker(candidate, camera, side_m):
     forward, lateral = (left+right)/2
     delta = left-right
     orientation = atan2(-delta[0], delta[1])
-    return float(hypot(forward, lateral)), float(orientation)
+    return float(forward), float(lateral), float(orientation)
+
+
+def estimate_marker(candidate, camera, side_m):
+    forward, lateral, orientation = marker_pose_in_camera(candidate, camera, side_m)
+    return hypot(forward, lateral), orientation
 
 
 def mechanical_errors(pose, marker, axle_standoff_m):

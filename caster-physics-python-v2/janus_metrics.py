@@ -286,6 +286,14 @@ def summarize(fixture, run):
                       and not np.any(motion_requested & (time >= obstacle_at)))
     if fixture.case=="Q17":
         checks["retry_budget_aborts"] = reason=="retry_budget" and metrics["retry_count"]==3
+    if fixture.case == "Q04" and "staging" in run["configuration"]:
+        cfg = run["configuration"]["staging"]
+        staged_s = event("staging_complete")
+        checks.update(staging_observed_and_qualified=staged_s is not None and len(cfg["gates"]) == 3,
+                      final_mechanical_pose_qualified=(metrics["aligned"] and metrics["contact"]
+                          and metrics["dock_final_position_error_m"] <= Dock.POSITION_LIMIT_M
+                          and metrics["dock_final_yaw_error_rad"] <= Dock.YAW_LIMIT_RAD))
+        metrics["staged_s"] = staged_s
     if fixture.case in {"Q04","Q19","Q20"}:
         checks["docking_terminated_safely"] = run["completed_s"] is not None and stopped[-1]
     if fixture.case == "Q20":

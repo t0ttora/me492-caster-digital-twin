@@ -1,17 +1,18 @@
 """Run the V2.3 RK4 plant with JANUS task controllers and time-aligned logging."""
 from dataclasses import asdict, replace
 from heapq import heappop, heappush
-from math import cos, hypot, sin
+from math import atan2, cos, hypot, sin
 
 import numpy as np
 
 from janus_command_input import CommandInput
 from janus_image_input import ImageReplay
 from janus_undock import Undock
-from qr_camera import Camera, DOCK_ID, Frame, Marker, estimate_marker, mechanical_errors, project
+from qr_camera import (Camera, DOCK_ID, Frame, Marker, estimate_marker,
+                       marker_pose_in_camera, mechanical_errors, project)
 from qr_docking import Dock, FrameGate
 from scenarios import Dwell, Route, STOP_INTERLOCKS, axle_state, terminal_ok
-from twin import (State, Torques, TrackingController, case_parameters, evaluate_motion,
+from twin import (Segment, State, Torques, TrackingController, case_parameters, evaluate_motion,
                   kinetic_energy, result_record, rk4_step, validate_parameters, wrap)
 
 LINEAR_COMMAND_LIMIT_MPS = .25
@@ -75,6 +76,32 @@ class CameraStream:
         return arrivals
 
 
+QR_STAGING_STANDOFF_M = .55
+
+
+def qr_staging_route(fixture, parameters, axle_pose, camera, observation, side_m):
+    """Use the observed marker transform to plan a verified pre-dock staging pose."""
+    forward, lateral, camera_heading = marker_pose_in_camera(observation.candidate, camera, side_m)
+    yaw = axle_pose[2] + camera.yaw_rad
+    approach_yaw = yaw + camera_heading
+    camera_world = axle_pose[:2] + np.array([
+        cos(axle_pose[2])*camera.forward_m-sin(axle_pose[2])*camera.left_m,
+        sin(axle_pose[2])*camera.forward_m+cos(axle_pose[2])*camera.left_m,
+    ])
+    station_xy = camera_world + np.array([
+        forward*cos(yaw)-lateral*sin(yaw),
+        forward*sin(yaw)+lateral*cos(yaw),
+    ])
+    staging_xy = station_xy - QR_STAGING_STANDOFF_M*np.array([cos(approach_yaw), sin(approach_yaw)])
+    dx, dy = staging_xy - axle_pose[:2]
+    bearing = atan2(dy, dx)
+    distance = hypot(dx, dy)
+    segments = (Segment(0., float(wrap(bearing-axle_pose[2])), 1.3),
+                Segment(distance, 0., max(2., distance/.10)),
+                Segment(0., float(wrap(approach_yaw-bearing)), 1.6))
+    return Route(replace(fixture, segments=segments, gate_each=True, profile="quintic"), parameters, axle_pose)
+
+
 def simulate(fixture):
     p = parameters_for(fixture)
     step = p.dynamics.solver_step_s
@@ -114,6 +141,10 @@ def simulate(fixture):
     step_parameters = p
     completed_s = None
     last_bms_s = None
+    staging = None
+    staging_active = "qr_pose_staging" in event_types
+    staging_complete = False
+    staging_start_s = None
     for tick in range(round(fixture.duration_s/dt)+1):
         t = round(tick*dt, 9)
         state = State.from_vector(vector)
@@ -179,6 +210,29 @@ def simulate(fixture):
             braking = True
             why = "transit_target" if fixture.case == "O03" else "brake_step"
             requested_v, requested_w, phase = 0., 0., "stop"
+        elif staging_active and not staging_complete:
+            requested_v, requested_w, phase, why = 0., 0., "stage_wait", "await_fresh_marker_pose"
+            if staging is None and observation.valid:
+                staging = qr_staging_route(fixture, p, pose, camera, observation, marker.side_m)
+                staging_start_s = t
+                transition_events.append(dict(time_s=t, event="staging_plan", reason="projected_corners"))
+            if staging is not None:
+                if not observation.valid:
+                    interlock = "staging_marker_lost"
+                    requested_v, requested_w, why = dock.abort(t, interlock)
+                    phase = "abort"
+                else:
+                    requested_v, requested_w, route_goal, step_phase = staging.update(
+                        t-staging_start_s, pose, v, lateral, state.body_yaw_rate_radps)
+                    phase, why = "staging", step_phase
+                    if step_phase == "settled":
+                        dock.search_started_s = t
+                        staging_complete = True
+                        transition_events.append(dict(time_s=t, event="staging_complete", reason="pose_velocity_dwell"))
+            elif t >= Dock.SEARCH_LIMIT_S:
+                interlock = "staging_marker_unavailable"
+                requested_v, requested_w, why = dock.abort(t, interlock)
+                phase = "abort"
         elif route:
             requested_v, requested_w, route_goal, phase = route.update(t, pose, v, lateral, state.body_yaw_rate_radps)
             why = phase
@@ -277,6 +331,11 @@ def simulate(fixture):
               "image_replay": image_replay.configuration() if image_replay else None,
               "command_input": command_input.budgets() if command_input else None,
               "undock": undock.configuration() if undock else None}
+    if staging_active:
+        config["staging"] = {"observed_marker_standoff_m": QR_STAGING_STANDOFF_M,
+                             "start_s": staging_start_s,
+                             "target_pose": staging.origins[-1].tolist() if staging else None,
+                             "gates": staging.gates if staging else []}
     return {"rows": rows, "gates": gates, "events": events, "frames": camera_stream.frames,
             "route_origins": [pose.tolist() for pose in route.origins] if route else [],
             "scheduled_duration_s": sum(route.durations) if route else None,
