@@ -127,8 +127,10 @@ def main():
             trial = case["trials"][0]
             mixed = trial["preface"]["valid_frames"]
             duplicates = trial["disturbance"]["outcome_reasons"].get("ambiguous_target", 0)
-            description = (f"{mixed} prefacing observations selected the configured target; {duplicates} duplicate "
-                           "observations rejected. Both IDs were selected separately on the same native frames in the offline cross-check.")
+            other_invalid = trial["disturbance"]["observed_frames"] - duplicates - trial["disturbance"]["valid_frames"]
+            description = (f"{mixed} lead-in observations selected the configured target. The observer rejected "
+                           f"{duplicates} duplicate observations as ambiguous and {other_invalid} on timing. "
+                           "Both IDs were selected separately on the same native frames offline.")
             secondary_path = lane / "results/replay-d-analysis/Q09/metrics.json"
             if secondary_path.exists() and load(secondary_path)["trials"][0]["loss_and_stop"]["body_stop"]:
                 package["case_results"][case_id]["supplemental_moving_stop"] = "../replay-d-analysis/Q09/metrics.json"
@@ -143,8 +145,10 @@ def main():
             trials = [t for t in case["trials"] if t["phase_results_classification"] == "required rejection"]
             physical = [t["loss_and_stop"]["body_stop"] for t in trials if t["loss_and_stop"]["body_stop"]]
             p95 = low["capture_to_publish_sim_ms"]["p95"] if low["capture_to_publish_sim_ms"] else None
+            wall_p95 = low["decode_wall_ms"]["p95"] if low["decode_wall_ms"] else None
             description = (f"Low light {low['valid_frames']}/{low['published_frames']} valid, P95 capture-to-publication "
-                           f"{span([p95], 1, ' sim ms')}. {len(physical)}/{len(trials)} measured body stops. "
+                           f"{span([p95], 1, ' sim ms')} and P95 wall decode {span([wall_p95], 1, ' ms')}. "
+                           f"{len(physical)}/{len(trials)} measured body stops. "
                            f"Travel until settle {span([p['capture_to_settled_path_mm'] for p in physical],1,' mm')}.")
         else:
             count = sum(t["disturbance"]["observed_frames"] for t in case["trials"])
