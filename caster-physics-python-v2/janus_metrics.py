@@ -374,6 +374,33 @@ def summarize(fixture, run):
                                   "guard_stop_s": trigger, "command_timeout_s": timeout}
         checks.update(guard_detected_fault=detected and reason == expected_reason,
                       immediate_zero_and_planar_stop=stop_s is not None and not np.any(motion_requested[trigger_index:]))
+    elif fixture.case == "O05" and run["configuration"]["command_input"]:
+        trigger = event("guard_stop")
+        trigger_index = sample_at(trigger) if trigger is not None else len(time)
+        cut = event("odometry_stream_cut")
+        rewind = event("odometry_stamp_rewind")
+        timeout = run["configuration"]["command_input"]["odometry_timeout_s"]
+        sample = rows[trigger_index] if 0 < trigger_index < len(rows) else {}
+        supplied_stamp = sample.get("stream_odom_frame_stamp_s")
+        last_stamp = sample.get("stream_odom_last_valid_stamp_s")
+        dt = float(time[1]-time[0])
+        if cut is not None:
+            detected = (supplied_stamp is None and last_stamp is not None and trigger is not None
+                        and last_stamp < cut <= trigger
+                        and timeout-1e-10 <= trigger-last_stamp <= timeout+dt+1e-10)
+            expected_reason = "odom_timeout"
+        else:
+            detected = (rewind is not None and rewind == trigger and supplied_stamp is not None
+                        and last_stamp is not None and supplied_stamp < last_stamp)
+            expected_reason = "odom_regression"
+        metrics["odometry_guard_stop"] = {"outage_requested_s": cut, "rewind_requested_s": rewind,
+                                          "last_valid_odometry_stamp_s": last_stamp,
+                                          "supplied_odometry_stamp_s": supplied_stamp,
+                                          "first_zero_command_s": trigger, "expected_reason": expected_reason,
+                                          "watchdog_s": timeout}
+        checks.update(guard_detected_odometry_fault=detected and reason == expected_reason,
+                      drove_before_fault=trigger_index > 0 and bool(motion_requested[trigger_index-1]),
+                      immediate_zero_and_planar_stop=stop_s is not None and not np.any(motion_requested[trigger_index:]))
     elif fixture.case in {"O04","O05"}:
         trigger = next((item for item in run["events"] if item["reason"] == "injected_stop_trigger"), None)
         observed = trigger is not None and trigger["event"] in STOP_INTERLOCKS and reason == trigger["event"]

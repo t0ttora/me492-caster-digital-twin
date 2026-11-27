@@ -239,7 +239,7 @@ def simulate(fixture):
         elif command_input:
             guarded, stream_row = command_input.update(tick, t, dt)
             requested_v, requested_w, why = guarded.v_mps, guarded.yaw_rate_radps, guarded.reason
-            phase = "transit" if why == "ready" else ("abort" if fixture.case == "O04" else "hold")
+            phase = "transit" if why == "ready" else ("abort" if fixture.case in {"O04", "O05"} else "hold")
             if phase == "abort" and stop_phase_start is None:
                 transition_events.append(dict(time_s=t, event="guard_stop", reason=why))
         elif use_camera and not transit:

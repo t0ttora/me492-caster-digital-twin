@@ -110,3 +110,30 @@ def test_operator_latch_distinguishes_delivery_from_guard_acceptance():
     command, sample = stream.update(5, .05, .01)
     assert command.reason == "operator_abort" and command.v_mps == 0.
     assert sample["stream_forwarded"] and not sample["stream_accepted"]
+
+
+def test_odometry_outage_expires_with_publisher_still_sending():
+    stream = CommandInput()
+    for tick in range(50):
+        command, _ = stream.update(tick, tick/100, .01)
+    assert command.v_mps > 0.
+    stream.handle_event(.50, "odometry_stream_cut")
+    for tick in range(50, 76):
+        command, sample = stream.update(tick, tick/100, .01)
+    assert command.reason == "odom_timeout" and command.v_mps == 0.
+    assert sample["stream_odom_frame_stamp_s"] is None and sample["stream_odom_last_valid_stamp_s"] == .49
+    assert sample["stream_forwarded"] and not sample["stream_accepted"]
+
+
+def test_regressive_odometry_latches_zero_after_a_newer_sample_arrives():
+    stream = CommandInput()
+    for tick in range(50):
+        command, _ = stream.update(tick, tick/100, .01)
+    assert command.v_mps > 0.
+    stream.handle_event(.50, "odometry_stamp_rewind")
+    command, frame = stream.update(50, .50, .01)
+    assert command.reason == "odom_regression" and command.v_mps == 0.
+    assert frame["stream_odom_frame_stamp_s"] == .40 and frame["stream_odom_last_valid_stamp_s"] == .49
+    command, frame = stream.update(55, .55, .01)
+    assert command.reason == "odom_regression" and command.v_mps == 0.
+    assert frame["stream_forwarded"] and not frame["stream_accepted"]
