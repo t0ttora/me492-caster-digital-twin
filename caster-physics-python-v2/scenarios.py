@@ -38,6 +38,7 @@ SQUARE_CCW = (Segment(.5, 0., 2.5), Segment(0., pi/2, 2.4))*4
 CORNER = Segment(.1*pi/2, pi/2, 1.7)
 ROUND_SQUARE = (Segment(.30, 0., 2.), CORNER)*4
 ROUND_SQUARE_NARROW = (Segment(.30, 0., 2.8), Segment(.06*pi/2, pi/2, 2.4))*4
+EXTENDED_REVERSAL = (MANEUVERS["reversal"][0], Segment(-1.05, 0., 7.))
 P0 = ("M01", "M02", "M04", "M05", "M08", "Q01", "Q02", "Q03", "Q06",
       "Q08", "Q13", "Q15", "Q16", "O04")
 STOP_INTERLOCKS = {"obstacle", "command_timeout", "operator_cancel",
@@ -54,6 +55,8 @@ FIXTURES = (
     Fixture("M06", "ccw", 85., SQUARE_CCW, True),
     Fixture("M08", "caster-plus30", 26., MANEUVERS["reversal"], True, 30),
     Fixture("M08", "caster-minus30", 26., MANEUVERS["reversal"], True, -30),
+    Fixture("M08", "caster-plus30-extended", 30., EXTENDED_REVERSAL, True, 30),
+    Fixture("M08", "caster-minus30-extended", 30., EXTENDED_REVERSAL, True, -30),
     Fixture("Q01"),
     Fixture("Q02", "left", 20., yaw_deg=-17),
     Fixture("Q03", "right", 20., yaw_deg=17),

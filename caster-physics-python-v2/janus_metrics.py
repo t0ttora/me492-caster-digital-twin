@@ -90,13 +90,20 @@ def summarize(fixture, run):
     caster_alignment = np.abs(wrap(caster-np.where(longitudinal < -.05, np.pi, 0.)))
     realignment = None
     motion_onset = np.flatnonzero(abs(longitudinal) >= .05)
+    reversal = fixture.case == "M08"
+    if reversal:
+        # The outbound controller can briefly back up before the first gate.
+        # The planned reverse phase begins after that gate's confirmed dwell.
+        forward_gate = next((gate for gate in run["gates"] if gate["gate"] == 1), None)
+        motion_onset = (np.flatnonzero((time > forward_gate["time_s"] + 1e-9) & (longitudinal < -.05))
+                        if forward_gate else np.array([], dtype=int))
+    elif fixture.case == "Q18":
+        motion_onset = np.flatnonzero(longitudinal < -.05)
     if len(motion_onset):
-        # Measure reorientation under reversal from the first sustained backward travel.
-        reverse_onset = np.flatnonzero(longitudinal < -.05) if fixture.case in {"M08", "Q18"} else []
-        onset = reverse_onset[0] if len(reverse_onset) else motion_onset[0]
+        onset = motion_onset[0]
         stable = None
         for i in range(onset, len(time)):
-            same_direction = (longitudinal[i] < -.05) if len(reverse_onset) else (longitudinal[i] > .05)
+            same_direction = (longitudinal[i] < -.05) if (reversal or fixture.case == "Q18") else (longitudinal[i] > .05)
             if not same_direction or caster_alignment[i] > math.radians(10):
                 stable = None
             elif stable is None:
@@ -188,6 +195,11 @@ def summarize(fixture, run):
         peak = max(progress(.5,segment_duration(seg,fixture),fixture.profile)[1]*abs(seg.distance_m) for seg in fixture.segments)
         peak_yaw = max(progress(.5,segment_duration(seg,fixture),fixture.profile)[1]*abs(seg.yaw_change_rad) for seg in fixture.segments)
         metrics.update(reference_peak_speed_mps=peak,reference_peak_yaw_rate_radps=peak_yaw)
+    if reversal:
+        metrics["reverse_band_onset_after_forward_gate_s"] = (
+            float(time[motion_onset[0]]) if len(motion_onset) else None)
+        metrics["caster_reverse_band_dwell_confirmed_s"] = (
+            float(time[i]) if realignment is not None else None)
     if fixture.case == "M11":
         metrics["surface_breakdown"] = {
             surface: {"samples": int(mask.sum()), "peak_axle_speed_mps": float(speed[mask].max()),
