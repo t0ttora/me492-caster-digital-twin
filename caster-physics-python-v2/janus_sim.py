@@ -61,6 +61,9 @@ class CameraStream:
                 frame = self.image_replay.capture(time_s, self.camera)
             elif mode == "duplicate" and self.last is not None:
                 frame = replace(self.last, arrival_time_s=time_s)
+            elif mode == "capture_rewind" and self.last is not None:
+                capture = round(max(0., self.last.capture_time_s - dt), 9)
+                frame = replace(self.last, capture_time_s=capture, arrival_time_s=time_s)
             else:
                 identity = "JANUS-OTHER-99" if mode == "wrong" else DOCK_ID
                 candidate = None if mode == "loss" else project(pose, self.camera, self.marker, identity, self.rng)
@@ -155,7 +158,8 @@ def simulate(fixture):
             injection = fixture.case in {"O04", "O05"} and event in STOP_INTERLOCKS
             transition_events.append(dict(time_s=t, event=event,
                                           reason="injected_stop_trigger" if injection else "fixture"))
-            if event in {"visible", "wrong", "loss", "stale", "duplicate", "stream_cut", "image_replay"}:
+            if event in {"visible", "wrong", "loss", "stale", "duplicate", "capture_rewind",
+                         "stream_cut", "image_replay"}:
                 mode = event
             elif event in STOP_INTERLOCKS and interlock is None:
                 interlock = event

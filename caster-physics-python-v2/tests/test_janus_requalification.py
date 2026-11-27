@@ -45,6 +45,19 @@ def test_transport_delivers_in_arrival_order_even_when_captures_are_reordered():
     assert result.reason == "disordered"
 
 
+def test_camera_capture_rewind_stays_fresh_but_fails_strict_ordering():
+    camera, marker = Camera(), Marker()
+    stream = CameraStream(camera, marker, 492, False)
+    gate = FrameGate(camera)
+    pose = (0., 0., 0.)
+    for tick in (0, 5):
+        time = tick/100
+        assert gate.update(time, stream.sample(tick, time, .01, pose, "visible")).valid
+    bad = stream.sample(10, .10, .01, pose, "capture_rewind")
+    assert bad[0].capture_time_s == .04 and bad[0].arrival_time_s == .10
+    assert gate.update(.10, bad).reason == "disordered"
+
+
 def test_bounded_search_reversal_and_interlock_at_sample_boundary():
     camera, marker = Camera(), Marker()
     gate = FrameGate(camera)

@@ -227,8 +227,20 @@ def summarize(fixture, run):
         checks.update(gate_order=[item["kind"] for item in gates] == ["edge","turn"]*4,
                       signed_90deg_turns=len(signed_turns)==4 and bool(np.allclose(
                           signed_turns, -np.pi/2 if fixture.case=="M05" else np.pi/2)))
-    elif fixture.case == "M11" and fixture.variant == "boundary":
-        checks["surface_crossed"] = event("surface_change") is not None
+    elif fixture.case == "M11":
+        surface_change = event("surface_change")
+        if run["configuration"]["surface_after_boundary"] is not None:
+            checks["surface_crossed"] = surface_change is not None
+        if (brake := event("brake_step")) is not None:
+            brake_index = sample_at(brake)
+            checks.update(braking_measured_from_command_cut=(0 < brake_index < len(time)
+                          and braking_start_s == brake and positive[brake_index-1]
+                          and not np.any(motion_requested[brake_index:]) and stop_s is not None),
+                          brake_after_boundary=(run["configuration"]["surface_after_boundary"] is None
+                                                or surface_change is not None and surface_change < brake))
+            metrics["surface_brake"] = {"brake_command_s": brake, "surface_change_s": surface_change,
+                                        "brake_surface": rows[brake_index]["surface"],
+                                        "pre_brake_axle_speed_mps": float(speed[brake_index-1])}
     if run["configuration"]["camera"]:
         checks.update(zero_forward_when_invalid=not metrics["qr_invalid_forward_samples"],
                       forward_within_outer_band=not np.any(moving_qr & (np.abs(qr)>.04)),
@@ -272,6 +284,15 @@ def summarize(fixture, run):
     if fixture.case in {"Q06","Q13"}:
         checks.update(loss_stops_moving_robot=reason.startswith("observation_timeout:")
                       and event("lost") is not None and stop_s is not None and metrics["qr_first_advance_s"] is not None)
+    if fixture.case == "Q13" and (rewind := event("capture_rewind")) is not None:
+        rewind_index = sample_at(rewind)
+        bad = rows[rewind_index]["qr_capture_time_s"]
+        previous = rows[rewind_index-1]["qr_capture_time_s"]
+        checks["fresh_regressive_capture_rejected"] = (bad is not None and previous is not None and bad < previous
+            and rewind-bad <= .20 and rows[rewind_index]["qr_reject_reason"] == "disordered"
+            and positive[rewind_index-1] and not np.any(motion_requested[rewind_index:]))
+        metrics["capture_regression"] = {"first_regressive_arrival_s": rewind, "regressive_stamp_s": bad,
+                                        "prior_accepted_stamp_s": previous}
     if fixture.case == "Q08":
         checks.update(wrong_identity_timeout=reason=="search_timeout:wrong_id",
                       did_not_move=metrics["max_drift_m"] <= .001)
