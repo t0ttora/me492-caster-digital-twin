@@ -67,6 +67,15 @@ class DashboardTests(unittest.TestCase):
         self.assertIn('Not available', build_site.progress_summary([]))
         self.assertIn('0 of 1 records', build_site.progress_summary([{'state':'open','labels':['type:weekly','status:verified']}]))
 
+    def test_simulation_qualification_on_both_progress_views(self):
+        matrix = json.loads((ROOT / 'reports/janus/qualification-matrix.json').read_text())
+        passed = sum(case['status'] == 'passed' for case in matrix['cases'])
+        for slug in ('index', 'progress'):
+            page = self.pages[slug]
+            self.assertIn(f'Simulation cases passed</dt><dd>{passed} / {len(matrix["cases"])}</dd>', page)
+            self.assertIn(f'Physical runs in the public inventory</dt><dd>{self.data["published_runs"]}</dd>', page)
+            self.assertIn('href="reports/janus/qualification-matrix.tsv"', page)
+
     def test_embedded_report_readers(self):
         for name, title in build_site.REPORTS:
             page = (ROOT / '_site' / f'report-{name}.html').read_text()

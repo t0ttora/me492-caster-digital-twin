@@ -1,8 +1,10 @@
 # Arche access register
 
-Snapshot: 30 September 2026. Company access is pending; none of the entries below is a confirmed booking or delivered file.
+Updated 27 November 2026. The operator-assisted pilot, company telemetry and independent pose reference are pending.
 
-| Item | State | Evidence / owner | Target |
+The [JANUS experiment record](../progress/2026-11-27-janus-experiments.md) contains the simulation qualification.
+
+| Item | State | Evidence / owner | Original target |
 | --- | --- | --- | --- |
 | Technical visit | Pending | Advisor + student; company confirmation needed | 6/7 Oct, fallback 13/14 Oct |
 | Robot configuration / CAD | Pending | Arche technical contact to be named | G1, 16 Oct |

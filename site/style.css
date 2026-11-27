@@ -119,3 +119,11 @@
   .status-table th{font-size:10px}.status-table td.metric-value{font-size:25px}
   .deadline-strip{grid-template-columns:1fr}
 }
+
+.qualification-summary{margin-bottom:30px;padding:22px 0;border-block:1px solid var(--line)}
+.qualification-summary h2{font-size:26px}
+.qualification-summary dl{display:flex;flex-wrap:wrap;gap:18px 54px;margin:16px 0 12px}
+.qualification-summary dt{color:var(--muted);font-size:13px}
+.qualification-summary dd{margin:4px 0 0;font-size:34px;line-height:1.1;font-variant-numeric:tabular-nums}
+.qualification-links{display:flex;flex-wrap:wrap;gap:6px 24px;font-size:13px;margin-top:12px}
+.qualification-links a{text-decoration:underline;text-underline-offset:3px}

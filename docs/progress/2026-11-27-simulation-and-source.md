@@ -23,4 +23,6 @@ Python V1 ports the planar M2 physics and checks against archived MATLAB runs. V
 
 ## Remaining validation
 
-Published simulations use provisional inputs. Physical calibration requires platform parameters and synchronized command, wheel and independent pose measurements. The Simscape swivel-rate refinement and the native −30° mirror case remain open. The original early portion of the +30° log is unavailable. There are zero measured runs in the public run inventory.
+Published simulations use provisional inputs. Physical calibration requires platform parameters and synchronized command, wheel and independent pose measurements. The original early portion of the +30° log is unavailable, and the tested swivel-rate refinement pairs still exceeded the convergence threshold. The public inventory contains zero physical runs.
+
+The later [JANUS qualification record](2026-11-27-janus-experiments.md) documents fresh native ±30° caster runs and live ROS 2/Gazebo trials on Linux.

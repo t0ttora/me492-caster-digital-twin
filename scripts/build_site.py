@@ -183,6 +183,21 @@ def progress_summary(issues):
     return ''.join(rows)
 
 
+def qualification_summary(matrix, physical_runs):
+    cases = matrix['cases']
+    passed = sum(case['status'] == 'passed' for case in cases)
+    pilot = '<p class="muted small">The operator-assisted robot pilot is pending.</p>' if matrix['physical_pilot'] == 'pending' else ''
+    return f'''<article class="qualification-summary" aria-labelledby="janus-qualification">
+<h2 id="janus-qualification">JANUS qualification</h2>
+<dl><div><dt>Simulation cases passed</dt><dd>{passed} / {len(cases)}</dd></div>
+<div><dt>Physical runs in the public inventory</dt><dd>{physical_runs}</dd></div></dl>
+{pilot}
+<p class="qualification-links"><a href="reports/janus/qualification-matrix.tsv">Case matrix ↗</a>
+<a href="report-Arche_JANUS_Vaka_Kartlari_TR.html">Illustrated case cards ↗</a>
+<a href="records/docs/progress/2026-11-27-janus-experiments.html">Experiment record ↗</a></p>
+</article>'''
+
+
 def build(issues, comments):
     if OUT.is_symlink():
         raise ValueError('Refusing a symlinked build output')
@@ -258,7 +273,9 @@ def build(issues, comments):
     decisions = Path('docs/planning/decisions.md')
     with (ROOT / 'docs/research/run-inventory.csv').open() as source:
         run_count = len(list(csv.DictReader(source)))
+    qualification = json.loads((ROOT / 'reports/janus/qualification-matrix.json').read_text())
     tokens = {'COMPLETION': progress_summary(issues), 'RUN_COUNT': str(run_count), 'ACCESS_SNAPSHOT': escape((ROOT / access).read_text().split('\n\n')[1]), 'STATUS_TABLE': status_table, 'COMMITS': ''.join(commits), 'ACCESS': markdown((ROOT / access).read_text(), access, embedded=True), 'DECISIONS': markdown((ROOT / decisions).read_text(), decisions, embedded=True), 'FOCUS': focus, 'PROGRESS': ''.join(item[1] for item in journal), 'SYNC': f'GitHub and repository snapshot · Published: {short_date(built.isoformat())} (Istanbul).', 'TASKS': ''.join(tasks), 'ROADMAP': ''.join(roadmap), 'DOCUMENTS': ''.join(doc_links)}
+    tokens['JANUS_QUALIFICATION'] = qualification_summary(qualification, run_count)
     layout = (ROOT / 'site/layout.html').read_text()
     for slug, title in PAGES:
         body = (ROOT / 'site' / f'{slug}.html').read_text()
