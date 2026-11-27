@@ -1,5 +1,5 @@
 """Sample-boundary and interlock regressions for the requalification fixtures."""
-from math import radians
+from math import atan2, radians, tan
 from pathlib import Path
 import sys
 
@@ -8,7 +8,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from janus_command_input import CommandInput
 from janus_metrics import wall_clearances
-from janus_sim import CameraStream, parameters_for, qr_staging_route
+from janus_sim import CameraStream, parameters_for, projected_dock_target, qr_staging_route
 from janus_undock import Undock
 from qr_camera import Camera, Frame, Marker, project
 from qr_docking import Dock, FrameGate
@@ -74,6 +74,13 @@ def test_staging_pose_accounts_for_calibrated_camera_and_marker_mounts():
     route = qr_staging_route(fixture, parameters_for(fixture), pose, camera, observed, marker.side_m)
     assert observed.valid
     assert np.allclose(route.origins[-1], [.45, 0., 0.], atol=1e-12)
+
+
+def test_projected_target_column_uses_the_mounted_camera_yaw_sign():
+    camera = Camera(left_m=.035, yaw_rad=radians(4))
+    target = projected_dock_target(camera, Marker(), Marker(yaw_rad=radians(12)))
+    expected = camera.cx_px + camera.fx_px*tan(atan2(.035, .22) + radians(4))
+    assert abs(target.target_u_px - expected) < 1e-10
 
 
 def test_mounted_yaw_trim_has_zero_linear_command_and_stops_on_stale_frame():

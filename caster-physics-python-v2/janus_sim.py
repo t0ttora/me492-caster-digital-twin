@@ -82,6 +82,16 @@ class CameraStream:
 QR_STAGING_STANDOFF_M = .55
 
 
+def projected_dock_target(camera, dock, marker):
+    """Project the marker center at the calibrated mechanical alignment pose."""
+    target = (dock.x_m-Dock.STANDOFF_AXLE_M*cos(dock.yaw_rad),
+              dock.y_m-Dock.STANDOFF_AXLE_M*sin(dock.yaw_rad), dock.yaw_rad)
+    reference = project(target, camera, marker)
+    if not reference.visible or reference.center_px is None:
+        raise ValueError("Marker is outside the calibrated docking camera view")
+    return replace(camera, target_u_px=reference.center_px[0])
+
+
 def qr_staging_route(fixture, parameters, axle_pose, camera, observation, side_m):
     """Use the observed marker transform to plan a verified pre-dock staging pose."""
     forward, lateral, camera_heading = marker_pose_in_camera(observation.candidate, camera, side_m)
@@ -123,6 +133,8 @@ def simulate(fixture):
     camera = Camera(left_m=.035, yaw_rad=np.deg2rad(4), target_u_px=510.*np.tan(np.arctan2(.035, .22)-np.deg2rad(4))+320.) if "camera_offset" in event_types else Camera()
     dock_reference = Marker()
     marker = replace(dock_reference, yaw_rad=np.deg2rad(fixture.marker_mount_yaw_deg))
+    if fixture.project_dock_target:
+        camera = projected_dock_target(camera, dock_reference, marker)
     image_replay = ImageReplay(fixture.case, fixture.camera_image_fixture) if fixture.camera_image_fixture else None
     camera_stream = CameraStream(camera, marker, fixture.seed, "delay_noise" in event_types,
                                  fixture.camera_delays_s, image_replay)
@@ -350,6 +362,8 @@ def simulate(fixture):
         config["marker_mount"] = {"actual_marker_from_dock_yaw_deg": fixture.marker_mount_yaw_deg,
                                   "configured_marker_from_dock_yaw_deg": fixture.marker_mount_calibration_deg,
                                   "target_center_u_px": camera.target_u_px,
+                                  "target_center_source": ("mechanical_pose_projection" if fixture.project_dock_target
+                                                           else "configured_legacy_column"),
                                   "final_yaw_trim_limit_radps": Dock.FINAL_YAW_TRIM_LIMIT_RADPS
                                   if fixture.trim_dock_yaw else None,
                                   "mechanical_dock_reference": asdict(dock_reference)}

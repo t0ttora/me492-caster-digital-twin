@@ -229,10 +229,12 @@ python run_janus.py --case M07 --variant narrow-replanned --output-dir NEW_DIREC
 - M11 `brake-reference`, `brake-high-drag` and `brake-boundary` log the actual
   brake step and the later measured stop dwell. The boundary variant crosses
   the configured surface edge before the brake command.
-- Q19 `staged-calibrated-yaw-trim` projects a tilted marker and derives the
-  staging and trim headings from the configured camera and marker transforms.
-  The simulated mechanical dock pose is evaluated independently. Yaw trim
-  requests zero forward velocity and requires a fresh observation.
+- Q19 `staged-projected-target-column` projects the optical target at the
+  configured mechanical dock pose. Staging and trim use estimates from the
+  camera and marker transforms. The simulated mechanical alignment gate is
+  evaluated independently. Yaw trim uses fresh observations with zero
+  forward request. The older fixture with its configured target remains
+  available for numerical replay.
 - O02 `open-rear-extended-exit` includes a 1.10 m exit after the full turn.
   It retains the front and side walls from the shorter corridor fixture.
 - The optional OpenCV PNG decoder exercise has its own evidence scope and can be

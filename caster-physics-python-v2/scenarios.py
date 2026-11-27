@@ -34,6 +34,7 @@ class Fixture:
     marker_mount_yaw_deg: float = 0.
     marker_mount_calibration_deg: float = 0.
     trim_dock_yaw: bool = False
+    project_dock_target: bool = False
 
 
 SQUARE_CW = (Segment(.5, 0., 2.5), Segment(0., -pi/2, 2.4))*4
@@ -148,7 +149,11 @@ FIXTURES = (
     Fixture("Q19", "staged-calibrated-yaw-trim", 34., yaw_deg=-10, qr_yaw_gain=1.5,
             events=((0., "camera_offset"), (0., "qr_pose_staging")), marker_mount_yaw_deg=12.,
             marker_mount_calibration_deg=12., trim_dock_yaw=True,
-            hardware_scope="calibrated QR staging and yaw-only stop trim on a simulated dock"),
+            hardware_scope="calibrated QR staging and yaw-only stop trim with the legacy target column"),
+    Fixture("Q19", "staged-projected-target-column", 34., yaw_deg=-10, qr_yaw_gain=1.5,
+            events=((0., "camera_offset"), (0., "qr_pose_staging")), marker_mount_yaw_deg=12.,
+            marker_mount_calibration_deg=12., trim_dock_yaw=True, project_dock_target=True,
+            hardware_scope="projected target column from the independently configured mechanical dock pose"),
     Fixture("Q20", "delay-noise", 20., yaw_deg=-17, events=((0., "delay_noise"),)),
     Fixture("Q20", "delay-noise-damped", 20., yaw_deg=-17, events=((0., "delay_noise"),), qr_yaw_gain=1.5),
     Fixture("Q20", "fixed55-reference", 20., yaw_deg=-17, events=((0., "delay_noise"),),
