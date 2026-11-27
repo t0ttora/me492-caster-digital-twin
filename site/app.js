@@ -206,3 +206,74 @@ if (librarySearch) {
     document.querySelector('#library-count').textContent = query ? `${count} matching records` : '';
   });
 }
+
+const figureViewer = document.querySelector('#figure-viewer');
+if (figureViewer?.showModal) {
+  const stage = document.querySelector('#figure-stage');
+  const image = document.querySelector('#figure-image');
+  const title = document.querySelector('#figure-title');
+  const caption = document.querySelector('#figure-caption');
+  const message = document.querySelector('#figure-message');
+  const original = document.querySelector('#figure-original');
+  const scale = document.querySelector('#figure-scale');
+  let opener;
+
+  function resetScale() {
+    stage.classList.remove('figure-actual');
+    stage.scrollTo(0, 0);
+    scale.textContent = 'Actual size';
+  }
+
+  image.addEventListener('load', () => {
+    image.hidden = false;
+    message.hidden = true;
+    stage.setAttribute('aria-busy', 'false');
+    scale.disabled = false;
+  });
+  image.addEventListener('error', () => {
+    message.textContent = 'The figure could not load. Open the original to try again.';
+    stage.setAttribute('aria-busy', 'false');
+  });
+  scale.addEventListener('click', () => {
+    if (stage.classList.contains('figure-actual')) resetScale();
+    else {
+      stage.classList.add('figure-actual');
+      scale.textContent = 'Fit to screen';
+    }
+  });
+
+  for (const link of document.querySelectorAll('main a[href]:not([download])')) {
+    const url = new URL(link.href);
+    if (url.origin !== location.origin || !/\.(png|jpe?g|svg|webp)$/i.test(url.pathname)) continue;
+    link.setAttribute('aria-haspopup', 'dialog');
+    link.addEventListener('click', event => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      opener = link;
+      const previewAlt = link.querySelector('img')?.alt;
+      const description = link.closest('figure')?.querySelector('figcaption');
+      const heading = description?.querySelector('strong')?.textContent.trim();
+      title.textContent = heading || previewAlt || link.textContent.trim() || 'Research figure';
+      const text = description?.textContent.trim() || '';
+      caption.textContent = heading && text.startsWith(heading) ? text.slice(heading.length).trim() : text;
+      caption.hidden = !caption.textContent;
+      original.href = url.href;
+      image.alt = previewAlt || '';
+      image.hidden = true;
+      message.textContent = 'Loading figure…';
+      message.hidden = false;
+      stage.setAttribute('aria-busy', 'true');
+      scale.disabled = true;
+      resetScale();
+      figureViewer.showModal();
+      image.src = url.href;
+    });
+  }
+
+  figureViewer.addEventListener('click', event => {
+    if (event.target !== figureViewer) return;
+    const {left, right, top, bottom} = figureViewer.getBoundingClientRect();
+    if (event.clientX < left || event.clientX > right || event.clientY < top || event.clientY > bottom) figureViewer.close();
+  });
+  figureViewer.addEventListener('close', () => opener?.focus({preventScroll: true}));
+}

@@ -65,7 +65,10 @@ class DashboardTests(unittest.TestCase):
         for track, result in [('Python V2.3', '29 / 29'), ('Native Simscape', '16 / 16'), ('ROS 2 / Gazebo', '27 / 27')]:
             self.assertIn(f'>{track}</a></dt><dd>{result}</dd>', results)
         overview = self.pages['index']
-        self.assertIn('Pre-visit preparation complete', overview)
+        self.assertIn('Simulation preparation is complete', overview)
+        self.assertIn('id="current-work-title"', overview)
+        self.assertIn('href="roadmap.html#week-W09"', overview)
+        self.assertIn('awaiting confirmation', overview)
         self.assertIn('Arche technical visit', overview)
         self.assertNotIn('environment checks', overview)
         for technical_page in ('python', 'simscape', 'ros-gazebo'):

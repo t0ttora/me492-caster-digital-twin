@@ -3,4 +3,20 @@
 <body class="page-{{PAGE}}"><a class="skip" href="#main">Skip to content</a><div class="ruler" aria-hidden="true"><span>0</span><span>100</span><span>200</span><span>300</span><span>400</span><span>500</span><span>600</span><span>700</span><span>800</span><span>900</span><span>1000</span><span>1100</span></div>
 <div class="rail" aria-hidden="true"><span>ME492 / FALL 2026</span><span>OPEN RESEARCH RECORD</span></div>
 <div class="frame research-frame">{{HEADER}}<main id="main">{{CONTENT}}</main>
-<footer><a class="brand" href="https://www.olusemre.dev"><img src="assets/olus-emre-logo.svg" width="36" height="36" alt=""><span>olusemre.dev</span></a><span>Arche / Open research journal<br>Oluş Emre Demir · ME492 · 2026–27</span><a href="#main">Back to top ↑</a></footer></div></body></html>
+<footer><a class="brand" href="https://www.olusemre.dev"><img src="assets/olus-emre-logo.svg" width="36" height="36" alt=""><span>olusemre.dev</span></a><span>Arche / Open research journal<br>Oluş Emre Demir · ME492 · 2026–27</span><a href="#main">Back to top ↑</a></footer></div>
+<dialog id="figure-viewer" class="figure-viewer" aria-labelledby="figure-title">
+  <header class="figure-viewer-bar">
+    <h2 id="figure-title">Research figure</h2>
+    <div class="figure-viewer-tools">
+      <a id="figure-original" target="_blank" rel="noopener">Open original ↗</a>
+      <button type="button" id="figure-scale">Actual size</button>
+      <form method="dialog"><button type="submit" autofocus>Close ×</button></form>
+    </div>
+  </header>
+  <div class="figure-stage" id="figure-stage" aria-busy="false" role="region" aria-label="Figure preview" tabindex="0">
+    <p id="figure-message" role="status" hidden></p>
+    <img id="figure-image" alt="" hidden>
+  </div>
+  <p id="figure-caption" hidden></p>
+</dialog>
+</body></html>

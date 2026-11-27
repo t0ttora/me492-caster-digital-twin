@@ -2,27 +2,41 @@
   <header class="research-heading">
     <p class="eyebrow">ME492 · Yeditepe University · Fall 2026</p>
     <h1>Caster-aware digital twin</h1>
-    <p>Modelling passive caster dynamics in a differential-drive robot and measuring their effect on trajectory tracking, reversals and QR docking.</p>
+    <p>We are studying how the passive caster affects a differential-drive robot during turns, reversals and docking. The next step is to compare those effects with measurements from the Arche platform.</p>
   </header>
-  <section class="checkpoint" aria-labelledby="checkpoint-title">
+
+  <section class="overview-status-report" aria-labelledby="overview-status-title">
     <div>
-      <p class="eyebrow">Project status · <time datetime="2026-11-27">27 November 2026</time></p>
-      <h2 id="checkpoint-title">Pre-visit preparation complete</h2>
-      <p>The simulation models, motion and docking runs, visual-navigation review and pilot preparation are ready for the Arche meeting. The academic calendar is in W09. Physical calibration and confirmation depend on the pilot.</p>
+      <p class="eyebrow">Status as of <time datetime="2026-11-27">27 November 2026</time></p>
+      <h2 id="overview-status-title">Simulation preparation is complete</h2>
+      <p>The models, test runs and pilot protocol are ready for the Arche visit. The simulation work gives us repeatable commands and a set of cases to compare later on the robot. The technical visit and operator-assisted pilot are awaiting confirmation.</p>
+      <a class="text-link" href="progress.html">Latest progress and evidence ↗</a>
     </div>
-    <div>
-      <h3>Next checkpoint · Arche technical visit</h3>
-      <p>Confirm the robot configuration and permitted experiments. Agree on an operator-assisted pilot and the logging setup for commands, telemetry, camera and independent pose.</p>
-      <a class="text-link" href="roadmap.html">See the semester timeline ↗</a>
-    </div>
-  </section>
-  <section class="workstreams" aria-labelledby="workstream-title">
-    <h2 id="workstream-title">Technical work</h2>
-    <dl class="research-ledger">
-      <div><dt><a href="python.html">Python ↗</a></dt><dd>Planar caster dynamics, trajectory tracking, QR docking and a browser experiment.</dd></div>
-      <div><dt><a href="simscape.html">Native Simscape ↗</a></dt><dd>Multibody models, contact measurements, solver refinement and model downloads.</dd></div>
-      <div><dt><a href="ros-gazebo.html">ROS 2 / Gazebo ↗</a></dt><dd>Robot description, simulated fixtures, control and camera integration, and recorded telemetry.</dd></div>
+    <dl class="overview-milestones">
+      <div><dt>Semester plan</dt><dd><a href="roadmap.html#week-W09">W09 · 23–29 November</a></dd></div>
+      <div><dt>Next project step</dt><dd><a href="decisions.html">Arche technical visit and logging pilot</a></dd></div>
+      <div><dt>Next course deadline</dt><dd><a href="roadmap.html#deadlines">Draft report · 4 December</a></dd></div>
     </dl>
   </section>
-  <nav class="jump-links" aria-label="Research records"><a href="vision.html">Vision and research questions</a><a href="tasks.html">Completed work</a><a href="results.html">Simulation results</a><a href="library.html">Reports and datasets</a></nav>
+
+  <div class="overview-report-grid">
+    <section aria-labelledby="current-work-title">
+      <h2 id="current-work-title">What we’re working on now</h2>
+      <p>For the Arche meeting, we need to agree which robot configuration and commands we can use, who will supervise the pilot, and what data we can collect. The first session will check that camera video, commands and telemetry share a usable time base and that we have a separate reference for the robot’s pose.</p>
+      <p>In parallel, the simulation methods and initial results are going into the draft report. Calibration and confirmation runs follow once the pilot provides usable measurements.</p>
+      <ul class="evidence-links"><li><a href="records/docs/research/experiment-protocol.html">Pilot protocol ↗</a></li><li><a href="records/docs/access/access-register.html">Access register ↗</a></li></ul>
+    </section>
+
+    <section aria-labelledby="completed-work-title">
+      <h2 id="completed-work-title">Work available to review</h2>
+      <dl class="research-ledger">
+        <div><dt><a href="python.html">Python</a></dt><dd>Planar caster model, trajectory controller, QR docking cases and runnable code examples.</dd></div>
+        <div><dt><a href="simscape.html">Simscape</a></dt><dd>Multibody models, contact and solver studies, and native motion and docking results.</dd></div>
+        <div><dt><a href="ros-gazebo.html">ROS 2 / Gazebo</a></dt><dd>Robot description, simulated fixtures, command and camera integration, and telemetry.</dd></div>
+        <div><dt><a href="vision.html#research-records">Research</a></dt><dd>Caster literature, experiment design and the visual-navigation and VLA review.</dd></div>
+      </dl>
+    </section>
+  </div>
+
+  <nav class="jump-links" aria-label="Research records"><a href="results.html">Simulation results</a><a href="tasks.html#completed-work">Completed work</a><a href="roadmap.html">Semester roadmap</a><a href="library.html">Reports and datasets</a></nav>
 </section>
