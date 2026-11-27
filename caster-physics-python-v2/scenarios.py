@@ -35,6 +35,7 @@ class Fixture:
     marker_mount_calibration_deg: float = 0.
     trim_dock_yaw: bool = False
     project_dock_target: bool = False
+    require_odom_reauthorization: bool = False
 
 
 SQUARE_CW = (Segment(.5, 0., 2.5), Segment(0., -pi/2, 2.4))*4
@@ -179,6 +180,12 @@ FIXTURES = (
     Fixture("O05", "guard-odometry-rewind", duration_s=7.,
             events=((0., "control_stream"), (1.4, "odometry_stamp_rewind")),
             hardware_scope="synthetic regressive odometry stamp through the shared CommandGuard, no DDS"),
+    Fixture("O05", "guard-odometry-reauthorization", duration_s=4.8,
+            events=((0., "control_stream"), (1.4, "odometry_stream_cut"), (2., "odometry_stream_restore"),
+                    (3.16, "publisher_cut"), (3.31, "odometry_recovery_authorize"),
+                    (3.62, "odometry_recovery_command"), (3.85, "publisher_resume")),
+            require_odom_reauthorization=True,
+            hardware_scope="synthetic odometry outage, guarded restart and measured planar motion, no DDS"),
     Fixture("O06", "payload-4kg", segments=MANEUVERS["straight"], payload_kg=4),
     Fixture("O07", "low-soc", events=((0., "transit"), (1.4, "low_soc"), (0., "virtual_charge")),
             hardware_scope="injected SoC and virtual charge"),

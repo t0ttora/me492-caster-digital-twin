@@ -33,6 +33,71 @@ def route_errors(fixture, run, xy):
     return errors, float(np.sqrt(np.mean(errors**2)))
 
 
+def odometry_reauthorization(rows, events, budgets, stop_dwell_s):
+    times = {item["event"]: item["time_s"] for item in events}
+    cut_s = times.get("odometry_stream_cut", math.inf)
+    stopped_s = times.get("guard_stop", math.inf)
+    auth_s = times.get("guard_recovery_authorized", math.inf)
+    command_s = times.get("odometry_recovery_command", math.inf)
+    by_time = {row["time_s"]: row for row in rows}
+    fault, auth, command = (by_time.get(t, {}) for t in (stopped_s, auth_s, command_s))
+    fresh = next((row for row in rows if row["time_s"] > stopped_s
+                  and row["time_s"] == row["stream_odom_frame_stamp_s"]
+                  == row["stream_odom_last_valid_stamp_s"]), {})
+    fresh_s = fresh.get("time_s", math.inf)
+    before_fault = next((row for row in reversed(rows) if row["time_s"] < cut_s), {})
+    denied_interval = [row for row in rows if fresh_s <= row["time_s"] < auth_s
+                       and row["stream_input_request_stamp_s"] == row["time_s"]
+                       and row["stream_input_request_v_mps"] > 0.]
+    hold = [row for row in rows if stop_dwell_s is not None and stop_dwell_s <= row["time_s"] < command_s]
+    first_output = next((row for row in rows if row["time_s"] >= stopped_s
+                         and (row["requested_v_mps"] or row["requested_yaw_rate_radps"])), {})
+    restarted = next((row for row in rows if command_s <= row["time_s"]
+                      and row["axle_v_mps"] > .02), {})
+    last_stamp = fault.get("stream_odom_last_valid_stamp_s")
+    dt = rows[1]["time_s"]-rows[0]["time_s"]
+    displacement = rows[-1]["x_m"]-command["x_m"] if command else None
+    checks = {
+        "watchdog_zero_from_measured_motion": bool(fault and before_fault
+            and before_fault["requested_v_mps"] > 0. and before_fault["axle_v_mps"] > .02
+            and fault["reason"] == "odom_timeout" and fault["stream_odom_frame_stamp_s"] is None
+            and fault["requested_v_mps"] == fault["requested_yaw_rate_radps"] == 0.
+            and last_stamp is not None and last_stamp < cut_s <= stopped_s
+            and budgets["odometry_timeout_s"]-1e-10 <= stopped_s-last_stamp <= budgets["odometry_timeout_s"]+dt+1e-10),
+        "fresh_odometry_and_held_stop_before_authority": bool(fresh and hold and stop_dwell_s is not None
+            and stopped_s < fresh_s < stop_dwell_s < auth_s < command_s
+            and fresh["reason"] == "recovery_permission_required"
+            and all(math.hypot(row["axle_v_mps"], row["axle_lateral_mps"]) <= .02
+                    and abs(row["body_yaw_rate_radps"]) <= .05 for row in hold)),
+        "fresh_unauthorized_commands_rejected_by_guard": bool(denied_interval
+            and sum(stop_dwell_s is not None and row["time_s"] > stop_dwell_s for row in denied_interval) >= 2
+            and all(row["stream_forwarded"] and not row["stream_accepted"]
+                    and row["stream_last_request_s"] is None and row["reason"] == "recovery_permission_required"
+                    and row["stream_recovery_permission_pending"] for row in denied_interval)),
+        "authorization_alone_kept_zero": bool(auth and auth["stream_recovery_authorization_outcome"] is True
+            and auth["stream_recovery_authorized_at_s"] == auth_s and not auth["stream_recovery_permission_pending"]
+            and auth["stream_input_request_stamp_s"] is None and auth["stream_last_request_s"] is None
+            and auth["requested_v_mps"] == auth["requested_yaw_rate_radps"] == 0.),
+        "only_distinct_new_command_restarted_measured_motion": bool(command and restarted
+            and auth_s < command_s < restarted["time_s"] < times.get("publisher_resume", math.inf)
+            and first_output is command and command["stream_explicit_recovery_command"]
+            and command["stream_input_request_stamp_s"] == command["stream_last_request_s"] == command_s
+            and command["stream_accepted"] and command["requested_v_mps"] == budgets["new_request_v_mps"]
+            and displacement > 0.),
+    }
+    details = {"outage_requested_s": times.get("odometry_stream_cut"), "last_valid_before_outage_s": last_stamp,
+               "guard_zero_s": fault.get("time_s"), "guard_fault_reason": fault.get("reason"),
+               "before_outage_axle_v_mps": before_fault.get("axle_v_mps"),
+               "fresh_odometry_s": fresh.get("time_s"), "planar_stop_dwell_verified_at_s": stop_dwell_s,
+               "fresh_unauthorized_rejected_request_stamps_s": [row["time_s"] for row in denied_interval
+                                                               if not row["stream_accepted"]],
+               "authorization_s": auth.get("time_s"), "first_post_fault_nonzero_output_s": first_output.get("time_s"),
+               "new_command_event_s": command.get("time_s"), "new_command_v_mps": command.get("requested_v_mps"),
+               "restarted_forward_motion_above_stop_band_s": restarted.get("time_s"),
+               "measured_progress_after_new_command_m": displacement}
+    return details, checks
+
+
 def summarize(fixture, run):
     rows = run["rows"]
 
@@ -70,6 +135,8 @@ def summarize(fixture, run):
         braking_start_s = event("pedestrian")
     elif fixture.case == "O08":
         braking_start_s = event("link_down")
+    elif fixture.require_odom_reauthorization:
+        braking_start_s = event("guard_stop")
     if braking_start_s is not None:
         first = sample_at(braking_start_s)
         since = None
@@ -401,6 +468,11 @@ def summarize(fixture, run):
                                   "guard_stop_s": trigger, "command_timeout_s": timeout}
         checks.update(guard_detected_fault=detected and reason == expected_reason,
                       immediate_zero_and_planar_stop=stop_s is not None and not np.any(motion_requested[trigger_index:]))
+    elif fixture.require_odom_reauthorization:
+        details, recovery_checks = odometry_reauthorization(rows, run["events"],
+            run["configuration"]["command_input"], stop_dwell_s)
+        metrics["odometry_guard_reauthorization"] = details
+        checks.update(recovery_checks)
     elif fixture.case == "O05" and run["configuration"]["command_input"]:
         trigger = event("guard_stop")
         trigger_index = sample_at(trigger) if trigger is not None else len(time)

@@ -191,3 +191,30 @@ def test_injected_stop_records_braking_scope_without_detector_acceptance(case, v
     assert metrics["checks"]["injected_stop_trigger_observed"]
     assert metrics["checks"]["post_trigger_braking_dwell"]
     assert "fault_latched" not in metrics["checks"]
+
+
+def test_odometry_reauthorization_requires_distinct_command_and_measured_restart():
+    trial = fixture("O05", "guard-odometry-reauthorization")
+    run = simulate(trial)
+    result = summarize(trial, run)
+    assert all(result["checks"].values())
+    recovery = result["odometry_guard_reauthorization"]
+    assert recovery["guard_zero_s"] < recovery["fresh_odometry_s"] < result["stop_dwell_verified_at_s"]
+    assert len(recovery["fresh_unauthorized_rejected_request_stamps_s"]) >= 2
+    assert recovery["authorization_s"] < recovery["new_command_event_s"] < recovery["restarted_forward_motion_above_stop_band_s"]
+
+
+def test_odometry_restoration_and_separate_command_cannot_bypass_missing_authority():
+    nominal = fixture("O05", "guard-odometry-reauthorization")
+    trial = replace(nominal, events=tuple(entry for entry in nominal.events if entry[1] != "odometry_recovery_authorize"))
+    run = simulate(trial)
+    result = summarize(trial, run)
+    assert result["checks"]["watchdog_zero_from_measured_motion"]
+    assert result["checks"]["fresh_unauthorized_commands_rejected_by_guard"]
+    assert not result["checks"]["authorization_alone_kept_zero"]
+    assert not result["checks"]["only_distinct_new_command_restarted_measured_motion"]
+    new = next(row for row in run["rows"] if row["stream_explicit_recovery_command"])
+    assert new["stream_odom_frame_stamp_s"] == new["time_s"]
+    assert new["stream_forwarded"] and not new["stream_accepted"]
+    assert new["reason"] == "recovery_permission_required"
+    assert all(row["requested_v_mps"] == 0. for row in run["rows"] if row["time_s"] >= new["time_s"])

@@ -129,7 +129,10 @@ def simulate(fixture):
     undock = Undock(initial_pose[0]) if fixture.case == "Q18" else None
     use_camera = (fixture.case.startswith("Q") and not undock) or fixture.case == "O07"
     event_types = {event for _, event in fixture.events}
-    command_input = CommandInput(recovery=fixture.case == "O08") if "control_stream" in event_types else None
+    command_input = None
+    if "control_stream" in event_types:
+        command_input = CommandInput(recovery=fixture.case == "O08",
+                                     require_odom_reauthorization=fixture.require_odom_reauthorization)
     camera = Camera(left_m=.035, yaw_rad=np.deg2rad(4), target_u_px=510.*np.tan(np.arctan2(.035, .22)-np.deg2rad(4))+320.) if "camera_offset" in event_types else Camera()
     dock_reference = Marker()
     marker = replace(dock_reference, yaw_rad=np.deg2rad(fixture.marker_mount_yaw_deg))
@@ -256,9 +259,16 @@ def simulate(fixture):
         elif command_input:
             guarded, stream_row = command_input.update(tick, t, dt)
             requested_v, requested_w, why = guarded.v_mps, guarded.yaw_rate_radps, guarded.reason
-            phase = "transit" if why == "ready" else ("abort" if fixture.case in {"O04", "O05"} else "hold")
-            if phase == "abort" and stop_phase_start is None:
+            stop_only = fixture.case in {"O04", "O05"} and not fixture.require_odom_reauthorization
+            phase = "transit" if why == "ready" else ("abort" if stop_only else "hold")
+            odom_watchdog_cut = (fixture.require_odom_reauthorization and why == "odom_timeout"
+                                 and (not rows or rows[-1]["reason"] != why))
+            if (phase == "abort" and stop_phase_start is None) or odom_watchdog_cut:
                 transition_events.append(dict(time_s=t, event="guard_stop", reason=why))
+            if (authorization := stream_row.get("stream_recovery_authorization_outcome")) is not None:
+                transition_events.append(dict(time_s=t,
+                    event="guard_recovery_authorized" if authorization else "guard_recovery_authorization_rejected",
+                    reason="operator_authorized" if authorization else why))
         elif use_camera and not transit:
             if ("virtual_charge" in event_types and dock.phase == "wait_for_charge" and last_bms_s is None
                     and t-dock.wait_s >= .30-1e-10):
@@ -333,6 +343,8 @@ def simulate(fixture):
         if tick == round(fixture.duration_s/dt):
             if fixture.case == "M01" and phase == "idle":
                 reason = "idle_window_elapsed"
+            elif fixture.require_odom_reauthorization:
+                reason = "odometry_recovery_observation_window_elapsed"
             break
         for _ in range(steps_per_command):
             vector = rk4_step(vector, step, lambda values:
