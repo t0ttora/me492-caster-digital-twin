@@ -4,11 +4,13 @@ from datetime import datetime, timezone
 from hashlib import sha256
 import csv
 import json
+from pathlib import Path
 import platform
 import sys
 
 import numpy as np
 
+from janus_command_input import GUARD_SOURCE
 from qr_camera import DOCK_ID
 from qr_docking import Dock
 from scenarios import P0
@@ -73,6 +75,11 @@ def overview(path, run_id, rows, events):
     error = c("cross_track_error_m") if rows[0]["cross_track_error_m"] is not None else c("pose_error_m")
     ax.plot(time, error, label="Cross-track [m]" if rows[0]["cross_track_error_m"] is not None else "Target distance [m]")
     ax.plot(time, np.abs(c("yaw_error_rad")), label="Absolute yaw error [rad]")
+    if "wall_clearance_m" in rows[0]:
+        ax.plot(time, c("wall_clearance_m"), label="Wall clearance [m]")
+        ax.axhline(0., color="#555", linewidth=.6)
+    if "reference_wall_clearance_m" in rows[0]:
+        ax.plot(time, c("reference_wall_clearance_m"), "--", label="Reference wall clearance [m]")
     ax = axes[1, 0]
     ax.plot(time, c("caster_angle_body_rad"), label="Caster angle [rad]")
     ax.plot(time, c("caster_relative_rate_radps"), label="Caster swivel [rad/s]")
@@ -167,6 +174,12 @@ def write_run(output, fixture, run, metrics, baseline):
                    "center_v_px", "visible", "quality", "candidate_valid", "candidate_reason", "source"]
         columns.extend(f"{corner}_{axis}_px" for corner in ("tl","tr","br","bl") for axis in ("u","v"))
         csv_file(staging/"qr_observations.csv", columns, observation_rows(run["frames"], camera))
+    image_replay = run["image_replay"]
+    if image_replay:
+        (staging/"fault_frame.png").write_bytes(image_replay.png())
+        dict_csv(staging/"image_decode.csv", image_replay.rows,
+                 ("capture_time_s", "arrival_time_s", "decode_wall_s", "decoder_valid", "decoder_reason",
+                  "selected_id", "candidate_count", "scene_visible_corners", "candidates_json"))
     atomic_json(staging/"metrics.json", metrics)
     atomic_json(staging/"robot_config.json", run["configuration"])
     atomic_json(staging/"scenario.json", asdict(fixture))
@@ -176,6 +189,12 @@ def write_run(output, fixture, run, metrics, baseline):
     scopes = ["synthetic_plant"]+["synthetic_projection", "geometry_proxy"] if camera else ["synthetic_plant"]
     if fixture.hardware_scope and "geometry proxy" in fixture.hardware_scope and "geometry_proxy" not in scopes:
         scopes.append("geometry_proxy")
+    if run["configuration"]["command_input"]:
+        scopes.append("synthetic_command_stream")
+    if run["configuration"]["undock"]:
+        scopes.append("virtual_bms_and_contact")
+    if image_replay:
+        scopes.append("synthetic_image_decode")
     dynamics = run["configuration"]["parameters"]["dynamics"]
     source_paths = list(ROOT.glob("*.py"))+[ROOT/"janus_motion.html"]+list((ROOT/"parameters").glob("*.json"))
     model_files = [*sorted((V1/"src/caster_physics").rglob("*.py")), ROOT/"twin.py"]
@@ -183,7 +202,7 @@ def write_run(output, fixture, run, metrics, baseline):
     model_hash = sha256(json.dumps(model_sources, sort_keys=True).encode()).hexdigest()
     manifest = {
         "schema_version": "janus-python-1", "run_id": run_id, "case_id": fixture.case,
-        "variant": fixture.variant, "priority": "P0" if fixture.case in P0 else "P1",
+        "variant": fixture.variant, "priority": "P0" if fixture.case in P0 else "P2" if fixture.case == "O08" else "P1",
         "status": status, "measurement_checks_passed": all(metrics["checks"].values()),
         "execution": "newly_executed", "created_utc": datetime.now(timezone.utc).isoformat(),
         "evidence_scopes": scopes, "physical_trial": False, "fixture_scope_limit": fixture.hardware_scope,
@@ -197,6 +216,15 @@ def write_run(output, fixture, run, metrics, baseline):
         "solver": {"method": "RK4", "step_s": dynamics["solver_step_s"],
                    "command_period_s": dynamics["command_sample_dt_s"],
                    "result_period_s": dynamics["result_sample_dt_s"], "applied_torque_interpolation": "zoh"},
+        "velocity_limits": run["configuration"]["velocity_limits"],
+        "input_source_files": {
+            str(path.relative_to(ROOT.parent)): digest(path) for path in
+            ([Path(GUARD_SOURCE)] if run["configuration"]["command_input"] else [])+
+            (image_replay.source_files if image_replay else [])
+        },
+        "command_guard_budgets": run["configuration"]["command_input"],
+        "undock": run["configuration"]["undock"],
+        "image_replay": run["configuration"]["image_replay"],
         "initial_axle_pose": dict(zip(("x_m", "y_m", "yaw_rad"), run["initial_axle_pose"])),
         "initial_solver_state": run["initial_solver_state"],
         "termination_reason": run["termination_reason"], "completed_time_s": run["rows"][-1]["time_s"],
@@ -212,10 +240,8 @@ def write_run(output, fixture, run, metrics, baseline):
                                    "planar_speed_mps": .02, "yaw_rate_radps": .05,
                                    "dwell_s": Dock.MECHANICAL_DWELL_S,
                                    "settle_timeout_s": Dock.MECHANICAL_SETTLE_TIMEOUT_S},
-               "center_timeout_s": Dock.CENTER_TIMEOUT_S, "image_yaw_gain_radps": fixture.qr_yaw_gain,
-               "search_enabled": fixture.case == "Q05",
-               "search_limit_s": Dock.SWEEP_SEARCH_LIMIT_S if fixture.search_sweep else Dock.SEARCH_LIMIT_S,
-               "search_sweep": fixture.search_sweep} if camera else None,
+               **run["configuration"]["qr_command_budgets"],
+               "camera_transport": run["configuration"]["camera_transport"]} if camera else None,
         "reproduce_argv": [sys.executable, str(ROOT/"run_study.py"), "--case", fixture.case, "--variant", fixture.variant,
                            "--output-dir", str(output.with_name(output.name+"-repro"))],
         "files": {p.name: digest(p) for p in sorted(staging.iterdir())},

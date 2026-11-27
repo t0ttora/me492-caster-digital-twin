@@ -39,8 +39,9 @@ def index(folder, baseline, state):
             data.update(executed_variants=len(observed), configured_variants=expected)
     decoder = folder/"decoder/decode_report.json"
     if decoder.is_file() and json.loads(decoder.read_text())["checks_passed"]:
-        statuses["Q09"] = {"status":"partial", "reason":BLOCKED["Q09"],
-                           "evidence_scope":"synthetic_image_decode", "evidence":"decoder/decode_report.json"}
+        if statuses["Q09"]["status"] == "ready":
+            statuses["Q09"].update(status="partial", reason="Static generated PNG decode only.")
+        statuses["Q09"].update(evidence_scope="synthetic_image_decode", evidence="decoder/decode_report.json")
     atomic_json(folder/"case_status.json", {"schema_version":"janus-python-1","state":state,
                                            "baseline":baseline,"cases":statuses,"runs":records})
 
@@ -66,7 +67,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--group", choices=("p0","additional","all"), default="p0")
     parser.add_argument("--case", nargs="+", choices=sorted({f.case for f in FIXTURES}))
-    parser.add_argument("--variant", help="Choose one variant for the selected case")
+    parser.add_argument("--variant", action="append", help="Choose a variant (repeat to select several)")
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--publish-commands", type=Path)
     parser.add_argument("--jobs", type=int, default=1)
@@ -75,7 +76,7 @@ def main(argv=None):
         parser.error("--jobs must be positive")
     selected = [f for f in FIXTURES if (args.case and f.case in args.case) or
                 (not args.case and (args.group == "all" or (f.case in P0) == (args.group == "p0")))]
-    selected = [f for f in selected if args.variant in (None, f.variant)]
+    selected = [f for f in selected if args.variant is None or f.variant in args.variant]
     if not selected:
         parser.error("No case matches the requested variant")
     output = args.output_dir.resolve()

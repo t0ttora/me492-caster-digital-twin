@@ -25,7 +25,12 @@ class Fixture:
     events: tuple = ()
     hardware_scope: str = ""
     search_sweep: bool = False
-    qr_yaw_gain: float = 4.
+    qr_yaw_gain: float | None = 4.
+    search_limit_s: float | None = None
+    search_reverse_s: float | None = None
+    camera_delays_s: tuple = ()
+    axle_x_m: float = 0.
+    camera_image_fixture: str = ""
 
 
 SQUARE_CW = (Segment(.5, 0., 2.5), Segment(0., -pi/2, 2.4))*4
@@ -53,6 +58,22 @@ FIXTURES = (
     Fixture("Q03", "right", 20., yaw_deg=17),
     Fixture("Q06", events=((2., "loss"),)),
     Fixture("Q08", events=((0., "wrong"),)),
+    Fixture("Q09", "image-mixed-ids", events=((2., "image_replay"), (2.05, "visible")),
+            camera_image_fixture="mixed_ids", hardware_scope="offline synthetic image plus sampled planar control"),
+    Fixture("Q09", "image-duplicate-target", events=((2., "image_replay"),),
+            camera_image_fixture="duplicate_target", hardware_scope="offline synthetic image plus sampled planar control"),
+    Fixture("Q10", "image-spot-glare", events=((2., "image_replay"),),
+            camera_image_fixture="spot_glare", hardware_scope="offline synthetic image plus sampled planar control"),
+    Fixture("Q10", "image-whiteout", events=((2., "image_replay"),),
+            camera_image_fixture="whiteout", hardware_scope="offline synthetic image plus sampled planar control"),
+    Fixture("Q11", "image-low-light", events=((2., "image_replay"), (2.25, "visible")),
+            camera_image_fixture="low_light", hardware_scope="offline synthetic image plus sampled planar control"),
+    Fixture("Q11", "image-motion-blur", events=((2., "image_replay"),),
+            camera_image_fixture="horizontal_motion_blur", hardware_scope="offline synthetic image plus sampled planar control"),
+    Fixture("Q12", "image-occlusion", events=((2., "image_replay"),),
+            camera_image_fixture="occlusion", hardware_scope="offline synthetic image plus sampled planar control"),
+    Fixture("Q12", "image-cropped", events=((2., "image_replay"),),
+            camera_image_fixture="cropped", hardware_scope="offline synthetic image plus sampled planar control"),
     Fixture("Q13", "stale-frame", events=((2., "stale"),)),
     Fixture("Q15"),
     Fixture("Q16", events=((0., "virtual_charge"),)),
@@ -60,6 +81,12 @@ FIXTURES = (
             hardware_scope=INJECTED_STOP_SCOPE),
     Fixture("O04", "operator", events=((1.4, "operator_cancel"),), duration_s=7.,
             hardware_scope=INJECTED_STOP_SCOPE),
+    Fixture("O04", "stream-watchdog", duration_s=7.,
+            events=((0., "control_stream"), (1.20, "publisher_cut")),
+            hardware_scope="synthetic stamped inputs to shared CommandGuard plus planar braking, no DDS"),
+    Fixture("O04", "stream-operator", duration_s=7.,
+            events=((0., "control_stream"), (1.40, "stream_operator_cancel")),
+            hardware_scope="synthetic operator event to shared CommandGuard plus planar braking, no DDS"),
     Fixture("M03", segments=MANEUVERS["arc_turn"], caster_deg=30),
     Fixture("M04", "equal-peak-quintic", 17., MANEUVERS["s_turn"], caster_deg=45, profile="quintic"),
     Fixture("M04", "equal-duration-baseline", 17., MANEUVERS["s_turn"], caster_deg=45,
@@ -68,6 +95,8 @@ FIXTURES = (
             profile="quintic", comparison="equal_duration"),
     Fixture("M07", "rounded", 30., ROUND_SQUARE, hardware_scope="2D footprint/wall geometry proxy"),
     Fixture("M07", "wider-envelope", 30., ROUND_SQUARE, hardware_scope="2D footprint/wall geometry proxy"),
+    Fixture("M07", "rounded-smooth-tracking", 30., ROUND_SQUARE, profile="quintic",
+            hardware_scope="same narrow walls and rounded geometry proxy, smoother schedule"),
     Fixture("M09", "caster-90", segments=(Segment(0., pi/2, 2.4),), caster_deg=90),
     Fixture("M09", "caster-180", segments=(Segment(0., pi/2, 2.4),), caster_deg=180),
     Fixture("M10", "unloaded", segments=MANEUVERS["arc_turn"], caster_deg=30),
@@ -85,10 +114,17 @@ FIXTURES = (
     Fixture("Q14", "obstacle", events=((2., "obstacle"),), hardware_scope="injected obstacle state"),
     Fixture("Q17", events=((2., "loss"), (2.45, "visible"), (3.25, "loss"),
                            (3.70, "visible"), (4.50, "loss"))),
+    Fixture("Q18", "virtual-station-backout", duration_s=5., axle_x_m=.61, caster_deg=30,
+            events=((.15, "virtual_release_frame"), (.30, "undock_authorization"), (.65, "virtual_release_frame")),
+            hardware_scope="synthetic authorization, virtual charge/contact release and planar backout geometry proxy"),
     Fixture("Q19", "offset", yaw_deg=-10, events=((0., "camera_offset"),),
             hardware_scope="fixed camera and marker transform proxy"),
     Fixture("Q20", "delay-noise", 20., yaw_deg=-17, events=((0., "delay_noise"),)),
     Fixture("Q20", "delay-noise-damped", 20., yaw_deg=-17, events=((0., "delay_noise"),), qr_yaw_gain=1.5),
+    Fixture("Q20", "fixed55-reference", 20., yaw_deg=-17, events=((0., "delay_noise"),),
+            camera_delays_s=(.055,)),
+    Fixture("Q20", "fixed55-damped", 20., yaw_deg=-17, events=((0., "delay_noise"),),
+            camera_delays_s=(.055,), qr_yaw_gain=None),
     Fixture("O01", "return", 27., MANEUVERS["reversal"], True),
     Fixture("O02", "corridor", 42., (Segment(.35, 0., 2.4), Segment(0., pi, 4.),
                                     Segment(.35, 0., 2.4)), True,
@@ -102,16 +138,21 @@ FIXTURES = (
     Fixture("O06", "payload-4kg", segments=MANEUVERS["straight"], payload_kg=4),
     Fixture("O07", "low-soc", events=((0., "transit"), (1.4, "low_soc"), (0., "virtual_charge")),
             hardware_scope="injected SoC and virtual charge"),
+    Fixture("O08", "synthetic-recovery", duration_s=4.,
+            events=((0., "control_stream"), (1.4, "link_down"), (2., "link_restored"),
+                    (2.05, "guard_restart"), (2.55, "fresh_authorization"), (2.56, "stale_epoch_request")),
+            hardware_scope="synthetic link, guard reset and authorization input, no power cycle or DDS"),
 )
+
+# Historical run names keep their pinned configuration for replay.
+FIXTURES += tuple(Fixture(case, "damped-regression", duration_s=duration, yaw_deg=yaw, qr_yaw_gain=None)
+                  for case, duration, yaw in (("Q01", 14., 0), ("Q02", 20., -17), ("Q03", 20., 17)))
+FIXTURES += tuple(Fixture("Q05", variant, 20., yaw_deg=yaw, search_sweep=True,
+                          qr_yaw_gain=None, search_limit_s=3.2, search_reverse_s=1.)
+                  for variant, yaw in (("bounded-right", 55), ("bounded-left", -55)))
 
 BLOCKED = {
     "M12": "3D ground/obstacle contact, load transfer and vertical clearance require a 3D model.",
-    "Q09": "Live rendered multi-marker acquisition remains unmeasured; candidate selection is covered in Python tests and decoder fixture.",
-    "Q10": "Representative glare/exposure severity and capture-to-controller timing require camera frames.",
-    "Q11": "Representative low-light/blur and synchronized exposure timing require camera frames.",
-    "Q12": "Near-field handoff and camera occlusion acceptance require rendered or measured frames and end-contact sensing.",
-    "Q18": "Undock authorization and contact release need the station interface.",
-    "O08": "Power/link restoration and fresh resume authorization need runtime integration.",
 }
 
 

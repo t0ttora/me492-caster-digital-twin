@@ -27,10 +27,12 @@ class FrameGate:
         self.current = Observation("no_frame")
 
     def update(self, time_s, arrivals):
+        rejected = None
         for frame in arrivals:
             ordered = frame.capture_time_s > self.high_water_capture_s
             if not (0 <= frame.capture_time_s <= frame.arrival_time_s <= time_s+1e-10):
                 self.current = Observation("invalid_clock", frame=frame)
+                rejected = self.current
                 continue
             self.high_water_capture_s = max(frame.capture_time_s, self.high_water_capture_s)
             matching = [item for item in frame.candidates if item.id == DOCK_ID]
@@ -58,6 +60,12 @@ class FrameGate:
                 else:
                     error = (center[0]-self.camera.target_u_px)/self.camera.width_px
                     self.current = Observation("valid", candidate, frame, error)
+            if not self.current.valid and (rejected is None or self.current.reason != "missing"):
+                rejected = self.current
+        if rejected is not None:
+            # Every rejection is visible to the command loop, even when a newer
+            # capture arrives in the same tick. Require a new capture to recover.
+            self.current = rejected
         latest = self.current.frame
         if (latest is not None and self.current.reason not in {"invalid_clock", "disordered", "stale"}
                 and time_s-latest.capture_time_s > self.camera.freshness_s+1e-10):
@@ -75,18 +83,28 @@ class Dock:
     MECHANICAL_DWELL_S = .25
     MECHANICAL_SETTLE_TIMEOUT_S = 1.5
     BMS_FRESHNESS_S = .20
+    CHARGE_TIMEOUT_S = 1.5
     RETRIES = 2
+    OBSERVATION_LOSS_TIMEOUT_S = 1.6
     CENTER_TIMEOUT_S = 16.
     SEARCH_LIMIT_S = 3.2
     SWEEP_SEARCH_LIMIT_S = 5.2
+    SWEEP_REVERSE_S = 1.35
+    SEARCH_YAW_LIMIT_RADPS = .55
+    ONE_WAY_YAW_RADPS = .45
+    TRACK_YAW_LIMIT_RADPS = .75
+    DEFAULT_YAW_GAIN = 1.5
 
-    def __init__(self, camera, side_m, yaw_gain=4., search_sweep=False, *, search_enabled=False):
+    def __init__(self, camera, side_m, yaw_gain=None, search_sweep=False, *, search_enabled=False,
+                 search_limit_s=None, search_reverse_s=None):
         self.side_m = side_m
         self.camera = camera
-        self.yaw_gain = yaw_gain
+        self.yaw_gain = self.DEFAULT_YAW_GAIN if yaw_gain is None else yaw_gain
         self.search_sweep = search_sweep
         self.search_enabled = search_enabled or search_sweep
-        self.search_limit_s = self.SWEEP_SEARCH_LIMIT_S if search_sweep else self.SEARCH_LIMIT_S
+        default_limit = self.SWEEP_SEARCH_LIMIT_S if search_sweep else self.SEARCH_LIMIT_S
+        self.search_limit_s = default_limit if search_limit_s is None else search_limit_s
+        self.search_reverse_s = self.SWEEP_REVERSE_S if search_reverse_s is None else search_reverse_s
         self.center = Dwell(.4)
         self.stop = Dwell(self.MECHANICAL_DWELL_S)
         self.stop_started_s = None
@@ -100,6 +118,21 @@ class Dock:
         self.contact = False
         self.charge_confirmed = False
         self.done = False
+
+    def command_budgets(self):
+        return {
+            "center_timeout_s": self.CENTER_TIMEOUT_S,
+            "observation_loss_timeout_s": self.OBSERVATION_LOSS_TIMEOUT_S,
+            "charge_timeout_s": self.CHARGE_TIMEOUT_S,
+            "allowed_retries": self.RETRIES,
+            "tracking_yaw_limit_radps": self.TRACK_YAW_LIMIT_RADPS,
+            "image_yaw_gain_radps": self.yaw_gain,
+            "search_enabled": self.search_enabled,
+            "search_limit_s": self.search_limit_s,
+            "search_sweep": self.search_sweep,
+            "search_reverse_s": self.search_reverse_s if self.search_sweep else None,
+            "search_yaw_command_radps": self.SEARCH_YAW_LIMIT_RADPS if self.search_sweep else self.ONE_WAY_YAW_RADPS,
+        }
 
     def transition(self, time_s, phase, reason):
         if phase != self.phase:
@@ -130,7 +163,7 @@ class Dock:
                     and time_s-bms_time_s <= self.BMS_FRESHNESS_S):
                 self.charge_confirmed = self.done = True
                 return self.transition(time_s, "success", "virtual_charge_confirmed")
-            if time_s-self.wait_s >= 1.5-1e-10:
+            if time_s-self.wait_s >= self.CHARGE_TIMEOUT_S-1e-10:
                 self.done = True
                 return self.transition(time_s, "timeout", "charge_timeout")
             return 0., 0., "await_virtual_bms"
@@ -157,24 +190,27 @@ class Dock:
                     self.events.append(dict(time_s=time_s, event="lost", reason=observation.reason))
                 if self.retries > self.RETRIES:
                     return self.abort(time_s, "retry_budget")
-                if time_s-self.loss_s >= 1.6-1e-10:
+                if time_s-self.loss_s >= self.OBSERVATION_LOSS_TIMEOUT_S-1e-10:
                     return self.abort(time_s, "observation_timeout:"+observation.reason)
                 return self.transition(time_s, "recenter", observation.reason)
             yaw = 0.
             frame = observation.frame
             if (self.search_enabled and observation.reason == "missing" and frame is not None
                     and 0. <= time_s-frame.capture_time_s <= self.camera.freshness_s+1e-10):
-                yaw = (-.55 if time_s < 1.35 else .55) if self.search_sweep else .45
+                if self.search_sweep:
+                    yaw = self.SEARCH_YAW_LIMIT_RADPS * (-1. if time_s < self.search_reverse_s else 1.)
+                else:
+                    yaw = self.ONE_WAY_YAW_RADPS
             return 0., yaw, observation.reason
 
         if self.acquire_s is None or self.loss_s is not None:
             self.events.append(dict(time_s=time_s, event="acquired", reason="fresh_matching_id"))
             self.acquire_s, self.loss_s = time_s, None
             self.transition(time_s, "center", "fresh_matching_id")
-        if self.phase in {"center", "recenter"} and time_s-self.acquire_s >= self.CENTER_TIMEOUT_S:
+        if self.phase in {"center", "recenter"} and time_s-self.acquire_s >= self.CENTER_TIMEOUT_S-1e-10:
             return self.abort(time_s, "center_timeout")
         error = observation.error
-        yaw_cmd = max(-.75, min(.75, -self.yaw_gain*error))
+        yaw_cmd = max(-self.TRACK_YAW_LIMIT_RADPS, min(self.TRACK_YAW_LIMIT_RADPS, -self.yaw_gain*error))
         if self.phase == "advance" and abs(error) > self.OUTER:
             self.center.update(time_s, False)
             return self.transition(time_s, "recenter", "outside_outer_band")

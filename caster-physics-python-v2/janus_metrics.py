@@ -4,8 +4,18 @@ import math
 import numpy as np
 
 from qr_docking import Dock
+from qr_camera import DOCK_ID
 from scenarios import STOP_INTERLOCKS, progress, segment_duration
 from twin import advance_pose, wrap
+
+
+def wall_clearances(xy, yaw, bounds, half_extents=(.25, .205)):
+    xmin, xmax, ymin, ymax = bounds
+    hx, hy = half_extents
+    ex = hx*abs(np.cos(yaw))+hy*abs(np.sin(yaw))
+    ey = hx*abs(np.sin(yaw))+hy*abs(np.cos(yaw))
+    return np.stack([xy[:, 0]-ex-xmin, xmax-xy[:, 0]-ex,
+                     xy[:, 1]-ey-ymin, ymax-xy[:, 1]-ey], axis=1)
 
 
 def route_errors(fixture, run, xy):
@@ -53,10 +63,12 @@ def summarize(fixture, run):
         braking_start_s = float(time[np.flatnonzero(phase == "stop")[0]])
     if fixture.case == "M02" and fixture.segments and phase[-1] != "abort":
         braking_start_s = run["scheduled_duration_s"]
-    elif fixture.case in {"Q06", "Q13", "Q17"} and event("lost") is not None:
+    elif (fixture.case in {"Q06", "Q13", "Q17"} or run["image_replay"]) and event("lost") is not None:
         braking_start_s = event("lost")
     elif fixture.case == "O03":
         braking_start_s = event("pedestrian")
+    elif fixture.case == "O08":
+        braking_start_s = event("link_down")
     if braking_start_s is not None:
         first = sample_at(braking_start_s)
         since = None
@@ -80,7 +92,7 @@ def summarize(fixture, run):
     motion_onset = np.flatnonzero(abs(longitudinal) >= .05)
     if len(motion_onset):
         # Measure reorientation under reversal from the first sustained backward travel.
-        reverse_onset = np.flatnonzero(longitudinal < -.05) if fixture.case == "M08" else []
+        reverse_onset = np.flatnonzero(longitudinal < -.05) if fixture.case in {"M08", "Q18"} else []
         onset = reverse_onset[0] if len(reverse_onset) else motion_onset[0]
         stable = None
         for i in range(onset, len(time)):
@@ -93,25 +105,39 @@ def summarize(fixture, run):
                 realignment = float(time[stable]-time[onset])
                 break
     clearance = {}
-    if fixture.case in {"M07", "O02", "O03"}:
+    if fixture.case in {"M07", "O02", "O03", "Q18"}:
         yaw = col("yaw_rad")
-        # Conservative envelope includes the tire width outside the 0.32 m chassis.
-        hx, hy = .25, .205
         if fixture.case == "M07":
-            xmin, xmax, ymin, ymax = ((-.44, .88, -.44, .92) if fixture.variant == "wider-envelope"
-                                     else (-.34, .74, -.36, .76))
+            bounds = ((-.44, .88, -.44, .92) if fixture.variant == "wider-envelope"
+                      else (-.34, .74, -.36, .76))
         elif fixture.case == "O02":
-            xmin, xmax, ymin, ymax = -.35, .70, -.34, .34
+            bounds = (-.35, .70, -.34, .34)
+        elif fixture.case == "O03":
+            bounds = (-.32, .91, -.34, .34)
         else:
-            xmin, xmax, ymin, ymax = -.32, .91, -.34, .34
-        ex = hx*abs(np.cos(yaw))+hy*abs(np.sin(yaw))
-        ey = hx*abs(np.sin(yaw))+hy*abs(np.cos(yaw))
-        wall = np.min(np.stack([xy[:, 0]-ex-xmin, xmax-xy[:, 0]-ex,
-                               xy[:, 1]-ey-ymin, ymax-xy[:, 1]-ey]), axis=0)
-        clearance = {"minimum_wall_clearance_m": float(wall.min()), "bounds_m": [xmin,xmax,ymin,ymax]}
+            bounds = tuple(run["configuration"]["undock"]["wall_bounds_m"])
+        clearances = wall_clearances(xy, yaw, bounds)
+        wall = clearances.min(axis=1)
+        worst = int(wall.argmin())
+        failures = np.flatnonzero(wall <= 0.)
+        clearance = {"minimum_wall_clearance_m": float(wall[worst]), "bounds_m": list(bounds),
+                     "envelope_half_extents_m": [.25, .205],
+                     "worst_at_s": float(time[worst]),
+                     "worst_wall": ("xmin", "xmax", "ymin", "ymax")[clearances[worst].argmin()],
+                     "first_violation_at_s": float(time[failures[0]]) if len(failures) else None}
+        if fixture.case in {"M07", "Q18"}:
+            for row, margin in zip(rows, wall, strict=True):
+                row["wall_clearance_m"] = float(margin)
+        if fixture.case == "M07":
+            refs = np.column_stack([col("ref_x_m"), col("ref_y_m")])
+            reference_wall = wall_clearances(refs, col("ref_yaw_rad"), bounds).min(axis=1)
+            clearance["reference_sampled_minimum_clearance_m"] = float(reference_wall.min())
+            for row, margin in zip(rows, reference_wall, strict=True):
+                row["reference_wall_clearance_m"] = float(margin)
         if fixture.case == "O03":
             crossing = (time >= event("pedestrian")) & (time < event("clear"))
-            clearance["pedestrian_minimum_clearance_m"] = float(np.min(.52-(xy[:, 0]+ex)[crossing]))
+            rightmost = bounds[1]-clearances[:, 1]
+            clearance["pedestrian_minimum_clearance_m"] = float(np.min(.52-rightmost[crossing]))
     gates = run["gates"]
     reason = run["termination_reason"]
     metrics = {
@@ -191,7 +217,7 @@ def summarize(fixture, run):
                           signed_turns, -np.pi/2 if fixture.case=="M05" else np.pi/2)))
     elif fixture.case == "M11" and fixture.variant == "boundary":
         checks["surface_crossed"] = event("surface_change") is not None
-    if fixture.case.startswith("Q"):
+    if run["configuration"]["camera"]:
         checks.update(zero_forward_when_invalid=not metrics["qr_invalid_forward_samples"],
                       forward_within_outer_band=not np.any(moving_qr & (np.abs(qr)>.04)),
                       image_feedback_signed=not np.any(qr_valid & (np.abs(qr)>.001) &
@@ -200,12 +226,27 @@ def summarize(fixture, run):
         checks.update(virtual_contact_without_charge=reason=="charge_timeout" and metrics["aligned"]
                       and metrics["contact"] and not metrics["charge_confirmed"])
     if fixture.case == "Q05":
-        search_limit = Dock.SWEEP_SEARCH_LIMIT_S if fixture.search_sweep else Dock.SEARCH_LIMIT_S
+        search_limit = run["configuration"]["qr_command_budgets"]["search_limit_s"]
         search = phase == "search"
         acquired_at = event("acquired")
+        dt = np.diff(time)
+        yaw = col("yaw_rad")
+        boundary = np.flatnonzero(search)[-1]+1 if np.any(search) else 0
+        search_end = min(boundary, len(time)-1)
+        actual_excursion = yaw[:search_end+1]-yaw[0]
+        metrics["search"] = {
+            "first_acquisition_s": acquired_at,
+            "end_s": float(time[search_end]),
+            "duration_budget_s": search_limit,
+            "yaw_request_peak_radps": float(np.max(np.abs(yaw_request[search]), initial=0.)),
+            "yaw_request_absolute_integral_rad": float(np.sum(np.abs(yaw_request[:-1][search[:-1]])*dt[search[:-1]])),
+            "achieved_yaw_excursion_rad": [float(actual_excursion.min()), float(actual_excursion.max())],
+            "achieved_absolute_yaw_travel_rad": float(np.sum(np.abs(np.diff(yaw[:search_end+1])))),
+            "achieved_peak_abs_yaw_rate_radps": float(np.max(np.abs(col("body_yaw_rate_radps")[:search_end+1]))),
+        }
         checks.update(bounded_yaw_only_search=(not np.any(time[search] >= search_limit)
                       and not np.any(col("requested_v_mps")[search])
-                      and np.all(np.abs(yaw_request[search]) <= .55)
+                      and np.all(np.abs(yaw_request[search]) <= Dock.SEARCH_YAW_LIMIT_RADPS)
                       and not np.any(search & motion_requested & (col("qr_reject_reason") != "missing"))),
                       fresh_detection_acquired_within_budget=(acquired_at is not None
                           and acquired_at < search_limit and qr_valid[sample_at(acquired_at)]),
@@ -237,6 +278,59 @@ def summarize(fixture, run):
         checks["docking_terminated_safely"] = run["completed_s"] is not None and stopped[-1]
     if fixture.case == "Q20":
         checks["settled_center_and_advanced"] = metrics["qr_first_advance_s"] is not None
+    if run["image_replay"]:
+        captures = run["image_replay"].rows
+        first_capture = captures[0] if captures else None
+        first_arrival = first_capture["arrival_time_s"] if first_capture else None
+        image_control = col("qr_frame_source") == "synthetic_image_replay"
+        selected = col("qr_selected_id")
+        image_samples = np.flatnonzero(image_control)
+        first_image_control = int(image_samples[0]) if len(image_samples) else None
+        expected_valid = run["configuration"]["image_replay"]["fixture_expected_decoder_valid"]
+        metrics["image_handoff"] = {
+            "first_capture_s": first_capture["capture_time_s"] if first_capture else None,
+            "first_arrival_s": first_arrival,
+            "first_control_sample_s": float(time[first_image_control]) if first_image_control is not None else None,
+            "first_control_reason": rows[first_image_control]["reason"] if first_image_control is not None else None,
+            "first_requested_v_mps": float(col("requested_v_mps")[first_image_control])
+            if first_image_control is not None else None,
+            "decoder_captures": len(captures), "decoder_valid_captures": sum(item["decoder_valid"] for item in captures),
+            "decoder_wall_median_s": float(np.median([item["decode_wall_s"] for item in captures])) if captures else None,
+            "first_selected_id": selected[first_image_control] if first_image_control is not None else None,
+        }
+        checks.update(image_injected_while_approaching=first_image_control is not None
+                      and first_image_control > 0 and positive[first_image_control-1],
+                      first_image_consumed_on_first_possible_control_sample=first_arrival is not None
+                      and first_image_control == sample_at(first_arrival),
+                      decoder_and_gate_match_expected_validity=bool(len(image_samples)) and
+                      all(item["decoder_valid"] == expected_valid for item in captures)
+                      and bool(np.all(qr_valid[image_control] == expected_valid)),
+                      correct_selection_or_immediate_interlock=bool(np.all(selected[image_control] == DOCK_ID))
+                      if expected_valid else stop_s is not None and not np.any(motion_requested & image_control),
+                      no_charge_confirmation_from_image=not np.any(col("charge_confirmed")))
+        if fixture.case == "Q09" and fixture.camera_image_fixture == "mixed_ids":
+            checks["distinct_candidates_seen"] = all(item["candidate_count"] == 2 for item in captures)
+        if fixture.case == "Q09" and fixture.camera_image_fixture == "duplicate_target":
+            checks["duplicate_id_interlock"] = bool(np.all(col("qr_reject_reason")[image_control] == "ambiguous_id"))
+    if fixture.case == "Q18":
+        authorization = event("undock_authorization")
+        release = event("virtual_release_accepted")
+        reverse = event("backout")
+        reverse_samples = col("requested_v_mps") < 0.
+        budget = run["configuration"]["undock"]
+        measured_backout = float(xy[0, 0]-xy[-1, 0])
+        metrics["undock"] = {"authorization_s": authorization, "release_s": release,
+                             "first_reverse_s": reverse, "backout_request_end_s": event("stop"),
+                             "axle_backout_m": measured_backout, "release_source": budget["release_source"]}
+        checks.update(authorization_then_release_then_reverse=authorization is not None and release is not None
+                      and reverse is not None and authorization < release < reverse
+                      and not np.any(motion_requested & (time <= release)),
+                      rejected_pre_authorization_release=event("virtual_release_rejected") is not None,
+                      reverse_without_virtual_contact_or_charge=bool(np.any(reverse_samples))
+                      and not np.any(reverse_samples & (col("undock_virtual_charging") | col("undock_virtual_contact"))),
+                      bounded_backout_and_stop=reason == "backout_distance_reached" and stop_s is not None
+                      and measured_backout >= budget["reverse_distance_m"] and not np.any(positive)
+                      and not np.any(yaw_request))
     if fixture.case=="O03":
         hold = (time >= event("pedestrian")) & (time < event("authorized_resume"))
         checks.update(stop_and_authorized_resume=stop_s is not None and not np.any(positive & hold)
@@ -244,11 +338,48 @@ def summarize(fixture, run):
                       pedestrian_geometry_clear=clearance["pedestrian_minimum_clearance_m"] > 0)
     if clearance:
         checks["wall_geometry_clear"] = clearance["minimum_wall_clearance_m"] > 0.
-    if fixture.case in {"O04","O05"}:
+    if fixture.case == "O04" and run["configuration"]["command_input"]:
+        trigger = event("guard_stop")
+        trigger_index = sample_at(trigger) if trigger is not None else len(time)
+        accepted = np.flatnonzero(col("stream_accepted"))
+        last = float(time[accepted[-1]]) if len(accepted) else None
+        publisher_cut = event("publisher_cut")
+        timeout = run["configuration"]["command_input"]["command_timeout_s"]
+        expected_reason = "command_timeout" if publisher_cut is not None else "operator_abort"
+        dt = time[1]-time[0]
+        detected = ((last is not None and trigger is not None and
+                     timeout-1e-10 <= trigger-last <= timeout+dt+1e-10)
+                    if publisher_cut is not None else trigger == event("stream_operator_cancel"))
+        metrics["stream_stop"] = {"last_accepted_request_s": last, "publisher_cut_s": publisher_cut,
+                                  "guard_stop_s": trigger, "command_timeout_s": timeout}
+        checks.update(guard_detected_fault=detected and reason == expected_reason,
+                      immediate_zero_and_planar_stop=stop_s is not None and not np.any(motion_requested[trigger_index:]))
+    elif fixture.case in {"O04","O05"}:
         trigger = next((item for item in run["events"] if item["reason"] == "injected_stop_trigger"), None)
         observed = trigger is not None and trigger["event"] in STOP_INTERLOCKS and reason == trigger["event"]
         checks.update(injected_stop_trigger_observed=observed,
                       post_trigger_braking_dwell=(observed and stop_s is not None
                           and not np.any(motion_requested[time >= trigger["time_s"]])))
+    if fixture.case == "O08":
+        down, restored = event("link_down"), event("link_restored")
+        restart, authorization = event("guard_restart"), event("fresh_authorization")
+        stale = event("stale_epoch_request")
+        reopened = np.flatnonzero(motion_requested & (time > authorization)) if authorization is not None else []
+        first = float(time[reopened[0]]) if len(reopened) else None
+        stale_row = rows[sample_at(stale)] if stale is not None else None
+        metrics["stream_recovery"] = {"link_down_s": down, "link_restored_s": restored,
+                                      "reset_s": restart, "authorization_s": authorization,
+                                      "stale_arrival_s": stale, "first_motion_request_s": first}
+        checks.update(zero_through_restart_and_authorization=down is not None and authorization is not None
+                      and bool(np.any(positive & (time < down)))
+                      and not np.any(motion_requested & (time >= down) & (time <= authorization)),
+                      prior_epoch_command_rejected=(stale_row is not None and stale_row.get("stream_input_epoch") is not None
+                                                    and stale_row["stream_input_epoch"] < stale_row["stream_epoch"]
+                                                    and not stale_row["stream_forwarded"]
+                                                    and not motion_requested[sample_at(stale)]),
+                      motion_resumed_on_new_authorized_request=first is not None and
+                      bool(rows[reopened[0]]["stream_accepted"]),
+                      planar_stop_dwell_before_resume=stop_dwell_s is not None and first is not None
+                      and stop_dwell_s < first)
     metrics["checks"] = {k: bool(v) for k,v in checks.items()}
     return metrics

@@ -1,15 +1,21 @@
 """Run the V2.3 RK4 plant with JANUS task controllers and time-aligned logging."""
-from collections import deque
 from dataclasses import asdict, replace
+from heapq import heappop, heappush
 from math import cos, hypot, sin
 
 import numpy as np
 
+from janus_command_input import CommandInput
+from janus_image_input import ImageReplay
+from janus_undock import Undock
 from qr_camera import Camera, DOCK_ID, Frame, Marker, estimate_marker, mechanical_errors, project
 from qr_docking import Dock, FrameGate
 from scenarios import Dwell, Route, STOP_INTERLOCKS, axle_state, terminal_ok
 from twin import (State, Torques, TrackingController, case_parameters, evaluate_motion,
                   kinetic_energy, result_record, rk4_step, validate_parameters, wrap)
+
+LINEAR_COMMAND_LIMIT_MPS = .25
+YAW_COMMAND_LIMIT_RADPS = 1.
 
 
 def parameters_for(fixture):
@@ -27,37 +33,43 @@ def parameters_for(fixture):
 def initial_state(fixture, p):
     yaw = np.deg2rad(fixture.yaw_deg)
     cx, cy = p.dynamics.body_com_m[:2]
-    return replace(State.at_rest(p), body_x_m=cos(yaw)*cx-sin(yaw)*cy,
+    return replace(State.at_rest(p), body_x_m=fixture.axle_x_m+cos(yaw)*cx-sin(yaw)*cy,
                    body_y_m=fixture.y_m+sin(yaw)*cx+cos(yaw)*cy, body_yaw_rad=yaw,
                    caster_angle_relative_rad=np.deg2rad(fixture.caster_deg))
 
 
 class CameraStream:
-    def __init__(self, camera, marker, seed, noisy):
+    DEFAULT_NOISY_DELAYS_S = (.07, .09)
+
+    def __init__(self, camera, marker, seed, noisy, delays_s=(), image_replay=None):
         self.camera, self.marker = camera, marker
         self.rng = np.random.default_rng(seed) if noisy else None
-        self.queue = deque()
+        self.delays_s = delays_s or (self.DEFAULT_NOISY_DELAYS_S if noisy else (0.,))
+        self.image_replay = image_replay
+        self.queue = []
         self.frames = []
         self.last = None
 
     def sample(self, index, time_s, dt, pose, mode):
         frame_ticks = round(self.camera.frame_period_s/dt)
         if index % frame_ticks == 0 and mode != "stream_cut":
-            delay = (.07 + .02*(index//frame_ticks % 2)) if self.rng is not None else 0.
+            delay = self.delays_s[index//frame_ticks % len(self.delays_s)]
             if mode == "stale":
                 delay = .27
-            if mode == "duplicate" and self.last is not None:
+            if mode == "image_replay":
+                frame = self.image_replay.capture(time_s, self.camera)
+            elif mode == "duplicate" and self.last is not None:
                 frame = replace(self.last, arrival_time_s=time_s)
             else:
                 identity = "JANUS-OTHER-99" if mode == "wrong" else DOCK_ID
                 candidate = None if mode == "loss" else project(pose, self.camera, self.marker, identity, self.rng)
                 candidates = (candidate,) if candidate and candidate.visible else ()
                 frame = Frame(time_s, round(time_s+delay, 9), candidates)
-            self.queue.append(frame)
+            heappush(self.queue, (frame.arrival_time_s, index, frame))
             self.last = frame
         arrivals = []
-        while self.queue and self.queue[0].arrival_time_s <= time_s+1e-10:
-            frame = self.queue.popleft()
+        while self.queue and self.queue[0][0] <= time_s+1e-10:
+            _, _, frame = heappop(self.queue)
             arrivals.append(frame)
             self.frames.append(frame)
         return arrivals
@@ -74,15 +86,20 @@ def simulate(fixture):
     initial_energy = kinetic_energy(start, p)
     initial_pose = axle_state(start, p)[0]
     route = Route(fixture, p, initial_pose) if fixture.segments else None
-    use_camera = fixture.case.startswith("Q") or fixture.case == "O07"
+    undock = Undock(initial_pose[0]) if fixture.case == "Q18" else None
+    use_camera = (fixture.case.startswith("Q") and not undock) or fixture.case == "O07"
     event_types = {event for _, event in fixture.events}
+    command_input = CommandInput(recovery=fixture.case == "O08") if "control_stream" in event_types else None
     camera = Camera(left_m=.035, yaw_rad=np.deg2rad(4), target_u_px=510.*np.tan(np.arctan2(.035, .22)-np.deg2rad(4))+320.) if "camera_offset" in event_types else Camera()
     marker = Marker()
-    camera_stream = CameraStream(camera, marker, fixture.seed, "delay_noise" in event_types)
+    image_replay = ImageReplay(fixture.case, fixture.camera_image_fixture) if fixture.camera_image_fixture else None
+    camera_stream = CameraStream(camera, marker, fixture.seed, "delay_noise" in event_types,
+                                 fixture.camera_delays_s, image_replay)
     frame_gate = FrameGate(camera)
     observation = frame_gate.current
     dock = Dock(camera, marker.side_m, fixture.qr_yaw_gain, fixture.search_sweep,
-                search_enabled=fixture.case == "Q05") if use_camera else None
+                search_enabled=fixture.case == "Q05", search_limit_s=fixture.search_limit_s,
+                search_reverse_s=fixture.search_reverse_s) if use_camera else None
     wheel = TrackingController(p, "straight", "baseline")
     transition_events, rows = [], []
     schedule = sorted(fixture.events)
@@ -107,7 +124,7 @@ def simulate(fixture):
             injection = fixture.case in {"O04", "O05"} and event in STOP_INTERLOCKS
             transition_events.append(dict(time_s=t, event=event,
                                           reason="injected_stop_trigger" if injection else "fixture"))
-            if event in {"visible", "wrong", "loss", "stale", "duplicate", "stream_cut"}:
+            if event in {"visible", "wrong", "loss", "stale", "duplicate", "stream_cut", "image_replay"}:
                 mode = event
             elif event in STOP_INTERLOCKS and interlock is None:
                 interlock = event
@@ -119,6 +136,14 @@ def simulate(fixture):
                 transit = False
             elif event == "brake_step":
                 braking = True
+            if command_input:
+                command_input.handle_event(t, event)
+            if undock and event == "undock_authorization":
+                undock.authorize(t)
+            elif undock and event == "virtual_release_frame":
+                accepted = undock.release(t, t)
+                transition_events.append(dict(time_s=t, event="virtual_release_accepted" if accepted
+                                              else "virtual_release_rejected", reason="synthetic_bms_and_contact"))
         if high_drag is not None and step_parameters is p and pose[0] >= .30:
             step_parameters = high_drag
             transition_events.append(dict(time_s=t, event="surface_change", reason="axle_crossed_boundary"))
@@ -137,7 +162,15 @@ def simulate(fixture):
                 interlock = "pedestrian_interlock_latched"
             elif braking:
                 interlock = "brake_step"
-        if interlock:
+        stream_row = {}
+        if undock:
+            previous = undock.phase
+            requested_v, requested_w, why = undock.update(t, pose[0], stopped, interlock)
+            phase = undock.phase
+            route_goal = initial_pose - np.array([undock.budget.reverse_distance_m, 0., 0.])
+            if phase != previous:
+                transition_events.append(dict(time_s=t, event=phase, reason=why))
+        elif interlock:
             requested_v, requested_w, why = dock.abort(t, interlock) if dock else (0., 0., interlock)
             phase = "abort"
         elif pedestrian_hold:
@@ -149,6 +182,12 @@ def simulate(fixture):
         elif route:
             requested_v, requested_w, route_goal, phase = route.update(t, pose, v, lateral, state.body_yaw_rate_radps)
             why = phase
+        elif command_input:
+            guarded, stream_row = command_input.update(tick, t, dt)
+            requested_v, requested_w, why = guarded.v_mps, guarded.yaw_rate_radps, guarded.reason
+            phase = "transit" if why == "ready" else ("abort" if fixture.case == "O04" else "hold")
+            if phase == "abort" and stop_phase_start is None:
+                transition_events.append(dict(time_s=t, event="guard_stop", reason=why))
         elif use_camera and not transit:
             if ("virtual_charge" in event_types and dock.phase == "wait_for_charge" and last_bms_s is None
                     and t-dock.wait_s >= .30-1e-10):
@@ -161,8 +200,8 @@ def simulate(fixture):
             why = "zero_torque_fixture"
         else:
             requested_v, requested_w, phase, why = .14, 0., "transit", "fixture_velocity_request"
-        limited_v = float(np.clip(requested_v, -.25, .25))
-        limited_w = float(np.clip(requested_w, -1., 1.))
+        limited_v = float(np.clip(requested_v, -LINEAR_COMMAND_LIMIT_MPS, LINEAR_COMMAND_LIMIT_MPS))
+        limited_w = float(np.clip(requested_w, -YAW_COMMAND_LIMIT_RADPS, YAW_COMMAND_LIMIT_RADPS))
         geometry = p.geometry
         wheel_targets = (np.array([limited_v-geometry.drive_track_m*limited_w/2,
                                    limited_v+geometry.drive_track_m*limited_w/2])/geometry.drive_radius_m)
@@ -192,10 +231,18 @@ def simulate(fixture):
                    aligned=dock.aligned if dock else False, contact=dock.contact if dock else False,
                    charge_confirmed=dock.charge_confirmed if dock else False,
                    bms_capture_time_s=last_bms_s, retry_count=dock.retries if dock else 0)
+        row.update(stream_row)
+        if image_replay:
+            row.update(qr_frame_source=observation.frame.source if observation.frame else None,
+                       qr_selected_id=observation.candidate.id if observation.valid else None)
+        if undock:
+            row.update(undock_virtual_charging=undock.charging, undock_virtual_contact=undock.contact,
+                       undock_authorized_s=undock.authorized_s, undock_release_s=undock.release_s)
         rows.append(row)
         if phase == "abort":
             reason = why
         finished = (phase in {"abort", "settled"} or (dock and dock.done)
+                    or (undock and undock.done)
                     or (phase == "stop" and braking))
         if finished:
             if stop_phase_start is None:
@@ -220,10 +267,19 @@ def simulate(fixture):
     events.sort(key=lambda item: item["time_s"])
     config = {"parameters": asdict(p), "surface_after_boundary": asdict(high_drag) if high_drag else None,
               "camera": asdict(camera) if use_camera else None, "marker": asdict(marker) if use_camera else None,
-              "target_axle_standoff_m": Dock.STANDOFF_AXLE_M if use_camera else None}
+              "velocity_limits": {"max_abs_v_mps": LINEAR_COMMAND_LIMIT_MPS,
+                                  "max_abs_yaw_radps": YAW_COMMAND_LIMIT_RADPS},
+              "target_axle_standoff_m": Dock.STANDOFF_AXLE_M if use_camera else None,
+              "qr_command_budgets": dock.command_budgets() if dock else None,
+              "camera_transport": {"delays_s": camera_stream.delays_s,
+                                   "corner_noise_sigma_px": .9 if camera_stream.rng is not None else 0.}
+              if use_camera else None,
+              "image_replay": image_replay.configuration() if image_replay else None,
+              "command_input": command_input.budgets() if command_input else None,
+              "undock": undock.configuration() if undock else None}
     return {"rows": rows, "gates": gates, "events": events, "frames": camera_stream.frames,
             "route_origins": [pose.tolist() for pose in route.origins] if route else [],
             "scheduled_duration_s": sum(route.durations) if route else None,
             "initial_solver_state": asdict(start), "initial_axle_pose": initial_pose.tolist(),
             "configuration": config, "completed_s": completed_s, "termination_reason": reason,
-            "stop_phase_start_s": stop_phase_start}
+            "stop_phase_start_s": stop_phase_start, "image_replay": image_replay}
