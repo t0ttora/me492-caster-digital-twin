@@ -305,7 +305,6 @@ function play(nextDirection=1) {
   if (nextDirection>0 && time>=track.end) seek(0);
   if (nextDirection<0 && time<=0) seek(track.end);
   direction=nextDirection;
-  $('play').textContent=direction===1?'Ⅱ':'▶';
   $('play').setAttribute('aria-label',direction===1?'Pause':'Play');
   $('reverse').setAttribute('aria-pressed',String(direction===-1));
   requestFrame=requestAnimationFrame(tick);
@@ -314,7 +313,6 @@ function play(nextDirection=1) {
 function pause() {
   direction=0;lastTick=null;
   cancelAnimationFrame(requestFrame);
-  $('play').textContent='▶';
   $('play').setAttribute('aria-label','Play');
   $('reverse').setAttribute('aria-pressed','false');
 }
