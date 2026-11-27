@@ -86,7 +86,7 @@ def qr_staging_route(fixture, parameters, axle_pose, camera, observation, side_m
     """Use the observed marker transform to plan a verified pre-dock staging pose."""
     forward, lateral, camera_heading = marker_pose_in_camera(observation.candidate, camera, side_m)
     yaw = axle_pose[2] + camera.yaw_rad
-    approach_yaw = yaw + camera_heading
+    approach_yaw = yaw + camera_heading - np.deg2rad(fixture.marker_mount_calibration_deg)
     camera_world = axle_pose[:2] + np.array([
         cos(axle_pose[2])*camera.forward_m-sin(axle_pose[2])*camera.left_m,
         sin(axle_pose[2])*camera.forward_m+cos(axle_pose[2])*camera.left_m,
@@ -121,7 +121,8 @@ def simulate(fixture):
     event_types = {event for _, event in fixture.events}
     command_input = CommandInput(recovery=fixture.case == "O08") if "control_stream" in event_types else None
     camera = Camera(left_m=.035, yaw_rad=np.deg2rad(4), target_u_px=510.*np.tan(np.arctan2(.035, .22)-np.deg2rad(4))+320.) if "camera_offset" in event_types else Camera()
-    marker = Marker()
+    dock_reference = Marker()
+    marker = replace(dock_reference, yaw_rad=np.deg2rad(fixture.marker_mount_yaw_deg))
     image_replay = ImageReplay(fixture.case, fixture.camera_image_fixture) if fixture.camera_image_fixture else None
     camera_stream = CameraStream(camera, marker, fixture.seed, "delay_noise" in event_types,
                                  fixture.camera_delays_s, image_replay)
@@ -187,10 +188,10 @@ def simulate(fixture):
         if use_camera:
             arrivals = camera_stream.sample(tick, t, dt, pose, mode)
             observation = frame_gate.update(t, arrivals)
-            mechanical = mechanical_errors(pose, marker, Dock.STANDOFF_AXLE_M)
+            mechanical = mechanical_errors(pose, dock_reference, Dock.STANDOFF_AXLE_M)
             if observation.valid:
                 estimator_range, estimator_heading = estimate_marker(observation.candidate, camera, marker.side_m)
-            route_goal = np.array([marker.x_m-Dock.STANDOFF_AXLE_M, marker.y_m, marker.yaw_rad])
+            route_goal = np.array([dock_reference.x_m-Dock.STANDOFF_AXLE_M, dock_reference.y_m, dock_reference.yaw_rad])
         if dock and not transit and interlock is None:
             # An interrupted docking attempt must not resume a historical contact hold.
             if pedestrian_hold:
@@ -340,6 +341,11 @@ def simulate(fixture):
                              "start_s": staging_start_s,
                              "target_pose": staging.origins[-1].tolist() if staging else None,
                              "gates": staging.gates if staging else []}
+    if fixture.marker_mount_yaw_deg:
+        config["marker_mount"] = {"actual_marker_from_dock_yaw_deg": fixture.marker_mount_yaw_deg,
+                                  "configured_marker_from_dock_yaw_deg": fixture.marker_mount_calibration_deg,
+                                  "target_center_u_px": camera.target_u_px,
+                                  "mechanical_dock_reference": asdict(dock_reference)}
     return {"rows": rows, "gates": gates, "events": events, "frames": camera_stream.frames,
             "route_origins": [pose.tolist() for pose in route.origins] if route else [],
             "scheduled_duration_s": sum(route.durations) if route else None,

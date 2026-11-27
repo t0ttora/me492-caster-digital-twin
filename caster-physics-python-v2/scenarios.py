@@ -31,6 +31,8 @@ class Fixture:
     camera_delays_s: tuple = ()
     axle_x_m: float = 0.
     camera_image_fixture: str = ""
+    marker_mount_yaw_deg: float = 0.
+    marker_mount_calibration_deg: float = 0.
 
 
 SQUARE_CW = (Segment(.5, 0., 2.5), Segment(0., -pi/2, 2.4))*4
@@ -135,6 +137,13 @@ FIXTURES = (
             hardware_scope="synthetic authorization, virtual charge/contact release and planar backout geometry proxy"),
     Fixture("Q19", "offset", yaw_deg=-10, events=((0., "camera_offset"),),
             hardware_scope="fixed camera and marker transform proxy"),
+    Fixture("Q19", "staged-calibrated-mount", 34., yaw_deg=-10, qr_yaw_gain=1.5,
+            events=((0., "camera_offset"), (0., "qr_pose_staging")), marker_mount_yaw_deg=12.,
+            marker_mount_calibration_deg=12.,
+            hardware_scope="configured camera and marker yaw offsets with independent planar dock truth"),
+    Fixture("Q19", "staged-missing-mount-calibration", 34., yaw_deg=-10, qr_yaw_gain=1.5,
+            events=((0., "camera_offset"), (0., "qr_pose_staging")), marker_mount_yaw_deg=12.,
+            hardware_scope="intentional omitted marker yaw calibration on the same synthetic geometry"),
     Fixture("Q20", "delay-noise", 20., yaw_deg=-17, events=((0., "delay_noise"),)),
     Fixture("Q20", "delay-noise-damped", 20., yaw_deg=-17, events=((0., "delay_noise"),), qr_yaw_gain=1.5),
     Fixture("Q20", "fixed55-reference", 20., yaw_deg=-17, events=((0., "delay_noise"),),

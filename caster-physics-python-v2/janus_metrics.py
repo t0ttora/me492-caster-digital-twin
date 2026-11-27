@@ -307,7 +307,7 @@ def summarize(fixture, run):
                       and not np.any(motion_requested & (time >= obstacle_at)))
     if fixture.case=="Q17":
         checks["retry_budget_aborts"] = reason=="retry_budget" and metrics["retry_count"]==3
-    if fixture.case == "Q04" and "staging" in run["configuration"]:
+    if fixture.case in {"Q04", "Q19"} and "staging" in run["configuration"]:
         cfg = run["configuration"]["staging"]
         staged_s = event("staging_complete")
         checks.update(staging_observed_and_qualified=staged_s is not None and len(cfg["gates"]) == 3,

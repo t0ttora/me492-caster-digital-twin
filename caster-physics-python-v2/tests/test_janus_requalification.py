@@ -1,13 +1,17 @@
 """Sample-boundary and interlock regressions for the requalification fixtures."""
+from math import radians
 from pathlib import Path
 import sys
 
+import numpy as np
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from janus_command_input import CommandInput
-from janus_sim import CameraStream
+from janus_sim import CameraStream, parameters_for, qr_staging_route
 from janus_undock import Undock
 from qr_camera import Camera, Frame, Marker, project
 from qr_docking import Dock, FrameGate
+from scenarios import FIXTURES
 
 
 def test_invalid_and_valid_arrivals_in_one_tick_cut_advance_until_a_new_capture():
@@ -56,6 +60,19 @@ def test_camera_capture_rewind_stays_fresh_but_fails_strict_ordering():
     bad = stream.sample(10, .10, .01, pose, "capture_rewind")
     assert bad[0].capture_time_s == .04 and bad[0].arrival_time_s == .10
     assert gate.update(.10, bad).reason == "disordered"
+
+
+def test_staging_pose_accounts_for_calibrated_camera_and_marker_mounts():
+    fixture = next(f for f in FIXTURES if (f.case, f.variant) == ("Q19", "staged-calibrated-mount"))
+    camera = Camera(left_m=.035, yaw_rad=radians(4))
+    marker = Marker(yaw_rad=radians(12))
+    pose = np.array([0., 0., radians(-10)])
+    candidate = project(pose, camera, marker)
+    frame = Frame(0., 0., (candidate,))
+    observed = FrameGate(camera).update(0., [frame])
+    route = qr_staging_route(fixture, parameters_for(fixture), pose, camera, observed, marker.side_m)
+    assert observed.valid
+    assert np.allclose(route.origins[-1], [.45, 0., 0.], atol=1e-12)
 
 
 def test_bounded_search_reversal_and_interlock_at_sample_boundary():
