@@ -1,6 +1,6 @@
 # Open research journal
 
-The portfolio-aligned public ME492 record: progress, vision, manifesto, tasks, roadmap, decisions, access, documents and owner profile. The actual Neue Montreal font, owner mark, palette and ruler/grid language come from olusemre.dev.
+The portfolio-aligned public ME492 record: progress, vision, manifesto, tasks, roadmap, decisions, access, documents and owner profile. The actual Neue Montreal font, owner mark, palette and grid come from olusemre.dev.
 
 ## Build and maintain
 
@@ -15,19 +15,20 @@ The `Publish research journal` workflow rebuilds on main pushes, issue changes, 
 
 All 22 initial tasks and their public comments are rendered at build time. Status filters, search, task details, roadmap-to-task links and a manual public GitHub status refresh enhance that static record. API errors retain the published snapshot and show a warning. All tasks, reports and records remain readable without JavaScript.
 
-- `layout.html`: shared frame, navigation and page metadata
-- `index.html`: project overview and simulation totals
-- `results.html`: case index, code links and run data
+- `layout.html` and `header.html`: shared frame, navigation and page metadata
+- `index.html`: project overview and interactive Q04 preview
+- `results.html`: qualification, case evidence, code links and run data
 - `case-notes.json`: English case titles and summaries, paired with the published qualification matrix
 - `progress.html`: dated journal and repository history
 - `tasks.html`: filterable issue workbench
-- `roadmap.html`: semester table and deadlines
+- `roadmap.html`: weekly timeline, milestones and deadlines
 - `vision.html`: research rationale and question/evidence matrix
 - `manifesto.html`: separate editorial principles page
 - `decisions.html`: decision and access ledgers
 - `library.html`: report and document catalog
 - `about.html`: text profile and professional facts
-- `style.css`: responsive portfolio visual system, keyboard focus, reduced motion and print
+- `journal.css` and `style.css`: responsive journal styles, keyboard focus, reduced motion and print
+- `scenes/`: 3D playback, case search, recorded runs, MP4s and model credits
 - `app.js`: filters, navigation, roadmap links and GitHub status refresh
 - `assets/status.mjs`: status classification and API input validation
 - `assets/`: existing portfolio font and owner mark
@@ -55,4 +56,4 @@ Tasks show planned periods/budgets in the list, independent type/status filters 
 
 The reader fills the available viewport with one document scroll area. Pages render near the viewport, and old canvas buffers are released on scale changes. The source PDFs remain unchanged.
 
-The overview and results pages take their simulation counts from the published qualification matrix. Weekly status in the research log comes from GitHub. A verified week requires a closed issue with an unambiguous `status:verified` label.
+The results page takes the simulation counts from the published qualification matrix. Roadmap and task statuses come from GitHub. A verified week requires a closed issue with an unambiguous `status:verified` label.

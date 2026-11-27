@@ -30,13 +30,16 @@ with sync_playwright() as p:
     page.get_by_role('button', name='Verified', exact=True).click()
     assert page.locator('#task-1').is_visible()
     assert not page.locator('#task-2').is_visible()
+    page.get_by_role('button', name='All statuses', exact=True).click()
     page.get_by_role('button', name='Decision gates', exact=True).click()
     assert page.locator('.task:visible').count() == 6
     page.get_by_role('searchbox').fill('freeze')
     assert page.locator('#task-21').is_visible()
     assert not page.locator('#task-1').is_visible()
     page.goto('http://127.0.0.1:8766/roadmap.html')
-    page.locator('.roadmap-task').first.click()
+    page.locator('.roadmap-stops a[href="#week-W01"]').click()
+    assert page.locator('#week-W01').evaluate('(week) => week.open')
+    page.locator('#week-W01').get_by_role('link', name='Full task record ↗', exact=True).click()
     assert page.locator('#task-inspector').is_visible()
     assert 'Scope and preparation' in page.locator('#inspector-title').inner_text()
     page.get_by_role('button', name='Close task details', exact=True).click()
@@ -63,11 +66,11 @@ with sync_playwright() as p:
     issue['labels'] = [{'name':'status:blocked'}, {'name':'type:weekly'}]
     page.unroute_all()
     page.route('https://api.github.com/**', lambda route: route.fulfill(status=200, content_type='application/json', body=json.dumps(fixture)))
-    page.goto('http://127.0.0.1:8766/progress.html')
+    page.goto('http://127.0.0.1:8766/roadmap.html#week-W01')
     page.get_by_role('button', name='Refresh GitHub status').click()
     page.wait_for_function("!document.querySelector('#refresh').disabled")
     assert 'refreshed' in page.locator('#sync-status').inner_text()
-    assert page.locator('#weekly-progress [data-progress-issue="1"] .badge').inner_text() == 'Blocked'
+    assert page.locator('#week-W01 .badge').inner_text() == 'Blocked'
     page.goto('http://127.0.0.1:8766/report-ME492_Timetable_EN.html')
     page.get_by_text('Page 1 of 2', exact=True).wait_for()
     page.get_by_role('button', name='Next page', exact=True).click()

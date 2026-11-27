@@ -183,6 +183,8 @@ def qualification_summary(matrix):
     passed_cases = sum(case['status'] == 'passed' for case in cases)
     components = [(environment, check) for case in cases for environment, check in case['components'].items()]
     total_passed = sum(check['status'] == 'passed' for _, check in components)
+    component_summary = (f'All {len(components)} environment checks passed.' if total_passed == len(components)
+                         else f'{total_passed} of {len(components)} environment checks passed.')
     tracks = {
         'python': ('Python V2.3', {'Python'}),
         'simscape': ('Native Simscape', {'Simscape'}),
@@ -193,17 +195,15 @@ def qualification_summary(matrix):
         checks = [check for environment, check in components if environment in environments]
         passed_checks = sum(check['status'] == 'passed' for check in checks)
         rows.append(f'<div><dt><a href="results.html#{anchor}">{label}</a></dt><dd>{passed_checks} / {len(checks)}</dd></div>')
-    return f'''<article class="qualification-summary" aria-labelledby="janus-qualification">
-<h2 id="janus-qualification">Simulation qualification</h2>
-<div class="qualification-totals"><p class="qualification-result"><strong>{passed_cases} / {len(cases)}</strong><span>simulation cases passed</span></p>
-<p class="qualification-result"><strong>{total_passed} / {len(components)}</strong><span>environment checks passed</span></p></div>
-<dl aria-label="Checks passed by environment">{''.join(rows)}</dl>
-<p class="muted small">Some cases run in more than one environment. The ROS 2 / Gazebo checks include live runs and camera replay.</p>
-<p class="qualification-links"><a href="results.html#cases">Read all 40 cases</a>
-<a href="scenes/">Watch in 3D</a>
-<a href="results.html#run-data">Open ROS 2 run data</a>
-<a href="report-Arche_JANUS_Vaka_Kartlari_TR.html">Illustrated case cards</a></p>
-</article>'''
+    return f'''<section class="qualification-panel" id="janus-qualification" aria-labelledby="qualification-title">
+<div><h2 id="qualification-title">Qualification</h2><p><strong>{passed_cases} of {len(cases)}</strong> cases passed. {component_summary} Some cases run in several environments.</p></div>
+<details class="fold"><summary>Checks by environment</summary><dl>{''.join(rows)}</dl><p class="muted small">The ROS 2 / Gazebo count includes live runs and camera replay.</p></details>
+</section>'''
+
+
+def site_header(root, current):
+    header = (ROOT / 'site/header.html').read_text().replace('{{ROOT}}', root)
+    return header.replace(f'data-page="{current}"', f'data-page="{current}" aria-current="page" class="active"')
 
 
 def case_index(cases, notes, scenes):
@@ -231,7 +231,7 @@ def case_index(cases, notes, scenes):
 </figure>
 <p class="case-media-links"><a href="{scenes_url}">Explore {code} in 3D</a><a href="{video_url}">Open MP4</a></p>'''
             rows.append(f'<details class="case-entry" id="case-{code}"><summary><span>{code}</span><span class="case-title">{escape(title)}</span><span class="case-result">{result}</span></summary><div class="case-body"><p>{escape(summary)}</p>{media}<p class="muted small">{escape(environments)}</p><p lang="tr"><strong>Kabul ölçütü</strong> {escape(case["acceptance_tr"])}</p><dl>{measurements}</dl></div></details>')
-        sections.append(f'<section class="case-group" id="{anchor}"><h3>{heading} <span>({len(rows)})</span></h3>{"".join(rows)}</section>')
+        sections.append(f'<details class="case-group fold" id="{anchor}"><summary>{heading} <span>{len(rows)}</span></summary>{"".join(rows)}</details>')
     return ''.join(sections)
 
 
@@ -243,7 +243,7 @@ def build(issues, comments):
     OUT.mkdir()
     shutil.copytree(ROOT / 'site/assets', OUT / 'assets')
     shutil.copytree(ROOT / 'site/scenes', OUT / 'scenes')
-    for name in ('index.html', 'style.css', 'app.js'):
+    for name in ('style.css', 'journal.css', 'app.js'):
         shutil.copyfile(ROOT / 'site' / name, OUT / name)
     shutil.copytree(ROOT / 'reports', OUT / 'reports', ignore=shutil.ignore_patterns('*.md'))
     documents = [Path('CONTRIBUTING.md'), *sorted(p.relative_to(ROOT) for p in (ROOT / 'docs').rglob('*.md')), Path('reports/README.md')]
@@ -289,8 +289,9 @@ def build(issues, comments):
         number = int(comment['issue_url'].rsplit('/', 1)[1])
         journal.append((comment['created_at'], f'<article class="journal-entry"><time datetime="{comment["created_at"]}">{short_date(comment["created_at"])}</time><h3>Task #{number} update</h3><p>{escape(comment["user"]["login"])} posted this update on GitHub.</p><details><summary>Read update +</summary><div class="prose">{markdown(comment.get("body") or "", embedded=True)}</div></details><a class="text-link" href="{escape(comment["html_url"])}">Source comment ↗</a></article>'))
     journal.sort(key=lambda item: item[0], reverse=True)
-    roadmap, weekly_progress, gate_progress = [], [], []
+    gate_progress = []
     weeks = []
+    reviews = {}
     for line in (ROOT / 'docs/planning/timetable.md').read_text().splitlines():
         if not re.match(r'^\| W\d+', line):
             continue
@@ -299,12 +300,8 @@ def build(issues, comments):
         number = issue['number'] if issue else None
         status = state(issue) if issue else 'unclassified'
         review = evidence_review(issue) if issue else ''
-        task_link = f'<a href="tasks.html#task-{number}" class="roadmap-task">{week} <span class="sr-only">task</span>↗</a>' if issue else week
-        row = f'<tr data-progress-issue="{number}"><th scope="row">{task_link}</th><td>{escape(period)}</td>'
-        current = f'<td>{badge(status)}</td><td class="evidence-review">{review or "No evidence update recorded."}</td>'
         weeks.append({'id': week, 'hours': int(hours), 'period': period, 'output': output, 'evidence': evidence, 'status': status, 'issue': number})
-        roadmap.append(f'{row}<td><strong>{escape(output)}</strong><p>{escape(evidence)}</p></td><td>{hours}</td>{current}</tr>')
-        weekly_progress.append(f'{row}<td>{escape(output)}</td>{current}</tr>')
+        reviews[week] = review
     for issue in issues:
         if 'type:gate' not in label_names(issue):
             continue
@@ -314,8 +311,6 @@ def build(issues, comments):
         deadline_label = deadline[1] if deadline else 'Unscheduled'
         review = evidence_review(issue) or 'No evidence update recorded.'
         gate_progress.append(f'<tr data-progress-issue="{number}"><th scope="row"><a href="tasks.html#task-{number}">{escape(code.strip())} ↗</a></th><td>{escape(title.strip())}</td><td>{deadline_label}</td><td>{badge(state(issue))}</td><td class="evidence-review">{review}</td></tr>')
-    counts = {s: sum(state(i) == s for i in weekly) for s in STATUS}
-    status_table = '<div class="table-scroll"><table class="data-table status-table"><thead><tr>' + ''.join(f'<th scope="col">{label}</th>' for label in ['In progress', 'Verified', 'Blocked', 'Total weekly tasks']) + '</tr></thead><tbody><tr>' + ''.join(f'<td class="metric-value">{count:02d}</td>' for count in [counts['in-progress'], counts['verified'], counts['blocked'], len(weekly)]) + '</tr></tbody></table></div>'
     active = [i for i in weekly if state(i) == 'in-progress']
     focus = ''.join(f'<h3>{escape(i["title"].split("|")[-1].strip())}</h3>{badge("in-progress")}<p><a href="tasks.html#task-{i["number"]}">Task #{i["number"]} ↗</a></p>' for i in active) or '<h3>No task is marked in progress.</h3><p>Check the Tasks page for the current record.</p>'
     built = datetime.now(timezone.utc)
@@ -329,29 +324,55 @@ def build(issues, comments):
     with (ROOT / 'docs/research/run-inventory.csv').open() as source:
         run_count = len(list(csv.DictReader(source)))
     qualification = json.loads((ROOT / 'reports/janus/qualification-matrix.json').read_text())
-    tokens = {'RUN_COUNT': str(run_count), 'ACCESS_SNAPSHOT': escape((ROOT / access).read_text().split('\n\n')[1]), 'STATUS_TABLE': status_table, 'COMMITS': ''.join(commits), 'ACCESS': markdown((ROOT / access).read_text(), access, embedded=True), 'DECISIONS': markdown((ROOT / decisions).read_text(), decisions, embedded=True), 'FOCUS': focus, 'PROGRESS': ''.join(item[1] for item in journal), 'SYNC': f'Published {short_date(built.isoformat())} (Istanbul).', 'TASKS': ''.join(tasks), 'ROADMAP': ''.join(roadmap), 'DOCUMENTS': ''.join(doc_links)}
+    latest_week = next((w['id'] for w in weeks if w['status'] == 'in-progress'), weeks[0]['id'])
+    phases = ('Preparation and modelling', 'Benchmarking and calibration', 'Confirmation and evaluation', 'Review and handoff')
+    week_links = []
+    for phase, offset in zip(phases, range(0, len(weeks), 4)):
+        stops = []
+        for w in weeks[offset:offset+4]:
+            selected = ' aria-current="true"' if w['id'] == latest_week else ''
+            stops.append(f'<a href="#week-{w["id"]}" aria-label="{w["id"]}, {escape(w["period"])}"{selected}>{w["id"]}</a>')
+        week_links.append(f'<div><p>{phase}</p><div>{"".join(stops)}</div></div>')
+    roadmap = []
+    for w in weeks:
+        task = f'<a href="tasks.html#task-{w["issue"]}">Full task record ↗</a>' if w['issue'] else ''
+        open_by_default = ' open' if w['id'] == latest_week else ''
+        review = reviews[w['id']] or 'No evidence update recorded.'
+        roadmap.append(f'''<details class="week-record" id="week-{w["id"]}" name="roadmap-week" data-progress-issue="{w["issue"]}"{open_by_default}>
+<summary><span class="mono">{w["id"]}</span><span>{escape(w["output"])}</span>{badge(w["status"])}</summary>
+<div class="week-body"><div><p class="muted small">{escape(w["period"])} · {w["hours"]} planned hours</p><h3>Acceptance criteria</h3><p>{escape(w["evidence"])}</p></div><div><h3>Latest evidence</h3><p class="evidence-review">{review}</p>{task}</div></div></details>''')
+    journal_entries = [item[1] for item in journal]
+    journal_html = ''.join(journal_entries[:4])
+    if journal_entries[4:]:
+        journal_html += '<details class="fold older-entries"><summary>Earlier entries</summary>' + ''.join(journal_entries[4:]) + '</details>'
+    tokens = {'RUN_COUNT': str(run_count), 'ACCESS_SNAPSHOT': escape((ROOT / access).read_text().split('\n\n')[1]), 'COMMITS': ''.join(commits), 'ACCESS': markdown((ROOT / access).read_text(), access, embedded=True), 'DECISIONS': markdown((ROOT / decisions).read_text(), decisions, embedded=True), 'FOCUS': focus, 'PROGRESS': journal_html, 'SYNC': f'GitHub snapshot · {short_date(built.isoformat())} (Istanbul).', 'TASKS': ''.join(tasks), 'ROADMAP': ''.join(roadmap), 'WEEK_LINKS': ''.join(week_links), 'DOCUMENTS': ''.join(doc_links)}
     tokens['JANUS_QUALIFICATION'] = qualification_summary(qualification)
     scenes_dir = ROOT / 'site/scenes'
-    scene_cases = json.loads((scenes_dir / 'data/index.json').read_text())['cases']
+    scene_index = json.loads((scenes_dir / 'data/index.json').read_text())
+    notes = json.loads((ROOT / 'site/case-notes.json').read_text())
     scene_environments = {}
-    for scene in scene_cases:
+    for scene in scene_index['cases']:
         code = scene['id']
         assert re.fullmatch(r'[MQO][0-9]{2}', code), f'Invalid scene code: {code}'
         tracks = json.loads((scenes_dir / f'data/{code}.json').read_text())['tracks']
         assert len(tracks) == scene['variants'], f'Wrong run count: {code}'
-        assert (scenes_dir / f'clips/{code}.jpg').is_file(), f'Missing poster: {code}'
+        for extension in ('jpg', 'mp4'):
+            assert (scenes_dir / f'clips/{code}.{extension}').is_file(), f'Missing {extension}: {code}'
         scene_environments[code] = tracks[0]['environment']
-    tokens['CASE_INDEX'] = case_index(qualification['cases'], json.loads((ROOT / 'site/case-notes.json').read_text()), scene_environments)
-    tokens['WEEKLY_PROGRESS'] = ''.join(weekly_progress)
+        scene['titleEn'], scene['noteEn'] = notes[code]
+    (OUT / 'scenes/data/index.json').write_text(json.dumps(scene_index, ensure_ascii=False, separators=(',', ':')))
+    for name in ('index.html', 'credits.html'):
+        scene_page = OUT / 'scenes' / name
+        scene_page.write_text(scene_page.read_text().replace('{{HEADER}}', site_header('../', 'scenes')))
+    tokens['CASE_INDEX'] = case_index(qualification['cases'], notes, scene_environments)
     tokens['GATE_PROGRESS'] = ''.join(gate_progress)
     layout = (ROOT / 'site/layout.html').read_text()
     for slug, title in PAGES:
         body = (ROOT / 'site' / f'{slug}.html').read_text()
-        values = dict(tokens, CONTENT=body, TITLE=title, PAGE=slug, DESCRIPTION=f'{title} | Arche ME492 research record by Oluş Emre Demir.')
+        values = dict(tokens, CONTENT=body, HEADER=site_header('', slug), TITLE=title, PAGE=slug, DESCRIPTION=f'{title} | Arche ME492 research record by Oluş Emre Demir.')
         page = layout
         for key in ('CONTENT', *values):
             page = page.replace('{{' + key + '}}', values[key])
-        page = page.replace(f'data-page="{slug}"', f'data-page="{slug}" aria-current="page" class="active"')
         assert '{{' not in page
         (OUT / f'{slug}.html').write_text(page)
     for name, title in REPORTS:
@@ -359,9 +380,8 @@ def build(issues, comments):
         body = f'<section class="pdf-reader"><div class="reader-heading"><a href="library.html" aria-label="Back to library">← Library</a><h1>{escape(title)}</h1><a href="{pdf}" download>Download PDF ↓</a></div><div class="pdf-controls" role="group" aria-label="PDF controls"><div class="reader-pagination"><button id="pdf-prev" aria-label="Previous page" disabled>←</button><label>Page <input id="pdf-page" type="number" min="1" value="1" disabled></label><span id="pdf-total"></span><button id="pdf-next" aria-label="Next page" disabled>→</button></div><div class="reader-zoom"><button id="pdf-out" aria-label="Zoom out" disabled>−</button><label class="sr-only" for="pdf-fit">Page sizing</label><select id="pdf-fit" disabled><option value="width">Fit width</option><option value="page">Fit page</option><option value="1">100%</option><option value="1.25">125%</option><option value="1.5">150%</option><option value="2">200%</option></select><button id="pdf-in" aria-label="Zoom in" disabled>+</button></div><button id="pdf-focus" type="button" aria-label="Focus view" aria-pressed="false">Focus</button><span id="pdf-status" role="status">Loading document…</span></div><div class="pdf-stage" data-pdf="{pdf}" tabindex="0" role="region" aria-label="PDF document. Scroll to read the following pages."></div><noscript><p class="reader-fallback">This reader requires JavaScript. <a href="{pdf}">Open the original PDF</a>.</p></noscript><link rel="stylesheet" href="assets/pdfjs/text-layer.css"><script type="module" src="assets/pdf-reader.mjs"></script></section>'
 
         page = layout
-        for key, value in dict(CONTENT=body, TITLE=escape(title), PAGE='reader', DESCRIPTION=escape(title) + ' | Arche research report').items():
+        for key, value in dict(CONTENT=body, HEADER=site_header('', 'library'), TITLE=escape(title), PAGE='reader', DESCRIPTION=escape(title) + ' | Arche research report').items():
             page = page.replace('{{' + key + '}}', value)
-        page = page.replace('data-page="library"', 'data-page="library" aria-current="page" class="active"')
         (OUT / f'report-{name}.html').write_text(page)
     (OUT / '.nojekyll').touch()
     (OUT / 'project.json').write_text(json.dumps({'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(), 'weeks': weeks, 'gates': [i for i in issues if 'type:gate' in label_names(i)], 'published_runs': run_count}, ensure_ascii=False))
@@ -369,9 +389,11 @@ def build(issues, comments):
     version = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'], cwd=ROOT, text=True).strip()
     for path in OUT.rglob('*.html'):
         page = path.read_text()
-        for asset in ('style.css', 'app.js', 'assets/pdf-reader.mjs', 'assets/pdfjs/text-layer.css'):
+        for asset in ('style.css', 'journal.css', 'app.js', '../style.css', '../journal.css', '../app.js', 'assets/pdf-reader.mjs', 'assets/pdfjs/text-layer.css'):
             page = page.replace(f'"{asset}"', f'"{asset}?v={version}"')
         path.write_text(page)
+    scene_app = OUT / 'scenes/app.js'
+    scene_app.write_text(scene_app.read_text().replace("'./viewer.js'", f"'./viewer.js?v={version}'"))
     validate_links()
     print(f'Built {len(tasks)} tasks, {len(roadmap)} weeks, {len(documents)} documents and {len(journal)} journal entries.')
 

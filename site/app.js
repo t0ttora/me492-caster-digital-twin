@@ -95,8 +95,16 @@ if (document.body.classList.contains('page-results')) {
   }
   const openLinkedCase = () => {
     const target = document.getElementById(location.hash.slice(1));
-    if (target?.classList.contains('case-entry')) target.open = true;
+    if (target?.classList.contains('case-entry')) {
+      target.closest('.case-group').open = true;
+      target.open = true;
+      requestAnimationFrame(() => target.scrollIntoView({block:'start'}));
+    }
+    if (target?.classList.contains('case-group')) target.open = true;
   };
+  document.querySelectorAll('.case-group').forEach(group => group.addEventListener('toggle', () => {
+    if (!group.open) group.querySelectorAll('video[src]').forEach(video => video.pause());
+  }));
   openLinkedCase();
   window.addEventListener('hashchange', openLinkedCase);
 }
@@ -134,8 +142,6 @@ if (refresh) {
         badge.textContent = labels[state];
       }
       const weekly = issues.filter(issue => issue.labels.some(label => (typeof label === 'string' ? label : label.name) === 'type:weekly'));
-      const values = [weekly.filter(i => issueStatus(i) === 'in-progress').length, weekly.filter(i => issueStatus(i) === 'verified').length, weekly.filter(i => issueStatus(i) === 'blocked').length, weekly.length];
-      document.querySelectorAll('.metric-value').forEach((item, index) => {item.textContent = String(values[index]).padStart(2, '0');});
       const focus = document.querySelector('#focus-items');
       if (focus) focus.replaceChildren();
       const active = weekly.filter(issue => issueStatus(issue) === 'in-progress');
@@ -177,4 +183,40 @@ if (menuToggle) {
       menuToggle.click(); menuToggle.focus();
     }
   });
+}
+
+const researchMenu = document.querySelector('.research-nav');
+if (researchMenu) {
+  document.addEventListener('click', event => {
+    if (!researchMenu.contains(event.target)) researchMenu.open = false;
+  });
+  researchMenu.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && researchMenu.open) {
+      event.stopPropagation();
+      researchMenu.open = false;
+      researchMenu.querySelector('summary').focus();
+    }
+  });
+}
+
+const roadmap = document.querySelector('.roadmap-rail');
+if (roadmap) {
+  const weeks = [...roadmap.querySelectorAll('.week-record')];
+  const stops = [...roadmap.querySelectorAll('.roadmap-stops a')];
+  function showWeekFromAddress() {
+    const week = weeks.find(item => '#' + item.id === location.hash);
+    if (week) week.open = true;
+  }
+  weeks.forEach(week => week.addEventListener('toggle', () => {
+    if (!week.open) return;
+    stops.forEach(link => {
+      if (link.hash === '#' + week.id) link.setAttribute('aria-current', 'true');
+      else link.removeAttribute('aria-current');
+    });
+  }));
+  stops.forEach(link => link.addEventListener('click', () => {
+    weeks.find(week => link.hash === '#' + week.id).open = true;
+  }));
+  showWeekFromAddress();
+  window.addEventListener('hashchange', showWeekFromAddress);
 }

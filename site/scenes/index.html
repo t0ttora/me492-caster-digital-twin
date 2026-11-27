@@ -1,117 +1,145 @@
 <!doctype html>
-<html lang="tr">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="light">
-<title>JANUS · 3B Test Arşivi</title>
+<meta name="theme-color" content="#10100e">
+<title>3D Lab · Arche JANUS</title>
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="../journal.css">
 <link rel="stylesheet" href="style.css">
-<link rel="icon" href="assets/janus-icon.png" type="image/png">
+<link rel="icon" href="../assets/olus-emre-logo.svg">
+<script>if(new URLSearchParams(location.search).get('embed')==='1')document.documentElement.dataset.embed='true';</script>
 <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/addons/"}}</script>
+<script type="module" src="../app.js"></script>
 <script type="module" src="app.js"></script>
 </head>
-<body>
-<a class="skip" href="#scene">3B sahneye geç</a>
-<header class="masthead">
-  <a class="brand" href="?vaka=Q04"><span class="brand-mark" aria-hidden="true">J</span><span>Arche <strong>JANUS</strong></span></a>
-  <p>ME492 <span>/</span> 3B test arşivi</p>
-  <div class="mast-links"><a id="result-link" href="../results.html#case-Q04">Vaka sonucu</a><a id="clip-link" href="clips/Q04.mp4">MP4 izle</a></div>
-</header>
-<main class="workbench">
-  <aside class="catalog" aria-label="Vaka dizini">
-    <div class="catalog-header">
-      <h2>Vaka dizini <span id="case-count">40</span></h2>
-      <label for="search" class="sr-only">Vaka adı veya kodu</label>
-      <input type="search" id="search" placeholder="Vaka adı veya kodu" autocomplete="off">
+<body class="page-scenes">
+<a class="skip" href="#scene">Skip to the scene</a>
+<div class="frame journal-frame lab-frame">
+{{HEADER}}
+<main class="lab" id="scene">
+  <header class="lab-heading">
+    <div>
+      <p class="eyebrow"><span>3D Lab</span> <span aria-hidden="true">/</span> <span id="category">QR docking</span></p>
+      <h1 id="case-title">Docking with a lateral offset</h1>
     </div>
-    <div class="filters" aria-label="Vaka türü">
-      <button type="button" data-filter="" aria-pressed="true">Tümü</button>
-      <button type="button" data-filter="M" aria-pressed="false">Hareket</button>
-      <button type="button" data-filter="Q" aria-pressed="false">QR</button>
-      <button type="button" data-filter="O" aria-pressed="false">Operasyon</button>
+    <div class="case-navigation">
+      <button id="prev-case" type="button" aria-label="Previous case" title="Previous case">←</button>
+      <button id="open-catalog" type="button" aria-haspopup="dialog"><span>Browse cases</span> <span class="mono" id="case-position"></span></button>
+      <button id="next-case" type="button" aria-label="Next case" title="Next case">→</button>
     </div>
-    <div class="case-list" id="case-list"></div>
-  </aside>
+  </header>
 
-  <article class="workspace" id="scene">
-    <section class="heading">
-      <div class="designation"><span id="case-id">Q04</span> <span id="category">QR yaklaşımı</span></div>
-      <h1 id="case-title">Yanal ofset ve ters işaretli ilk yaw</h1>
-      <p id="environment">Yanal ofsetli QR fikstürü</p>
-    </section>
-    <section class="replay" aria-label="Etkileşimli 3B vaka oynatıcısı">
-      <div id="viewport">
+  <div class="lab-layout">
+    <section class="replay" aria-label="Interactive simulation replay">
+      <div id="viewport" tabindex="0" aria-label="3D model. Use the arrow keys to pan, plus or minus to zoom, and zero to fit." aria-describedby="gesture-help" aria-busy="true">
         <div class="viewport-top">
-          <div class="view-switch" aria-label="Sahne görünümü">
-            <button type="button" data-view="overview" aria-pressed="true">Perspektif</button>
-            <button type="button" data-view="top" aria-pressed="false">Üstten</button>
-            <button type="button" data-view="sensor" aria-pressed="false">Robot kamerası</button>
+          <div class="stage-id"><span class="mono" id="stage-case">Q04</span><span id="environment" lang="tr" hidden></span></div>
+          <div class="view-switch" role="group" aria-label="Camera view">
+            <button type="button" data-view="overview" aria-pressed="true">Orbit</button>
+            <button type="button" data-view="top" aria-pressed="false">Top</button>
+            <button type="button" data-view="sensor" aria-pressed="false">Robot camera</button>
           </div>
-          <button class="trace-toggle" id="show-trace" type="button" aria-pressed="true">İz</button>
-          <button class="trace-toggle" id="show-props" type="button" aria-pressed="true">Çevre</button>
-          <button class="trace-toggle" id="show-section" type="button" aria-pressed="true" hidden>Kesit</button>
         </div>
-        <div class="view-footer"><span>m <span class="sep">/</span> simülasyon zamanı</span><span id="tracking-status">Sahne yükleniyor</span></div>
-        <div class="viewer-fallback" id="viewer-fallback" hidden></div>
+        <div class="camera-tools" role="group" aria-label="Camera controls">
+          <button id="zoom-in" type="button" aria-label="Zoom in" title="Zoom in (+)">+</button>
+          <button id="zoom-out" type="button" aria-label="Zoom out" title="Zoom out (−)">−</button>
+          <button id="pan-mode" type="button" aria-pressed="false" title="Drag to pan">Pan</button>
+          <button id="fit-camera" type="button" title="Fit scene (0)">Fit</button>
+          <button id="fullscreen" type="button" aria-label="Full screen" title="Full screen">⛶</button>
+        </div>
+        <div class="view-footer">
+          <span id="gesture-help">Drag to orbit · scroll to zoom · right-drag to pan</span>
+          <span class="mono" id="tracking-status" lang="en">Loading the scene…</span>
+        </div>
+        <div class="viewer-fallback" id="viewer-fallback" hidden>
+          <p id="fallback-message"></p><a id="fallback-clip" href="clips/Q04.mp4">Watch the MP4</a><button type="button" id="retry-case" hidden>Retry case</button>
+        </div>
       </div>
       <div class="transport">
         <div class="transport-row">
-          <button id="play" type="button" class="primary" aria-label="Oynat">▶ Oynat</button>
-          <button type="button" id="restart" aria-label="Başa dön" title="Başa dön">↺</button>
-          <output id="time">00.00 / 00.00 s</output>
-          <label for="speed" class="sr-only">Oynatma hızı</label>
-          <select id="speed"><option value=".5">0,5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select>
-          <button id="record" type="button" aria-pressed="false">Video kaydet</button>
+          <div class="play-tools" role="group" aria-label="Playback">
+            <button id="play" type="button" class="primary" aria-label="Play">▶</button>
+            <button id="reverse" type="button" aria-label="Play backwards" aria-pressed="false" title="Play backwards">◀</button>
+            <button type="button" id="restart" aria-label="Go to start" title="Go to start">↺</button>
+            <button type="button" id="step-back" aria-label="Step back a quarter second" title="Back 0.25 s">−.25</button>
+            <button type="button" id="step-forward" aria-label="Step forward a quarter second" title="Forward 0.25 s">+.25</button>
+          </div>
+          <output class="mono" id="time" for="seek">0.00 / 0.00 s</output>
+          <label for="speed" class="sr-only">Playback speed</label>
+          <select id="speed"><option value=".5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select>
         </div>
         <div class="seekline">
-          <label for="seek" class="sr-only">Simülasyon zamanı</label>
+          <label for="seek" class="sr-only">Simulation time</label>
           <input type="range" id="seek" min="0" max="1" step=".01" value="0">
           <div id="event-marks" aria-hidden="true"></div>
         </div>
       </div>
     </section>
-    <div class="readout" aria-label="Geçerli örnek">
-      <dl><dt>Aks konumu x / y</dt><dd id="axis">–</dd></dl>
-      <dl><dt>Yön / caster açısı</dt><dd id="angle">–</dd></dl>
-      <dl><dt>Boyuna hız</dt><dd id="velocity">–</dd></dl>
-      <dl><dt>Son olay</dt><dd id="current-event">–</dd></dl>
-    </div>
-    <p class="scope">Robotun hareketi ve olaylar seçili simülasyon kaydından geliyor. Gövde ve laboratuvar ayrıntıları 3B temsil.</p>
-    <details id="video-box" class="detail-block" hidden>
-      <summary>Arşivdeki Gazebo kamera klibi</summary>
-      <video id="camera-video" controls preload="metadata" playsinline></video>
-      <p>Bu kamera kaydı kendi zaman çizgisinde oynar. Karedeki parlama, bulanıklık ya da örtülme testte kullanılan girdilerdir.</p>
-    </details>
-  </article>
 
-  <aside class="inspector" aria-label="Koşu ve olay bilgisi">
-    <section class="inspector-block">
-      <h2>Koşu</h2>
-      <label for="variant" class="sr-only">Koşu varyantı</label>
-      <select id="variant"></select>
-      <p class="data-origin" id="origin">–</p>
-      <p id="scenario"></p>
-    </section>
-    <section class="inspector-block">
-      <h2>Olaylar <span id="event-count"></span></h2>
-      <p class="small" id="event-description">Bir olayı seçerek o ana git.</p>
-      <div class="event-list" id="events"></div>
-    </section>
-    <details class="inspector-block detail-block">
-      <summary>Yayın kanıtları</summary>
-      <div id="published"></div>
-      <h3>Poz kaydının SHA-256 özeti</h3>
-      <code id="raw-path"></code>
-      <h3>Ortamın dayanağı</h3>
-      <code id="fixture-path"></code>
-    </details>
-  </aside>
+    <aside class="inspector" aria-label="Case and run notes">
+      <section class="inspector-block run-panel">
+        <h2>Test notes</h2>
+        <p id="case-note"></p>
+        <label for="variant">Recorded run</label>
+        <select id="variant" disabled></select>
+        <p class="data-origin" id="origin"></p>
+        <div class="scene-links"><a id="result-link" href="../results.html#case-Q04">Case evidence ↗</a><a id="clip-link" href="clips/Q04.mp4">MP4 ↗</a></div>
+      </section>
+      <details class="inspector-block detail-block" open>
+        <summary>Events <span class="mono" id="event-count"></span></summary>
+        <div class="event-list" id="events"></div>
+      </details>
+      <details class="inspector-block detail-block">
+        <summary>Live readout</summary>
+        <dl class="readout">
+          <div><dt>Axle x / y</dt><dd id="axis">–</dd></div>
+          <div><dt>Yaw / caster angle</dt><dd id="angle">–</dd></div>
+          <div><dt>Forward speed</dt><dd id="velocity">–</dd></div>
+          <div><dt>Latest event</dt><dd id="current-event">–</dd></div>
+        </dl>
+      </details>
+      <details class="inspector-block detail-block">
+        <summary>Scene and source data</summary>
+        <div class="scene-toggles" role="group" aria-label="Scene layers">
+          <button type="button" id="show-trace" aria-pressed="true">Path</button>
+          <button type="button" id="show-props" aria-pressed="true">Props</button>
+          <button type="button" id="show-section" aria-pressed="true" hidden>Cutaway</button>
+        </div>
+        <button id="record" type="button" aria-pressed="false">Record viewport</button>
+        <p id="scenario" lang="tr"></p>
+        <div id="published" lang="tr"></div>
+        <h3>Pose log SHA-256</h3><code id="raw-path"></code>
+        <h3>Fixture source</h3><code id="fixture-path" lang="tr"></code>
+      </details>
+      <details id="video-box" class="inspector-block detail-block" hidden>
+        <summary>Gazebo camera recording</summary>
+        <video id="camera-video" controls preload="metadata" playsinline></video>
+      </details>
+    </aside>
+  </div>
+
+  <section class="sequence" aria-labelledby="sequence-title">
+    <div class="sequence-heading"><h2 id="sequence-title">Case sequence</h2><button type="button" id="show-all-cases" aria-haspopup="dialog">Search all cases ↗</button></div>
+    <div class="filmstrip" id="filmstrip" aria-label="Nearby cases"></div>
+  </section>
+  <p class="scope">The robot follows a recorded simulation. The chassis and lab are 3D models. <a href="credits.html">Model credits ↗</a></p>
 </main>
-<footer id="sources">
-  <span>JANUS simülasyon arşivi · <a href="https://github.com/t0ttora/me492-caster-digital-twin/commit/3f3196aa276d739ae1168d2594c09f4670e2ae81">3f3196a</a></span>
-  <a href="credits.html">Polyfork GLB kredileri ↗</a>
-  <a href="../results.html#cases">Açıklamalar ve ölçümler</a>
-</footer>
-<noscript>Bu 3B oynatıcı için JavaScript gerekir.</noscript>
+<dialog id="catalog" class="catalog" aria-labelledby="catalog-title">
+  <div class="catalog-header"><h2 id="catalog-title">Find a case</h2><form method="dialog"><button>Close ×</button></form></div>
+  <label for="search" class="sr-only">Case title or code</label>
+  <input type="search" id="search" placeholder="Search by case name or code" autocomplete="off" autofocus>
+  <div class="catalog-filters" role="group" aria-label="Case type">
+    <button type="button" data-filter="" aria-pressed="true">All</button>
+    <button type="button" data-filter="M" aria-pressed="false">Motion</button>
+    <button type="button" data-filter="Q" aria-pressed="false">QR docking</button>
+    <button type="button" data-filter="O" aria-pressed="false">Operations</button>
+  </div>
+  <p class="filter-feedback mono" id="case-count" role="status"></p>
+  <div class="case-list" id="case-list"></div>
+</dialog>
+<noscript><p class="scope">The 3D replay needs JavaScript. <a href="../results.html#cases">Open the case archive for the MP4s and measurements.</a></p></noscript>
+</div>
 </body>
 </html>

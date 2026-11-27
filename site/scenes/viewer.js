@@ -12,7 +12,6 @@ const color = {
   surface: 0x515d5d, actor: 0xb76d36, mast: 0x99a9aa, trim: 0xeeeade, edge: 0x6d7774,
   path: 0x1b8c77, pad: 0x5b7872, amber: 0xe2a54d,
 };
-const STAGE_BACKGROUND = 0xdadcd2;
 const ZERO = new Vector3();
 
 const xyz = (x, y, z) => new Vector3(x, z, -y);
@@ -65,17 +64,17 @@ function markInstances(group) {
 export class JanusViewer {
   constructor(host) {
     this.host = host;
-    this.renderer = new THREE.WebGLRenderer({antialias:true,alpha:false, powerPreference:'high-performance'});
+    this.renderer = new THREE.WebGLRenderer({antialias:true,alpha:true, powerPreference:'high-performance'});
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.2;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-    this.renderer.domElement.setAttribute('aria-label','3B robot ve vaka düzeneği');
+    this.renderer.domElement.setAttribute('aria-label','Simulation robot and test fixture');
     host.prepend(this.renderer.domElement);
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(STAGE_BACKGROUND);
+    this.sensorBackground = new THREE.Color(0x202320);
     const environment = new RoomEnvironment();
     const pmrem = new THREE.PMREMGenerator(this.renderer);
     this.scene.environment = pmrem.fromScene(environment, .055).texture;
@@ -87,6 +86,7 @@ export class JanusViewer {
     this.sensor = new THREE.PerspectiveCamera(48, 1, .016, 20);
     this.controls = new OrbitControls(this.camera,this.renderer.domElement);
     this.controls.enableDamping = false;
+    this.controls.zoomToCursor = true;
     this.controls.minZoom = .6;
     this.controls.maxZoom = 5;
     this.controls.minPolarAngle = .001;
@@ -115,7 +115,8 @@ export class JanusViewer {
     const loader = new GLTFLoader();
     const textureLoader = new THREE.TextureLoader();
     const [kit, concrete] = await Promise.all([
-      loader.loadAsync('./assets/janus-kit.glb'),textureLoader.loadAsync('./assets/concrete.png'),
+      loader.loadAsync(new URL('./assets/janus-kit.glb', import.meta.url).href),
+      textureLoader.loadAsync(new URL('./assets/concrete.png', import.meta.url).href),
     ]);
     this.kit = kit.scene;
     this.surface = concrete;
@@ -143,16 +144,19 @@ export class JanusViewer {
     const aspect = this.aspect || 1;
     const d = this.bounds;
     if (!d) return;
+    const controlsMargin = this.host.clientWidth < 450 && !document.documentElement.dataset.embed ? 1.12 : 1;
     const span = this.view === 'top' ? Math.max(d.h+0.14,(d.w+0.12)/aspect) :
       Math.max(d.h*.58 + d.w*.37 + .46, (d.w*.84+d.h*.54+.25)/aspect)*1.06;
-    this.camera.top = span/2; this.camera.bottom = -span/2;
-    this.camera.left = -span*aspect/2; this.camera.right = span*aspect/2;
+    const halfSpan = span * controlsMargin / 2;
+    this.camera.top = halfSpan; this.camera.bottom = -halfSpan;
+    this.camera.left = -halfSpan*aspect; this.camera.right = halfSpan*aspect;
     this.camera.updateProjectionMatrix();
   }
 
   setView(view) {
     this.view = view;
     this.controls.enabled = view !== 'sensor';
+    this.scene.background = view === 'sensor' ? this.sensorBackground : null;
     this.applySection();
     this.camera.zoom = 1;
     if (!this.bounds) return;
@@ -168,8 +172,28 @@ export class JanusViewer {
       this.controls.enableRotate = true;
     }
     this.updateFrustum();
+    this.setPanMode(view === 'top');
     this.controls.update();
     this.render();
+  }
+
+  zoom(increment) {
+    const camera = this.camera;
+    camera.zoom = THREE.MathUtils.clamp(
+      camera.zoom * 1.25 ** increment, this.controls.minZoom, this.controls.maxZoom
+    );
+    camera.updateProjectionMatrix();
+    this.controls.update();
+    this.render();
+  }
+
+  setPanMode(active) {
+    this.controls.mouseButtons.LEFT = active ? THREE.MOUSE.PAN : THREE.MOUSE.ROTATE;
+    this.controls.touches.ONE = active ? THREE.TOUCH.PAN : THREE.TOUCH.ROTATE;
+  }
+
+  pan(x, y) {
+    this.controls.pan(x, y);
   }
 
   material(name) {

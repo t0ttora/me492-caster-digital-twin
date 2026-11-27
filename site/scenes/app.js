@@ -4,43 +4,62 @@ const $ = id => document.getElementById(id);
 const query = selector => [...document.querySelectorAll(selector)];
 const filters = query('[data-filter]');
 const views = query('[data-view]');
-const categories = {M:'Hareket',Q:'QR yaklaşımı',O:'Operasyon'};
-const label = {
-  case_start:'Koşu başladı', trace_start:'Kayıt başladı', trace_end:'Kayıt sona erdi',
-  acquired:'QR algılandı', center:'Merkezleme', advance:'İleri yaklaşım', center_dwell_met:'Merkez bekleme tamam',
-  staging_plan:'Hazırlık hedefi', staging_complete:'Hazırlık tamam', stage_align:'Hiza hazırlığı',
-  stage_turn_to_position:'Hazırlık yönüne dönüş', stage_translate:'Hazırlık pozuna ilerleme',
-  stage_turn_to_dock:'Dock yönüne dönüş', optical_center:'Optik merkezleme', case_end:'Koşu sona erdi',
-  terminal_gate_verified:'Terminal kapısı doğrulandı', obstacle_frame_saved:'Engel karesi kaydedildi',
-  final_brake:'Son fren', no_qr:'QR görünmüyor', fresh_matching_id:'Taze doğru QR',
-  brake_step:'Fren komutu', terminal:'Koşu sonu', terminal_hold:'Terminal duruş', standoff:'Optik duruş',
-  optical_stop:'Optik duruş', visible_loss:'QR görüntüden kayboldu', qr_lost:'QR kaybı', lost:'QR kaybı',
-  hide:'İşaret kaldırıldı', restore:'İşaret geri kondu', restore_service_ack:'İşaret konumu güncellendi',
-  contact:'Temas olayı', virtual_contact:'Sanal temas', virtual_charge:'Sanal şarj olayı', bms_charge_confirmed:'Sanal BMS teyidi',
-  charge_confirmed:'Şarj teyidi', bms_timeout:'BMS zaman aşımı', wrong_id:'Yanlış QR kimliği',
-  abort:'İptal / güvenli duruş', search_timeout:'Arama zaman aşımı', gate_accepted:'Geçiş kapısı tamam',
-  surface_change:'İkinci yüzeye geçiş', odom_stream_restored:'Odometri geri geldi',
-  regressive_odometry:'Geri giden odometri', odometry_stream_cut:'Odometri akışı kesildi', guard_stop:'Komut kesildi',
-  control_stream:'Komut akışı', camera_offset:'Kamera montaj ofseti', arrived:'Hedefe varış', mission_reset:'Görev değişti',
-  goal_started:'Hedef etkin', operator_consent:'Operatör izni', authorized_resume:'İzinli devam',
-  unauthorized_probe:'İzinsiz istek', authorization_signal_sent:'Açık izin verildi', recovery_ack_received:'İzin teyidi',
-  authorized_restart_input:'Yeni hareket isteği', clock_cut:'Simülasyon saati durdu', clock_restore:'Simülasyon saati geri geldi',
-  hazard_present:'Tehlike olayının başlangıcı', obstacle_detected:'Engel algılandı', pedestrian_detected:'Geçiş algılandı',
-  fixture_clear_observed:'Geçit açıldı', resume_gate_open:'Devam kapısı açıldı',
-  duplicate_ids:'Aynı kimlikli iki işaret', low_light:'Düşük ışık', motion_blur:'Hareket bulanıklığı',
-  low_light_motion_blur:'Düşük ışık ve bulanıklık', stimulus_recovery:'Görüntü uyarısı sona erdi',
-  occlusion:'Görsel örtme', crop:'Kadrajdan kesilme', hotspot:'Parlama', whiteout:'Beyaz doygunluk',
+const categories = { M:'Motion', Q:'QR docking', O:'Operations' };
+const runLabels = {
+  'Kayıtlı koşu':'Recorded run', 'Canlı fren':'Live braking', 'Python fren basamağı':'Brake step',
+  'Dar alanda düzeltilen rota':'Revised corridor route', 'İlk rota · temas':'Original route · wall contact',
+  '90° · yerinde dönüş':'90° caster · pivot', '180° · yerinde dönüş':'180° caster · pivot',
+  '180° · ileri komutsuz kontrol':'180° caster · zero forward request', 'Nominal kütle':'Nominal mass',
+  'Yüzey sınırı':'Surface boundary', 'Nominal zemin':'Nominal surface', 'Yüksek sürükleme':'High drag surface',
+  'Pahlı 5 mm eşik':'Beveled 5 mm threshold', 'Rampa ve 5 mm eşik':'Ramp and 5 mm threshold',
+  '20 mm duyarlılık':'20 mm threshold', 'Dar koridor':'Narrow corridor', 'Açık arka çıkış':'Open rear exit',
+  'İzinli devam':'Restart authorized', 'İzin verilmedi':'Restart withheld',
+  'Komut watchdog':'Command timeout', 'Operatör iptali':'Operator cancellation',
+  'Odom geri geldi · yeni izin':'Odometry restored · new authorization', 'Odometri kesintisi':'Odometry interrupted',
+  'Rijit 4 kg yük':'Fixed 4 kg payload', 'Saat geri geldi · yeni izin':'Clock restored · new authorization',
+  'Dört köşe ile hazırlık':'Four corners with staging', 'Merkezleme + menzil':'Center and range',
+  'Soldan sınırlı arama':'Bounded search from left', 'Sağdan sınırlı arama':'Bounded search from right',
+  'İşaret geri gelir':'Marker returns', 'Yanlış kimlik · zaman aşımı':'Wrong ID · timeout',
+  'Akış kopması ve tekrar':'Camera interruption and repeat', 'Geri zaman damgası':'Backward timestamp',
+  'Dock koridorunda engel':'Obstacle in the dock corridor', 'BMS teyidi gelmez':'No BMS confirmation',
+  'Sanal BMS teyidi':'Virtual BMS confirmation', 'Yanal ve açılı QR':'Offset and angled QR',
+  'Kamera ve hedef sütunu':'Camera and target offsets', 'Sönümlü 55 ms denetim':'55 ms · damped controller',
+  '55 ms referans':'55 ms · reference controller',
 };
-const fmt = new Intl.NumberFormat('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2});
-const short = new Intl.NumberFormat('tr-TR',{maximumFractionDigits:1});
-const tr = text => {
-  if (label[text]) return label[text];
-  const segment=text.match(/^segment_(\d+)$/);
-  return segment ? segment[1]+'. rota bölümü' : text.replaceAll('_',' ');
+const poseLabels = {
+  'Python aks pozu':'Python axle pose', 'Simscape aks pozu':'Simscape axle pose',
+  'Dünya pozu':'World pose', 'Replay dünya pozu':'Replayed world pose',
 };
+const eventLabels = {
+  case_start:'Run started', trace_start:'Recording started', trace_end:'Recording ended',
+  acquired:'QR detected', center:'Centering', advance:'Approaching', stage_align:'Aligning before approach',
+  stage_turn_to_position:'Turn toward approach position', stage_translate:'Move to approach position',
+  stage_turn_to_dock:'Turn toward dock', optical_center:'Center in camera', case_end:'Run ended',
+  terminal_gate_verified:'End criteria checked', final_brake:'Final brake', no_qr:'QR out of view',
+  fresh_matching_id:'Matching QR seen', brake_step:'Brake command', terminal:'Run ended',
+  terminal_hold:'Stopped at target', standoff:'Stopped at optical range', optical_stop:'Stopped at optical range',
+  visible_loss:'QR out of view', qr_lost:'QR lost', lost:'QR lost', hide:'Marker removed',
+  restore:'Marker restored', restore_service_ack:'Marker position updated',
+  contact:'Contact', virtual_contact:'Simulated contact', charge_confirmed:'Charge confirmed in simulation',
+  duplicate_ids:'Duplicate markers', wrong_id:'Wrong marker', timeout:'Timed out',
+  search_timeout:'Search timed out', search:'Searching', reacquired:'QR reacquired',
+  stop:'Stopped', guard_stop:'Guard stopped motion', hold:'Holding', fault:'Fault',
+  odom_stale:'Odometry stale', odom_fresh:'Odometry fresh',
+  operator_authorize:'Operator authorization', unauthorized:'Command rejected',
+};
+const fmt = new Intl.NumberFormat('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2});
+const short = new Intl.NumberFormat('en-GB',{maximumFractionDigits:1});
+const eventName = key => eventLabels[key] || String(key).replaceAll('_',' ');
+const embedded = document.documentElement.dataset.embed === 'true';
 const cache=new Map();
 let list=[],filter='',current=null,track=null,viewer=null,view='overview',renderError=null,requestNumber=0;
-let time=0,playing=false,lastTick=null,requestFrame=0,activeEvent=null,recording=null;
+let time=0, direction=0, lastTick=null, requestFrame=0, activeEvent=null, recording=null;
+let engineError=null, pendingId=null;
+const viewport=$('viewport');
+const catalog=$('catalog');
+const cameraTools=query('.camera-tools button:not(#fullscreen)');
+const playbackTools=query('.transport button, .transport select, .transport input');
+const caseTitle=c=>c.titleEn || c.title;
 const video=$('camera-video');
 
 function button(text, classes) {
@@ -50,32 +69,73 @@ function button(text, classes) {
 }
 
 function renderCatalog() {
-  const search=$('search').value.trim().toLocaleLowerCase('tr-TR');
+  const search=$('search').value.trim().toLocaleLowerCase('en-GB');
   const matches=list.filter(c => (!filter || c.id.startsWith(filter)) &&
-    (!search || (c.id+' '+c.title+' '+c.environment).toLocaleLowerCase('tr-TR').includes(search)));
-  $('case-count').textContent=matches.length;
+    (!search || [c.id, caseTitle(c), c.title, c.environment].join(' ').toLocaleLowerCase('en-GB').includes(search)));
+  $('case-count').textContent=matches.length+' '+(matches.length===1?'case':'cases');
   $('case-list').replaceChildren();
   if (!matches.length) {
     const empty=document.createElement('p');
-    empty.className='empty';empty.textContent='Eşleşen vaka yok.';
+    empty.className='empty';empty.textContent='No cases match this search.';
     $('case-list').append(empty);
   }
   for (const c of matches) {
     const b=button('','case-row');
     b.dataset.case=c.id;
     const id=document.createElement('span'),name=document.createElement('span');
-    id.textContent=c.id;name.textContent=c.title;
-    b.setAttribute('aria-current', c.id===current?.meta.id ? 'true':'false');
+    id.className='mono'; id.textContent=c.id; name.textContent=caseTitle(c);
+    b.setAttribute('aria-current', String(c.id===current?.meta.id));
     b.append(id,name);
-    b.addEventListener('click',()=>selectCase(c.id,0,true));
+    b.addEventListener('click',()=>{
+      catalog.close();
+      $('open-catalog').focus();
+      selectCase(c.id,0,true);
+    });
     $('case-list').append(b);
   }
 }
 
-function markCatalog() {
-  for (const b of query('[data-case]')) b.setAttribute('aria-current',b.dataset.case===current.meta.id?'true':'false');
+function renderSequence(id) {
+  const index=list.findIndex(c=>c.id===id);
+  $('case-position').textContent=(index+1)+' / '+list.length;
+  $('prev-case').disabled=index<=0;
+  $('next-case').disabled=index>=list.length-1;
+  const strip=$('filmstrip');
+  const wasFocused=strip.contains(document.activeElement);
+  const start=Math.max(0,Math.min(list.length-7,index-3));
+  strip.replaceChildren();
+  for (const c of list.slice(start,start+7)) {
+    const b=button('','film-cell');
+    b.setAttribute('aria-current', String(c.id===id));
+    b.title=c.id+' '+caseTitle(c);
+    b.setAttribute('aria-label', b.title);
+    if (c.id===id) b.dataset.active='';
+    const poster=new Image(800,432);
+    poster.src='clips/'+c.id+'.jpg'; poster.alt=''; poster.loading='lazy';
+    const meta=document.createElement('span');
+    const code=document.createElement('span');
+    const title=document.createElement('span');
+    code.className='mono'; code.textContent=c.id; title.textContent=caseTitle(c);
+    meta.append(code,title); b.append(poster,meta);
+    b.addEventListener('click',()=>selectCase(c.id,0,true));
+    strip.append(b);
+  }
+  const active=strip.querySelector('[data-active]');
+  if (active) {
+    if (wasFocused) active.focus({preventScroll:true});
+    strip.scrollLeft=active.offsetLeft - (strip.clientWidth-active.clientWidth)/2;
+  }
 }
 
+function shiftCase(step) {
+  const index=list.findIndex(c=>c.id===(pendingId || current?.meta.id));
+  const next=list[index+step];
+  if (next) selectCase(next.id,0,true);
+}
+
+function setCameraTools() {
+  cameraTools.forEach(control => {control.disabled=Boolean(renderError || !track || view==='sensor');});
+}
 async function getJson(path) {
   const result=await fetch(path);
   if (!result.ok) throw new Error(path+' ('+result.status+')');
@@ -92,23 +152,39 @@ function syncAddress(replace=false) {
 }
 
 async function selectCase(id,startVariant=0,update=false) {
+  const entry=list.find(item=>item.id===id);
+  if (!entry) return;
   const request=++requestNumber;
+  pendingId=id;
   pause();
   if (recording) stopRecording();
+  track=null;
+  viewport.setAttribute('aria-busy','true');
+  $('tracking-status').textContent='Loading '+id+'…';
+  $('viewer-fallback').hidden=true;
+  playbackTools.forEach(control=>{control.disabled=true;});
+  views.forEach(control=>{control.disabled=true;});
+  $('variant').disabled=true;
+  const clip='clips/'+id+'.mp4';
+  $('clip-link').href=clip;
+  $('fallback-clip').href=clip;
+  $('result-link').href='../results.html#case-'+id;
+  setCameraTools();
+  if (!embedded) renderSequence(id);
   if (!cache.has(id)) cache.set(id,getJson('./data/'+id+'.json'));
   try {
     const next=await cache.get(id);
     if (request!==requestNumber) return;
     current=next;
+    renderError=engineError;
     const {meta,tracks}=current;
-    for (const [target,content] of [['case-id',meta.id],['case-title',meta.title],['environment',meta.environment],['category',categories[meta.id[0]]],['scenario',meta.scenario]]) $(target).textContent=content;
-    document.title=meta.id+' · JANUS 3B Test Arşivi';
-    $('result-link').href='../results.html#case-'+meta.id;
-    $('clip-link').href='clips/'+meta.id+'.mp4';
+    for (const [target,content] of [['stage-case',id],['case-title',caseTitle(entry)],['case-note',entry.noteEn || ''],['environment',meta.environment],['category',categories[id[0]]],['scenario',meta.scenario]]) $(target).textContent=content;
+    document.title=id+' · '+caseTitle(entry)+' · Arche';
     $('variant').replaceChildren();
     tracks.forEach((t,i)=>{
       const o=document.createElement('option');
-      o.value=i;o.textContent= t.name+' · '+t.environment;
+      o.value=i;
+      o.textContent=(runLabels[t.name] || t.name)+' / '+t.environment;
       $('variant').append(o);
     });
     $('variant').disabled=tracks.length===1;
@@ -122,36 +198,51 @@ async function selectCase(id,startVariant=0,update=false) {
       proof.append(p);
     }
     const p=document.createElement('p');p.textContent=meta.acceptance;proof.append(p);
-    markCatalog();
-    await installTrack();
+    if (!embedded && catalog.open) renderCatalog();
+    installTrack();
     if (update) syncAddress();
   } catch (error) {
     cache.delete(id);
-    showRenderError(error);
+    if (request!==requestNumber) return;
+    showRenderError(error, true);
+    $('retry-case').onclick=()=>selectCase(id,startVariant,update);
+  } finally {
+    if (request===requestNumber) {
+      pendingId=null;
+      viewport.setAttribute('aria-busy','false');
+    }
   }
 }
 
-function showRenderError(error) {
+function showRenderError(error, retry=false) {
   renderError=error;
-  $('viewer-fallback').textContent='3B görünüm açılamadı. Üstteki MP4 bağlantısından koşuyu izleyebilirsin.';
+  delete viewport.dataset.loaded;
+  $('fallback-message').textContent=retry?'This case could not load.':'3D is unavailable on this device.';
   $('viewer-fallback').hidden=false;
-  $('tracking-status').textContent='3B görünüm kullanılamıyor';
+  $('retry-case').hidden=!retry;
+  $('tracking-status').textContent='';
   $('record').disabled=true;
+  setCameraTools();
   console.error(error);
 }
 
-async function installTrack() {
+function installTrack() {
   pause();
   if (recording) stopRecording();
   track=current.tracks[+$('variant').value];
   time=0;
+  $('viewer-fallback').hidden=true;
+  renderError=engineError;
+  playbackTools.forEach(control=>{control.disabled=false;});
+  $('record').disabled=Boolean(engineError || !window.MediaRecorder || !viewer?.renderer.domElement.captureStream);
+  views.forEach(control=>{control.disabled=Boolean(engineError);});
   activeEvent=null;
   $('current-event').textContent='—';
-  $('origin').textContent=track.basis+' · '+track.setup.fixtureProvenance;
+  $('origin').textContent=poseLabels[track.basis] || track.basis;
   $('raw-path').textContent=track.sourceSha256;
   $('fixture-path').textContent=track.setup.fixtureProvenance;
   $('seek').max=track.end;
-  $('event-count').textContent=track.events.length;
+  $('event-count').textContent=track.events.length || '';
   $('show-section').hidden=!track.setup.boxes.some(b=>b.style==='guard');
   $('events').replaceChildren();
   $('event-marks').replaceChildren();
@@ -159,9 +250,9 @@ async function installTrack() {
     const node=button('','event-row');
     node.dataset.time=e[0];
     const t=document.createElement('time'),msg=document.createElement('span');
-    t.textContent=fmt.format(e[0])+' s';msg.textContent=tr(e[1]);
+    t.textContent=fmt.format(e[0])+' s';msg.textContent=eventName(e[1]);
     node.append(t,msg);
-    node.title=e[2]?tr(e[2]):tr(e[1]);
+    node.title=e[2]?eventName(e[2]):eventName(e[1]);
     node.addEventListener('click',()=>{pause();seek(e[0]);});
     $('events').append(node);
     const marker=document.createElement('i');
@@ -171,18 +262,24 @@ async function installTrack() {
   video.pause();
   $('video-box').hidden=!track.media;
   $('video-box').open=false;
-  if (track.media) video.src=track.media;
+  if (track.media && !embedded) video.src=track.media;
   else {video.removeAttribute('src');video.load();}
   if (viewer && !renderError) {
     try {
       viewer.setupCase(current.meta,track);
-      if (view==='sensor' && !track.setup.markers.length) setView('overview');
-      $('viewport').dataset.loaded=current.meta.id+'-'+$('variant').value;
+      setView(view);
+      viewport.dataset.loaded=current.meta.id+'-'+$('variant').value;
     } catch (error) {
       showRenderError(error);
     }
+  } else if (engineError) {
+    showRenderError(engineError);
   }
-  seek(0);
+  if (renderError) {
+    playbackTools.forEach(control=>{control.disabled=true;});
+    views.forEach(control=>{control.disabled=true;});
+  }
+  seek(embedded ? track.end*.64 : 0);
 }
 
 function seek(t) {
@@ -191,7 +288,7 @@ function seek(t) {
   const p=(!renderError&&viewer?.setTime(time)) || sampleAt(track.samples,time);
   $('seek').value=String(time);
   $('time').textContent=fmt.format(time)+' / '+fmt.format(track.end)+' s';
-  $('seek').setAttribute('aria-valuetext',fmt.format(time)+' saniye');
+  $('seek').setAttribute('aria-valuetext',fmt.format(time)+' seconds');
   if (p) {
     $('axis').textContent=fmt.format(p[1])+' / '+fmt.format(p[2])+' m';
     const angle=theta=>short.format(Math.atan2(Math.sin(theta),Math.cos(theta))*180/Math.PI)+'°';
@@ -201,24 +298,23 @@ function seek(t) {
   const e=latestAt(track.events,time);
   if (e!==activeEvent) {
     activeEvent=e;
-    $('current-event').textContent=e?tr(e[1]):'—';
+    $('current-event').textContent=e?eventName(e[1]):'—';
     const index=track.events.indexOf(e);
     [...$('events').children].forEach((b,i)=>b.setAttribute('aria-current',String(i===index)));
   }
   if (!renderError) {
     const qr=latestAt(track.qr,time);
-    let state=track.environment+' · kayıt';
-    if (qr && track.setup.markers.length) state=qr[1] ? 'QR · '+(qr[2]===null?'geçerli':short.format(qr[2])+' px') : 'QR · '+tr(qr[3]||'geçersiz');
+    let state=track.environment;
+    if (qr && track.setup.markers.length) state=qr[1] ? 'QR · '+(qr[2]===null?'valid':short.format(qr[2])+' px') : 'QR · '+eventName(qr[3]||'invalid');
     $('tracking-status').textContent=state;
   }
 }
 
 function tick(now) {
-  if (!playing) return;
-  const speed=+$('speed').value;
-  if (lastTick!==null) seek(time+Math.min(.10,(now-lastTick)/1000)*speed);
+  if (!direction) return;
+  if (lastTick!==null) seek(time+Math.min(.10,(now-lastTick)/1000)*(+$('speed').value)*direction);
   lastTick=now;
-  if(time>=track.end) {
+  if ((direction>0 && time>=track.end) || (direction<0 && time<=0)) {
     pause();
     if (recording) stopRecording();
     return;
@@ -226,26 +322,37 @@ function tick(now) {
   requestFrame=requestAnimationFrame(tick);
 }
 
-function play() {
-  if (!track || playing) return;
-  if (time>=track.end) seek(0);
-  playing=true;lastTick=null;
-  $('play').textContent='Ⅱ Duraklat';
-  $('play').setAttribute('aria-label','Duraklat');
+function play(nextDirection=1) {
+  if (!track || renderError) return;
+  if (direction===nextDirection) { pause(); return; }
+  pause();
+  if (nextDirection>0 && time>=track.end) seek(0);
+  if (nextDirection<0 && time<=0) seek(track.end);
+  direction=nextDirection;
+  $('play').textContent=direction===1?'Ⅱ':'▶';
+  $('play').setAttribute('aria-label',direction===1?'Pause':'Play');
+  $('reverse').setAttribute('aria-pressed',String(direction===-1));
   requestFrame=requestAnimationFrame(tick);
 }
 
 function pause() {
-  playing=false;lastTick=null;
+  direction=0;lastTick=null;
   cancelAnimationFrame(requestFrame);
-  $('play').textContent='▶ Oynat';
-  $('play').setAttribute('aria-label','Oynat');
+  $('play').textContent='▶';
+  $('play').setAttribute('aria-label','Play');
+  $('reverse').setAttribute('aria-pressed','false');
 }
 
 function setView(next) {
   view=next;
   viewer?.setView(view);
-  for(const b of views) b.setAttribute('aria-pressed',b.dataset.view===view?'true':'false');
+  for (const b of views) b.setAttribute('aria-pressed',String(b.dataset.view===view));
+  $('pan-mode').setAttribute('aria-pressed',String(view==='top'));
+  viewport.classList.toggle('is-panning',view==='top');
+  $('gesture-help').textContent=view==='sensor'?'View from the simulated robot camera':
+    view==='top'?'Drag to pan · scroll to zoom':'Drag to orbit · scroll to zoom · right-drag to pan';
+  setCameraTools();
+  $('pan-mode').disabled=view!=='overview' || Boolean(renderError);
 }
 
 function stopRecording() {
@@ -266,12 +373,12 @@ function record() {
   function endRecording() {
     stream.getTracks().forEach(t=>t.stop());
     recording=null;
-    $('record').textContent='Video kaydet';
+    $('record').textContent='Record viewport';
     $('record').setAttribute('aria-pressed','false');
   }
   recorder.onerror=()=>{
     endRecording();
-    $('tracking-status').textContent='Video kaydı başlatılamadı';
+    $('tracking-status').textContent='Recording could not start';
   };
   recorder.onstop=()=>{
     if (chunks.length) {
@@ -285,14 +392,22 @@ function record() {
     endRecording();
   };
   recorder.start(250);
-  $('record').textContent='Kaydı bitir';
+  $('record').textContent='Stop recording';
   $('record').setAttribute('aria-pressed','true');
   play();
 }
 
+function openCatalog() {
+  renderCatalog();
+  catalog.showModal();
+}
+$('open-catalog').addEventListener('click',openCatalog);
+$('show-all-cases').addEventListener('click',openCatalog);
+$('prev-case').addEventListener('click',()=>shiftCase(-1));
+$('next-case').addEventListener('click',()=>shiftCase(1));
 for (const b of filters) b.addEventListener('click',()=>{
   filter=b.dataset.filter;
-  for (const a of filters) a.setAttribute('aria-pressed',a===b?'true':'false');
+  for (const a of filters) a.setAttribute('aria-pressed',String(a===b));
   renderCatalog();
   $('case-list').scrollTop=0;
 });
@@ -300,40 +415,82 @@ $('search').addEventListener('input',renderCatalog);
 for(const b of views) b.addEventListener('click',()=>setView(b.dataset.view));
 for(const [name,action] of [['show-trace','setTrace'],['show-props','setProps'],['show-section','setSection']]) {
   $(name).addEventListener('click',e=>{
-    const show=e.target.getAttribute('aria-pressed')!=='true';
-    e.target.setAttribute('aria-pressed',String(show));viewer?.[action](show);
+    const show=e.currentTarget.getAttribute('aria-pressed')!=='true';
+    e.currentTarget.setAttribute('aria-pressed',String(show));
+    viewer?.[action](show);
   });
 }
-$('play').addEventListener('click',()=>playing?pause():play());
+$('play').addEventListener('click',()=>play());
+$('reverse').addEventListener('click',()=>play(-1));
 $('restart').addEventListener('click',()=>{pause();seek(0);});
+$('step-back').addEventListener('click',()=>{pause();seek(time-.25);});
+$('step-forward').addEventListener('click',()=>{pause();seek(time+.25);});
 $('seek').addEventListener('input',e=>{pause();seek(+e.target.value);});
 $('variant').addEventListener('change',()=>{installTrack();syncAddress();});
 $('record').addEventListener('click',record);
-document.addEventListener('keydown',e=>{
-  if (e.code==='Space' && (e.target===document.body || e.target===$('viewport'))) {
-    e.preventDefault();playing?pause():play();
-  }
+$('zoom-in').addEventListener('click',()=>viewer?.zoom(1));
+$('zoom-out').addEventListener('click',()=>viewer?.zoom(-1));
+$('fit-camera').addEventListener('click',()=>setView(view));
+$('pan-mode').addEventListener('click',()=>{
+  const active=$('pan-mode').getAttribute('aria-pressed')!=='true';
+  $('pan-mode').setAttribute('aria-pressed',String(active));
+  viewport.classList.toggle('is-panning',active);
+  viewer?.setPanMode(active);
+  $('gesture-help').textContent=active?'Drag to pan · scroll to zoom':'Drag to orbit · scroll to zoom · right-drag to pan';
+});
+const replay=document.querySelector('.replay');
+if (document.fullscreenEnabled && replay.requestFullscreen) {
+  $('fullscreen').addEventListener('click',async()=>{
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await replay.requestFullscreen();
+    } catch {
+      $('tracking-status').textContent='Full screen is unavailable';
+    }
+  });
+  document.addEventListener('fullscreenchange',()=>{
+    const label=document.fullscreenElement?'Exit full screen':'Full screen';
+    $('fullscreen').setAttribute('aria-label',label);
+    $('fullscreen').title=label;
+  });
+} else {
+  $('fullscreen').hidden=true;
+}
+const panKeys={ArrowLeft:[26,0],ArrowRight:[-26,0],ArrowUp:[0,26],ArrowDown:[0,-26]};
+viewport.addEventListener('keydown',e=>{
+  if (e.target!==viewport) return;
+  if (e.code==='Space') { e.preventDefault(); play(); return; }
+  if (!viewer || renderError || view==='sensor') return;
+  if (panKeys[e.key]) viewer.pan(...panKeys[e.key]);
+  else if (['+', '=','-'].includes(e.key)) viewer.zoom(e.key==='-'?-1:1);
+  else if (e.key==='0') setView(view);
+  else return;
+  e.preventDefault();
 });
 
 function fromAddress() {
   const params=new URLSearchParams(location.search);
   const id=params.get('vaka')?.toUpperCase();
-  return [list.some(c=>c.id===id)?id:'Q04',Math.max(0,(Number(params.get('kosu'))||1)-1)];
+  const run=Number(params.get('kosu'));
+  return [list.some(c=>c.id===id)?id:'Q04',Number.isSafeInteger(run)?Math.max(0,run-1):0];
 }
 window.addEventListener('popstate',()=>{if(list.length) selectCase(...fromAddress());});
+playbackTools.forEach(control=>{control.disabled=true;});
+views.forEach(control=>{control.disabled=true;});
+setCameraTools();
 
 try {
   const index=await getJson('./data/index.json');
   list=index.cases;
-  renderCatalog();
   try {
-    viewer=new JanusViewer($('viewport'));
+    viewer=new JanusViewer(viewport);
+    viewer.controls.enableZoom=!embedded;
     await viewer.load();
-    if(!window.MediaRecorder || !viewer.renderer.domElement.captureStream) $('record').disabled=true;
-  } catch(error) { showRenderError(error); }
+  } catch(error) {
+    engineError=error;
+  }
   await selectCase(...fromAddress());
-  const panel=$('case-list'), active=panel.querySelector('[aria-current=true]');
-  if (active) panel.scrollTop=Math.max(0,active.offsetTop-panel.offsetTop-panel.clientHeight*.74);
 } catch(error) {
   showRenderError(error);
+  viewport.setAttribute('aria-busy','false');
 }
