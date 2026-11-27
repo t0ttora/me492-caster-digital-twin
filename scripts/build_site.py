@@ -18,13 +18,14 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / '_site'
 REPO = 't0ttora/me492-caster-digital-twin'
 GH = f'https://github.com/{REPO}'
-PAGES = [('index', 'Overview'), ('progress', 'Progress'), ('vision', 'Vision'), ('manifesto', 'Manifesto'), ('tasks', 'Tasks'), ('roadmap', 'Roadmap'), ('decisions', 'Decisions'), ('library', 'Library'), ('about', 'About')]
+PAGES = [('index', 'Overview'), ('results', 'Results'), ('progress', 'Progress'), ('vision', 'Vision'), ('manifesto', 'Manifesto'), ('tasks', 'Tasks'), ('roadmap', 'Roadmap'), ('decisions', 'Decisions'), ('library', 'Library'), ('about', 'About')]
 REPORTS = [('ME492_Final_Roadmap_and_Arche_Visit_EN', 'Execution baseline & Arche visit'), ('ME492_Timetable_EN', 'Semester timetable'),
            ('Arche_Academic_Report_Typeset_EN_2026-11-16', 'Academic simulation progress report'),
            ('Arche_V2_Controller_Design_EN', 'Python V2 controller calculations'),
            ('Arche_JANUS_Teknik_Rapor_TR', 'JANUS motion and docking report (Turkish)'),
            ('Arche_JANUS_Vaka_Kartlari_TR', 'JANUS illustrated case cards (Turkish)')]
 STATUS = {'planned': 'Planned', 'in-progress': 'In progress', 'blocked': 'Blocked', 'verified': 'Verified', 'closed': 'Closed · unverified', 'unclassified': 'Unclassified', 'conflicting': 'Conflicting labels'}
+ENVIRONMENTS = {'Python': 'Python', 'Simscape': 'Native Simscape', 'Gazebo Linux': 'Live Gazebo', 'Gazebo kamerası / video': 'Gazebo camera replay', 'ROS 2 Linux': 'Live ROS 2', 'ROS 2 + Gazebo Linux': 'Live ROS 2 / Gazebo'}
 
 
 def api_all(endpoint):
@@ -179,26 +180,47 @@ def check():
 
 def qualification_summary(matrix):
     cases = matrix['cases']
-    passed = sum(case['status'] == 'passed' for case in cases)
+    passed_cases = sum(case['status'] == 'passed' for case in cases)
+    components = [(environment, check) for case in cases for environment, check in case['components'].items()]
+    total_passed = sum(check['status'] == 'passed' for _, check in components)
     tracks = {
-        'Python V2.3': {'Python'},
-        'Native Simscape': {'Simscape'},
-        'ROS 2 / Gazebo': {'Gazebo Linux', 'Gazebo kamerası / video', 'ROS 2 Linux', 'ROS 2 + Gazebo Linux'},
+        'python': ('Python V2.3', {'Python'}),
+        'simscape': ('Native Simscape', {'Simscape'}),
+        'ros2': ('ROS 2 / Gazebo', {'Gazebo Linux', 'Gazebo kamerası / video', 'ROS 2 Linux', 'ROS 2 + Gazebo Linux'}),
     }
     rows = []
-    for label, environments in tracks.items():
-        checks = [component for case in cases for environment, component in case['components'].items() if environment in environments]
+    for anchor, (label, environments) in tracks.items():
+        checks = [check for environment, check in components if environment in environments]
         passed_checks = sum(check['status'] == 'passed' for check in checks)
-        rows.append(f'<div><dt>{label}</dt><dd>{passed_checks} / {len(checks)}</dd></div>')
+        rows.append(f'<div><dt><a href="results.html#{anchor}">{label}</a></dt><dd>{passed_checks} / {len(checks)}</dd></div>')
     return f'''<article class="qualification-summary" aria-labelledby="janus-qualification">
-<h2 id="janus-qualification">JANUS simulation qualification</h2>
-<p class="qualification-result"><strong>{passed} / {len(cases)}</strong> cases passed</p>
-<dl aria-label="Assigned checks passed by environment">{''.join(rows)}</dl>
-<p class="muted small">Each case runs in its required environments. ROS 2 / Gazebo includes live Linux runs and camera replay.</p>
-<p class="qualification-links"><a href="reports/janus/qualification-matrix.tsv">Case matrix ↗</a>
-<a href="report-Arche_JANUS_Vaka_Kartlari_TR.html">Illustrated case cards ↗</a>
-<a href="records/docs/progress/2026-11-27-janus-experiments.html">Experiment record ↗</a></p>
+<h2 id="janus-qualification">Simulation qualification</h2>
+<div class="qualification-totals"><p class="qualification-result"><strong>{passed_cases} / {len(cases)}</strong><span>simulation cases passed</span></p>
+<p class="qualification-result"><strong>{total_passed} / {len(components)}</strong><span>environment checks passed</span></p></div>
+<dl aria-label="Checks passed by environment">{''.join(rows)}</dl>
+<p class="muted small">Some cases run in more than one environment. The ROS 2 / Gazebo checks include live runs and camera replay.</p>
+<p class="qualification-links"><a href="results.html#cases">Read all 40 cases</a>
+<a href="results.html#run-data">Open ROS 2 run data</a>
+<a href="report-Arche_JANUS_Vaka_Kartlari_TR.html">Illustrated case cards</a></p>
 </article>'''
+
+
+def case_index(cases, notes):
+    assert set(notes) == {case['case_id'] for case in cases}, 'Every published case needs a summary'
+    sections = []
+    for prefix, anchor, heading in [('M', 'motion-cases', 'Motion'), ('Q', 'docking-cases', 'QR docking'), ('O', 'operating-cases', 'Operations')]:
+        rows = []
+        for case in cases:
+            code = case['case_id']
+            if not code.startswith(prefix):
+                continue
+            title, summary = notes[code]
+            environments = ', '.join(ENVIRONMENTS[environment] for environment in case['components'])
+            measurements = ''.join(f'<div><dt>{escape(ENVIRONMENTS[environment])}</dt><dd lang="tr">{escape(check["measurement_tr"])}</dd></div>' for environment, check in case['components'].items())
+            result = 'Passed' if case['status'] == 'passed' else escape(case['status'].replace('_', ' ').capitalize())
+            rows.append(f'<details class="case-entry" id="case-{escape(code)}"><summary><span>{escape(code)}</span><span class="case-title">{escape(title)}</span><span class="case-result">{result}</span></summary><div class="case-body"><p>{escape(summary)}</p><p class="muted small">{escape(environments)}</p><p lang="tr"><strong>Kabul ölçütü</strong> {escape(case["acceptance_tr"])}</p><dl>{measurements}</dl></div></details>')
+        sections.append(f'<section class="case-group" id="{anchor}"><h3>{heading} <span>({len(rows)})</span></h3>{"".join(rows)}</section>')
+    return ''.join(sections)
 
 
 def build(issues, comments):
@@ -249,7 +271,7 @@ def build(issues, comments):
     for path in sorted((ROOT / 'docs/progress').glob('????-??-??*.md'), reverse=True):
         source = path.relative_to(ROOT)
         title = path.read_text().splitlines()[0].lstrip('# ')
-        journal.append((path.name[:10], f'<article class="journal-entry"><time datetime="{path.name[:10]}">{path.name[:10]}</time><h3>{escape(title)}</h3><p>Repository progress record. The document distinguishes preparation, execution and verification.</p><details><summary>Read entry +</summary><div class="prose">{markdown(path.read_text(), source, embedded=True)}</div></details><a class="text-link" href="{document_url(source)}">Full record ↗</a></article>'))
+        journal.append((path.name[:10], f'<article class="journal-entry"><time datetime="{path.name[:10]}">{path.name[:10]}</time><h3>{escape(title)}</h3><details><summary>Read entry</summary><div class="prose">{markdown(path.read_text(), source, embedded=True)}</div></details><a class="text-link" href="{document_url(source)}">Open original record</a></article>'))
     for comment in comments:
         number = int(comment['issue_url'].rsplit('/', 1)[1])
         journal.append((comment['created_at'], f'<article class="journal-entry"><time datetime="{comment["created_at"]}">{short_date(comment["created_at"])}</time><h3>Task #{number} update</h3><p>{escape(comment["user"]["login"])} posted this update on GitHub.</p><details><summary>Read update +</summary><div class="prose">{markdown(comment.get("body") or "", embedded=True)}</div></details><a class="text-link" href="{escape(comment["html_url"])}">Source comment ↗</a></article>'))
@@ -294,8 +316,9 @@ def build(issues, comments):
     with (ROOT / 'docs/research/run-inventory.csv').open() as source:
         run_count = len(list(csv.DictReader(source)))
     qualification = json.loads((ROOT / 'reports/janus/qualification-matrix.json').read_text())
-    tokens = {'RUN_COUNT': str(run_count), 'ACCESS_SNAPSHOT': escape((ROOT / access).read_text().split('\n\n')[1]), 'STATUS_TABLE': status_table, 'COMMITS': ''.join(commits), 'ACCESS': markdown((ROOT / access).read_text(), access, embedded=True), 'DECISIONS': markdown((ROOT / decisions).read_text(), decisions, embedded=True), 'FOCUS': focus, 'PROGRESS': ''.join(item[1] for item in journal), 'SYNC': f'GitHub and repository snapshot · Published: {short_date(built.isoformat())} (Istanbul).', 'TASKS': ''.join(tasks), 'ROADMAP': ''.join(roadmap), 'DOCUMENTS': ''.join(doc_links)}
+    tokens = {'RUN_COUNT': str(run_count), 'ACCESS_SNAPSHOT': escape((ROOT / access).read_text().split('\n\n')[1]), 'STATUS_TABLE': status_table, 'COMMITS': ''.join(commits), 'ACCESS': markdown((ROOT / access).read_text(), access, embedded=True), 'DECISIONS': markdown((ROOT / decisions).read_text(), decisions, embedded=True), 'FOCUS': focus, 'PROGRESS': ''.join(item[1] for item in journal), 'SYNC': f'Published {short_date(built.isoformat())} (Istanbul).', 'TASKS': ''.join(tasks), 'ROADMAP': ''.join(roadmap), 'DOCUMENTS': ''.join(doc_links)}
     tokens['JANUS_QUALIFICATION'] = qualification_summary(qualification)
+    tokens['CASE_INDEX'] = case_index(qualification['cases'], json.loads((ROOT / 'site/case-notes.json').read_text()))
     tokens['WEEKLY_PROGRESS'] = ''.join(weekly_progress)
     tokens['GATE_PROGRESS'] = ''.join(gate_progress)
     layout = (ROOT / 'site/layout.html').read_text()

@@ -82,6 +82,15 @@ if (search) {
 const oldPage = location.hash.slice(1);
 if (/\/(?:index\.html)?$/.test(location.pathname) && ['progress','vision','manifesto','tasks','roadmap','decisions','library','about'].includes(oldPage)) location.replace(`${oldPage}.html`);
 
+if (document.body.classList.contains('page-results')) {
+  const openLinkedCase = () => {
+    const target = document.getElementById(location.hash.slice(1));
+    if (target?.classList.contains('case-entry')) target.open = true;
+  };
+  openLinkedCase();
+  window.addEventListener('hashchange', openLinkedCase);
+}
+
 const refresh = document.querySelector('#refresh');
 const syncStatus = document.querySelector('#sync-status');
 const labels = {planned:'Planned','in-progress':'In progress',blocked:'Blocked',verified:'Verified',closed:'Closed · unverified',unlabelled:'Unclassified',conflicting:'Conflicting labels'};
@@ -136,7 +145,7 @@ if (refresh) {
     } finally {
       clearTimeout(timeout);
       refresh.disabled = false;
-      refresh.textContent = 'Refresh GitHub status ↻';
+      refresh.textContent = 'Refresh GitHub status';
     }
   });
 }

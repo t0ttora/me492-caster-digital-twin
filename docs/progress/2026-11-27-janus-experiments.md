@@ -88,6 +88,7 @@ the fixture's declared marker yaw and an independently logged world pose.
 Contact and charging remain separate pilot measurements.
 
 [ROS 2 and Gazebo source and runbook](https://github.com/t0ttora/me492-caster-digital-twin/tree/main/janus/ros2) ·
+[Live telemetry and acceptance files](../research/janus-ros-live-data.md) ·
 [Offline case table](../../reports/janus/ros2/case_results.csv) ·
 [Ideal replay reference errors](../../reports/janus/ros2/tracking-proxy.csv)
 

@@ -16,7 +16,9 @@ The `Publish research journal` workflow rebuilds on main pushes, issue changes, 
 All 22 initial tasks and their public comments are rendered at build time. Status filters, search, task details, roadmap-to-task links and a manual public GitHub status refresh enhance that static record. API errors retain the published snapshot and show a warning. All tasks, reports and records remain readable without JavaScript.
 
 - `layout.html`: shared frame, navigation and page metadata
-- `index.html`: short project overview and status table
+- `index.html`: project overview and simulation totals
+- `results.html`: case index, code links and run data
+- `case-notes.json`: English case titles and summaries, paired with the published qualification matrix
 - `progress.html`: dated journal and repository history
 - `tasks.html`: filterable issue workbench
 - `roadmap.html`: semester table and deadlines
@@ -43,7 +45,7 @@ node --input-type=module --check < site/app.js
 
 Desktop/mobile screenshots and UI checks are performed in the browser. The optional `tests/browser_check.py` provides CI regression checks when Playwright is available. Its test fixtures are not project results. No runtime framework, CMS or database is required. The PDF reader uses a pinned, locally vendored Mozilla PDF.js build; no CDN or third-party document upload is involved.
 
-Each primary tab has a real HTML URL and a distinct content layout. Legacy homepage section hashes redirect to their matching pages. No generated illustrations, robot diagrams or synthetic data plots are included.
+Each primary tab has a real HTML URL and a distinct content layout. Legacy homepage section hashes redirect to their matching pages. The results page links to the original simulation plots and labels its Gazebo camera capture.
 
 ## Editorial voice
 
@@ -53,4 +55,4 @@ Tasks show planned periods/budgets in the list, independent type/status filters 
 
 The reader fills the available viewport with one document scroll area. Pages render near the viewport, and old canvas buffers are released on scale changes. The source PDFs remain unchanged.
 
-Overview progress uses equally weighted weekly tasks and a separate decision-gate denominator. Completion requires a closed issue with an unambiguous `status:verified` label. Active work gets no partial completion credit; percentages refresh with the public GitHub status request. The scope and evidence panels reflect the published research records.
+The overview and results pages take their simulation counts from the published qualification matrix. Weekly status in the research log comes from GitHub. A verified week requires a closed issue with an unambiguous `status:verified` label.

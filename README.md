@@ -4,7 +4,7 @@
 
 Oluş Emre Demir · Mechanical Engineering, Yeditepe University · ME492 · Fall 2026
 
-**[Project website →](https://t0ttora.github.io/me492-caster-digital-twin/)**
+**[Project website →](https://t0ttora.github.io/me492-caster-digital-twin/)** · [Simulation results and run data](https://t0ttora.github.io/me492-caster-digital-twin/results.html)
 
 Progress, weekly tasks, semester roadmap, decisions and reports in one public research journal.
 

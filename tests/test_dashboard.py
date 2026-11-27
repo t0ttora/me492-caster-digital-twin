@@ -1,5 +1,6 @@
 import csv
 import json
+import re
 import subprocess
 import unittest
 from pathlib import Path
@@ -31,7 +32,7 @@ class DashboardTests(unittest.TestCase):
     def test_real_content_without_javascript(self):
         self.assertEqual(self.html.count('class="task"'), 22)
         self.assertEqual(self.html.count('data-kind="gate"'), 6)
-        for phrase in ['Scope and preparation', 'MANIFESTO', 'Published reports', 'PROFILE / PRACTICE']:
+        for phrase in ['Scope and preparation', 'How I work', 'Published reports', 'Oluş Emre Demir']:
             self.assertIn(phrase, self.html)
 
     def test_links_and_public_artifact(self):
@@ -62,13 +63,28 @@ class DashboardTests(unittest.TestCase):
     def test_simulation_qualification_on_both_progress_views(self):
         matrix = json.loads((ROOT / 'reports/janus/qualification-matrix.json').read_text())
         passed = sum(case['status'] == 'passed' for case in matrix['cases'])
-        for slug in ('index', 'progress'):
+        for slug in ('index', 'progress', 'results'):
             page = self.pages[slug]
-            self.assertIn(f'<strong>{passed} / {len(matrix["cases"])}</strong> cases passed', page)
+            self.assertIn(f'<strong>{passed} / {len(matrix["cases"])}</strong><span>simulation cases passed</span>', page)
+            self.assertIn('<strong>72 / 72</strong><span>environment checks passed</span>', page)
             for track, result in [('Python V2.3', '29 / 29'), ('Native Simscape', '16 / 16'), ('ROS 2 / Gazebo', '27 / 27')]:
-                self.assertIn(f'<dt>{track}</dt><dd>{result}</dd>', page)
-            self.assertIn('href="reports/janus/qualification-matrix.tsv"', page)
-        self.assertIn(f'Physical runs in the public inventory: <b>{self.data["published_runs"]}</b>', self.pages['progress'])
+                self.assertIn(f'>{track}</a></dt><dd>{result}</dd>', page)
+            self.assertIn('href="results.html#cases"', page)
+        self.assertIn(f'<b>{self.data["published_runs"]}</b> physical robot runs', self.pages['progress'])
+
+    def test_results_index_and_live_trace_downloads(self):
+        page = self.pages['results']
+        matrix = json.loads((ROOT / 'reports/janus/qualification-matrix.json').read_text())
+        self.assertEqual(page.count('class="case-entry"'), len(matrix['cases']))
+        for case in matrix['cases']:
+            self.assertEqual(page.count(f'id="case-{case["case_id"]}"'), 1)
+        for case in ('M02', 'Q08', 'O05'):
+            directory = ROOT / 'reports/janus/ros2/live'
+            self.assertEqual(json.loads((directory / f'{case}-acceptance.json').read_text())['status'], 'passed')
+            with (directory / f'{case}-telemetry.csv').open() as source:
+                self.assertTrue({'truth', 'request', 'guard_output'} <= {row['source'] for row in csv.DictReader(source)})
+            for file in (f'{case}-telemetry.csv', f'{case}-acceptance.json'):
+                self.assertIn(f'href="reports/janus/ros2/live/{file}"', page)
 
     def test_weekly_and_gate_views_share_task_status_and_evidence(self):
         fixture = json.loads((ROOT / 'site/issue-snapshot.json').read_text())['issues']
@@ -98,8 +114,9 @@ class DashboardTests(unittest.TestCase):
     def test_accessibility_basics(self):
         for page in self.pages.values():
             self.assertIn('lang="en"', page)
+            interface = re.sub(r'<(?:p|dd) lang="tr">.*?</(?:p|dd)>', '', page)
             for phrase in ['Görev', 'İlerleme', 'Kütüphane', 'koşulları', 'Yol haritası']:
-                self.assertNotIn(phrase, page)
+                self.assertNotIn(phrase, interface)
         self.assertIn('Skip to content', self.html)
         for slug, page in self.pages.items():
             self.assertEqual(page.count('<h1'), 1, slug)
@@ -107,7 +124,7 @@ class DashboardTests(unittest.TestCase):
         self.assertIn('aria-label="Arche home"', self.html)
 
     def test_separate_routes_without_invented_visuals(self):
-        self.assertEqual(len(self.pages), 9)
+        self.assertEqual(len(self.pages), 10)
         for slug, page in self.pages.items():
             self.assertIn(f'data-page="{slug}" aria-current="page"', page)
             self.assertNotIn('<svg', page)

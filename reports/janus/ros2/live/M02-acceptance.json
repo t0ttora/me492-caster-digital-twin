@@ -1,0 +1,33 @@
+{
+  "case_id": "M02",
+  "run": "native-isolated-v2",
+  "environment": "Ubuntu 24.04 arm64, ROS 2 Jazzy, Gazebo Harmonic",
+  "status": "passed",
+  "gates": {
+    "fixture_reached_its_end": true,
+    "clock_odom_world_and_joint_topics_sampled": true,
+    "world_pose_and_odom_contract_valid": true,
+    "one_finite_case_interval": true,
+    "exactly_one_clock_odometry_world_and_command_publisher": true,
+    "forward_window_uninterrupted": true,
+    "both_wheel_rates_and_world_forward_sign": true,
+    "measured_250ms_stopped_hold": true,
+    "terminal_pose_within_2cm_and_0p05rad": true
+  },
+  "measurements": {
+    "case_interval_s": 3.519,
+    "applied_twist_samples": 823,
+    "world_pose_samples": 178,
+    "observation_reasons": {},
+    "observed_decode_p95_ms": null,
+    "world_x_displacement_m": 0.2400848859913335,
+    "max_xy_displacement_m": 0.2400848859913335,
+    "forward_window_guard_faults": [],
+    "stop_to_speed_band_s": 0.06300000000000017,
+    "stop_to_dwell_confirmation_s": 0.32299999999999995,
+    "braking_distance_m": 0.0031570384102998783,
+    "brake_trigger_simulation_s": 2.557,
+    "error_from_nominal_twist_integral_m": 8.488599133352204e-05,
+    "final_yaw_error_rad": 3.248212579872776e-13
+  }
+}

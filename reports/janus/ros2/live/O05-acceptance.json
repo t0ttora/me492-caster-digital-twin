@@ -1,0 +1,39 @@
+{
+  "case_id": "O05",
+  "run": "native-o05-recovery-v2",
+  "environment": "Ubuntu 24.04 arm64, ROS 2 Jazzy, Gazebo Harmonic",
+  "status": "passed",
+  "gates": {
+    "fixture_reached_its_end": true,
+    "clock_odom_world_and_joint_topics_sampled": true,
+    "world_pose_and_odom_contract_valid": true,
+    "one_finite_case_interval": true,
+    "exactly_one_clock_odometry_world_and_command_publisher": true,
+    "actual_motion_before_odometry_fault": true,
+    "injected_old_pose_reaches_guard_and_latches": true,
+    "advancing_fresh_odometry_during_measured_stationary_hold": true,
+    "fresh_unauthorized_requests_rejected": true,
+    "separate_permission_ack_and_new_command": true,
+    "measured_restart_requires_new_authorized_twist": true
+  },
+  "measurements": {
+    "case_interval_s": 3.018,
+    "applied_twist_samples": 265,
+    "world_pose_samples": 153,
+    "observation_reasons": {},
+    "observed_decode_p95_ms": null,
+    "restored_fresh_odometry_samples": 52,
+    "unauthorized_requests": 18,
+    "first_stop_time_s": 1.3,
+    "confirmed_stop_time_s": 1.56,
+    "permission_sent_time_s": 1.983,
+    "permission_ack_time_s": 1.983,
+    "new_request_time_s": 2.307,
+    "resumed_motion_time_s": 2.34,
+    "regressive_capture_s": 0.99,
+    "event_to_fault_s": 0.0,
+    "scope": "one synthetic regressive odometry stamp injected into native ROS/Gazebo; encoder-only outage untested",
+    "fault_to_measured_stop_band_s": 0.040000000000000036,
+    "fault_braking_distance_m": 0.0014676720535261867
+  }
+}

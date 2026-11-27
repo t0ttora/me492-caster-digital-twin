@@ -1,0 +1,51 @@
+{
+  "case_id": "Q08",
+  "run": "native-q08-terminal-v2",
+  "environment": "Ubuntu 24.04 arm64, ROS 2 Jazzy, Gazebo Harmonic",
+  "status": "passed",
+  "gates": {
+    "fixture_reached_its_end": true,
+    "clock_odom_world_and_joint_topics_sampled": true,
+    "world_pose_and_odom_contract_valid": true,
+    "one_finite_case_interval": true,
+    "exactly_one_clock_odometry_world_and_command_publisher": true,
+    "no_stale_wrong_or_outer_band_forward_request": true,
+    "rendered_nonmatching_id_rejected": true,
+    "never_moved_forward": true,
+    "all_controller_and_guard_twists_zero": true,
+    "no_qr_acquisition_or_success_events": true,
+    "independent_simulator_stays_stationary": true,
+    "one_controller_terminal_wrong_id_timeout": true,
+    "controller_reached_simulated_deadline_with_abort_outcome": true,
+    "live_wrong_only_observations_continue_through_timeout": true
+  },
+  "measurements": {
+    "case_interval_s": 3.552,
+    "applied_twist_samples": 1880,
+    "world_pose_samples": 178,
+    "observation_reasons": {
+      "wrong_id": 47
+    },
+    "observed_decode_p95_ms": 213.245141,
+    "real_rendered_observations": 47,
+    "accepted_observations": 0,
+    "forward_requests": 0,
+    "invalid_or_expired_forward_requests": 0,
+    "wrong_ids": [
+      "JANUS-DOCK-01"
+    ],
+    "world_xy_drift_m": 1.0301904987803698e-09,
+    "qr_timeout_configured_s": 3.2,
+    "controller_timeout_events": 1,
+    "accepted_or_success_events": 0,
+    "positive_guard_commands": 0,
+    "max_measured_linear_speed_mps": 5.764329741856552e-09,
+    "max_measured_yaw_rate_radps": 0.0,
+    "qr_timeout_reason": "search_timeout:wrong_id",
+    "qr_timeout_simulation_time_s": 3.222,
+    "qr_timeout_elapsed_s": 3.2,
+    "last_wrong_capture_age_s": 0.021999999999999797,
+    "largest_pre_timeout_wrong_observation_gap_s": 0.19999999999999996,
+    "terminal_zero_hold_s": 0.35199999999999987
+  }
+}
