@@ -129,6 +129,9 @@ def main():
             duplicates = trial["disturbance"]["outcome_reasons"].get("ambiguous_target", 0)
             description = (f"{mixed} prefacing observations selected the configured target; {duplicates} duplicate "
                            "observations rejected. Both IDs were selected separately on the same native frames in the offline cross-check.")
+            secondary_path = lane / "results/replay-d-analysis/Q09/metrics.json"
+            if secondary_path.exists() and load(secondary_path)["trials"][0]["loss_and_stop"]["body_stop"]:
+                package["case_results"][case_id]["supplemental_moving_stop"] = "../replay-d-analysis/Q09/metrics.json"
         elif case_id == "Q10":
             trials = select_trials(case, {"hotspot", "reflection", "exposure_whiteout"})
             count = sum(t["disturbance"]["observed_frames"] for t in trials)
@@ -174,6 +177,8 @@ def main():
                       f"[stop trace]({cid}/stop-trace.png) · [lossless delivered pixels]({cid}/delivered-rgb.mkv) · "
                       f"[frame index]({cid}/video-index.json)")
     report.append("- [Q11 measured quality and latency](Q11/quality-latency.png)")
+    if "supplemental_moving_stop" in package["case_results"].get("Q09", {}):
+        report.append("- [Q09 moving stop in the first direct replay](../replay-d-analysis/Q09/metrics.json)")
     report.append(f"- [Raw ROS trace](../{primary.name}/recording/trace.jsonl) · "
                   "[fixture strengths and full frame lineage](../fixtures/manifest.json) · "
                   "[offline decoding and station input verification](../offline-scan.json)")
