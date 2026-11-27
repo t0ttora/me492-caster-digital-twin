@@ -1,0 +1,16 @@
+{
+  "q01_mean_production": {
+    "max_position_delta_m": 5.0414768179801115e-09,
+    "same_PI": true,
+    "scope": "centered symmetric fixture"
+  },
+  "q06prime_persistent_abort": {
+    "first_invalid_capture_s": 1.05,
+    "zero_request_s": 1.06,
+    "first_stop_s": 1.167,
+    "stop_confirmed_s": 1.417,
+    "abort_latch_s": 2.06,
+    "abort_latch_held": true,
+    "test_only_timeout_s": 1.0
+  }
+}

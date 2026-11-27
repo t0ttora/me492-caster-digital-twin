@@ -84,6 +84,12 @@ geometry. The logged visibility, image alignment and geometric
 range gates cover the synthetic camera. Dock contact and BMS need
 separate inputs.
 
+The supplemental `q01_mean_production` model switches the center
+calculation to the arithmetic mean while retaining the reference's
+wheel gains. The `q06prime_persistent_abort` fixture uses a 1.0 s
+continuous loss timeout and holds the abort through run end.
+[Supplemental QR results](../../reports/janus/native-qr-supplements.json)
+
 ## Terrain feasibility
 
 The 3° infinite-plane run contains a tilted plane, axle height and

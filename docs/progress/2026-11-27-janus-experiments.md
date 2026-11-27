@@ -92,6 +92,14 @@ stop. The observation returned and the run resumed. These cases use
 an ideal camera projection. Dock contact and BMS confirmation need
 separate measurements.
 
+In a separate persistent-loss run, the invalid frame was captured
+at 1.050 s. The command fell to zero at 1.060 s, the 250 ms stop dwell
+completed at 1.417 s, and the test-only one-second loss timeout latched
+an abort at 2.060 s. Commands stayed at zero until the 18 s run ended.
+The matched-gain centered QR comparison measured a 5.04 nm maximum
+position difference between the two center definitions in that symmetric
+fixture. [Supplemental QR measurements](../../reports/janus/native-qr-supplements.json)
+
 Eight open-loop Simscape runs replayed verified Python axle torque
 streams. All eight matched both applied channels on the logged
 native grids. When the independent Python review changed two QR

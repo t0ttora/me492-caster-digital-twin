@@ -234,5 +234,27 @@
       "end_s": 15.09,
       "applied_command_equivalence_pass": true
     }
+  ],
+  "qr_supplements": [
+    {
+      "scenario": "q01_mean_production",
+      "model_sha256": "24d4591ca8ff4368ea25c912a74ec4bdd366b7fc8a2e105a6d9f93ec33160d15",
+      "controller_file": "native_q01_mean_production_controller.m",
+      "controller_sha256": "b60e02a0674a790b2e9a0b49670772f62d81280f55c81d87f4a05270cc3dad4e",
+      "source_candidate": "qr_centered_v4",
+      "end_s": 18,
+      "terminal_phase": 3,
+      "bounded_supplement_criteria_passed": true
+    },
+    {
+      "scenario": "q06prime_persistent_abort",
+      "model_sha256": "f91e7875a0ac42b38a5e5de9a12e70064c494f30a0ce3f29a8b0d798d9a29cac",
+      "controller_file": "native_q06prime_persistent_abort_controller.m",
+      "controller_sha256": "5e270bc5a27551f4c86b663e9b3e9ce03fc9f8a46beec9dc3a014465ff29ed70",
+      "source_candidate": "qr_view_loss_v4",
+      "end_s": 18,
+      "terminal_phase": 5,
+      "bounded_supplement_criteria_passed": true
+    }
   ]
 }
