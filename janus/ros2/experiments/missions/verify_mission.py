@@ -5,6 +5,7 @@ from collections import Counter, defaultdict
 import json
 import math
 from pathlib import Path
+from statistics import median
 import xml.etree.ElementTree as ET
 
 from contract import (
@@ -255,6 +256,21 @@ def caster_recovery(rows):
     return None
 
 
+def world_guide_boxes(output):
+    world = ET.parse(output / "world.sdf").find("world")
+    boxes = {}
+    for name in GUIDES:
+        model = world.find(f"model[@name='{name}']")
+        if model is None or model.findtext("static") != "true":
+            raise ValueError(f"{name} is absent or mobile in the executed SDF")
+        x, y, _, roll, pitch, yaw = map(float, model.findtext("pose").split())
+        if any((roll, pitch, yaw)):
+            raise ValueError(f"{name} is not an axis-aligned fixture")
+        width, depth, _ = map(float, model.findtext("link/collision/geometry/box/size").split())
+        boxes[name] = (x, y, width, depth)
+    return boxes
+
+
 def undock(trace, output):
     checks, metrics = {}, {}
     cut_request, cut_ack, reverse, end = (trace.when(name) for name in (
@@ -277,7 +293,7 @@ def undock(trace, output):
     truth = trace.slice("truth", reverse, end)
     joints = [trace.nearest("joint", row["time_s"]) for row in truth]
     paired = [(row, j) for row, j in zip(truth, joints) if j]
-    guides = json.loads((output / "world.json").read_text()).get("dock_guides_xy_size_si") or GUIDES
+    guides = world_guide_boxes(output)
     clearance = [dock_clearance(row, j, guides) for row, j in paired]
     min_clearance = min(clearance, default=None)
     checks["positive_native_planar_clearance"] = bool(
@@ -292,7 +308,10 @@ def undock(trace, output):
     recovery = caster_recovery((row["time_s"], j["caster_swivel_angle_rad"], j["caster_swivel_radps"], row["v_mps"])
                                for row, j in paired)
     checks["native_caster_recovery_while_reversing"] = recovery is not None
-    metrics.update(minimum_planar_clearance_m=min_clearance, clearance_samples=len(clearance),
+    metrics.update(charge_cut_to_first_reverse_request_s=enabled-cut_ack if enabled is not None and cut_ack is not None else None,
+                   charge_cut_to_first_guarded_reverse_s=reverse_out[0]["time_s"]-cut_ack
+                   if cut_ack is not None and reverse_out else None,
+                   minimum_planar_clearance_m=min_clearance, clearance_samples=len(clearance),
                    native_backout_distance_m=native_distance,
                    caster_recovery_after_reverse_s=recovery-reverse if recovery is not None else None,
                    terminal_caster_error_to_reverse_rad=abs(wrap(joints[-1]["caster_swivel_angle_rad"]-math.pi))
@@ -349,15 +368,23 @@ def route(trace, case, output):
             and joint.findtext("parent") == "base_link" and joint.findtext("child") == "janus_lab_payload")
         checks["measured_loaded_transit"] = bool(
             trace.data["truth"] and trace.data["truth"][-1]["x_m"]-trace.data["truth"][0]["x_m"] > .45)
-        contact_count = {
-            wheel: sum(
-                any(pair["points"] > 0 and ("ground" in pair["collision_1"] or "ground" in pair["collision_2"])
-                    for pair in row["pairs"])
-                for row in trace.data["floor_contact"] if row["wheel"] == wheel)
+        settled_start = previous_arrival-STOP_DWELL_S
+        contacts = {
+            wheel: [(row["time_s"], pair[f"force_z_body_{side}_N"])
+                    for row in trace.data["floor_contact"] if row["wheel"] == wheel
+                    for pair in row["pairs"] if pair["points"] > 0
+                    for side, other in ((1, 2), (2, 1))
+                    if "ground" in pair[f"collision_{other}"] and wheel in pair[f"collision_{side}"]]
             for wheel in NATIVE_CONTACT_LINKS
         }
-        checks["native_ground_contact_measured_on_each_wheel"] = all(count > 0 for count in contact_count.values())
-        metrics["native_floor_contact_sample_counts"] = contact_count
+        support = {wheel: [force for stamp, force in samples if settled_start <= stamp <= previous_arrival]
+                   for wheel, samples in contacts.items()}
+        checks["native_ground_contact_measured_on_each_wheel"] = all(contacts.values()) and all(support.values())
+        support_medians = {wheel: median(forces) if forces else None for wheel, forces in support.items()}
+        metrics["native_floor_contact_sample_counts"] = {wheel: len(samples) for wheel, samples in contacts.items()}
+        metrics["settled_median_vertical_wheel_support_n"] = support_medians
+        metrics["settled_sum_of_median_wheel_support_n"] = sum(support_medians.values()) if all(support.values()) else None
+
     return checks, metrics
 
 

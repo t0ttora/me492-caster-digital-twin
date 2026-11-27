@@ -8,16 +8,14 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from contract import CASTER_ERROR_LIMIT_RAD, DRIVE_RADIUS_M, GUIDES, dock_clearance, wrap
-from verify_mission import Trace
+from contract import CASTER_ERROR_LIMIT_RAD, DRIVE_RADIUS_M, SPEED_LIMIT_MPS, dock_clearance, wrap
+from verify_mission import Trace, caster_recovery, world_guide_boxes
 
 COLORS = {"truth": "#203D68", "odom": "#279982", "request": "#C16C23", "guard": "#7D52A0",
           "event": "#8C929B", "vline": "#525C67"}
 EVENTS = {
     "Q15": ("aligned", "zero_motion", "contact", "charge_timeout"),
     "Q16": ("aligned", "zero_motion", "contact", "charge_confirmed"),
-    "Q18": ("undock_authorized", "charge_cut_confirmed", "reverse_enabled", "contact_released", "exit_stopped"),
-    "O07": ("transit_started", "transit_preempted", "transit_stopped", "dock_started", "charge_confirmed"),
 }
 
 
@@ -71,11 +69,26 @@ def charge_plot(paths, output):
             continue
         for source, color, style in (("truth", "truth", "-"), ("guard_output", "guard", "--")):
             right.plot(*xy(trace, source, "v_mps", origin), linewidth=1.1, linestyle=style, color=COLORS[color])
+        peak_rim_speed = 0.
         for side, color in (("left", "#E6A062"), ("right", "#9A6B23")):
             t, values = xy(trace, "joint", side + "_wheel_radps", origin)
-            right.plot(t, [DRIVE_RADIUS_M*v for v in values], linewidth=.8, color=color)
+            rim_speed = [DRIVE_RADIUS_M*v for v in values]
+            peak_rim_speed = max(peak_rim_speed, max(map(abs, rim_speed), default=0.))
+            right.plot(t, rim_speed, linewidth=.8, color=color)
+        for limit in (-SPEED_LIMIT_MPS, SPEED_LIMIT_MPS):
+            right.axhline(limit, color=COLORS["request"], linestyle=":", linewidth=.8)
         markup(right, trace, origin, [(name, name.replace("_", " ")) for name in EVENTS[case]])
-        right.set(xlabel="Simulation time from alignment (s)", ylabel="Body / drive rim speed (m/s)")
+        if case == "Q16":
+            for row in trace.data["bms"]:
+                if row["stimulus"] == "expired_charge":
+                    stale = row["read_time_s"] - origin
+                    right.axvline(stale, color=COLORS["request"], linestyle=":", linewidth=.9)
+                    right.text(stale, .96, "stale BMS packet", rotation=90, va="top", ha="right",
+                               transform=right.get_xaxis_transform(), color=COLORS["request"], fontsize=7)
+        right.text(.98, .13, f"Peak drive-rim speed {peak_rim_speed:.2e} m/s",
+                   ha="right", transform=right.transAxes, color=COLORS["vline"], fontsize=8)
+        right.set(xlabel="Simulation time from alignment (s)", ylabel="Body / drive rim speed (m/s)",
+                  ylim=(-.024, .024))
         right.set_title(f"{case}   Station hold", loc="left", fontweight="bold")
         style_axis(right)
     figures.suptitle("JANUS native docking and virtual charger evidence", fontweight="bold", fontsize=15)
@@ -93,7 +106,7 @@ def undock_plot(path, output):
     rows = trace.slice("truth", start, end)
     paired = [(r, trace.nearest("joint", r["time_s"])) for r in rows]
     paired = [(r, j) for r, j in paired if j]
-    guides = json.loads((path / "world.json").read_text()).get("dock_guides_xy_size_si") or GUIDES
+    guides = world_guide_boxes(path)
     times = [r["time_s"]-start for r, _ in paired]
     f, axes = plt.subplots(3, 1, sharex=True, figsize=(10.5, 8), layout="constrained")
     ax, cas, gap = axes
@@ -105,11 +118,38 @@ def undock_plot(path, output):
              color=COLORS["truth"])
     cas.axhline(math.degrees(CASTER_ERROR_LIMIT_RAD), color=COLORS["request"], linestyle="--", linewidth=.8)
     cas.set_ylabel("Caster error to reverse (°)")
-    gap.plot(times, [1000*dock_clearance(r, j, guides) for r, j in paired], color=COLORS["odom"])
+    clearance = [1000*dock_clearance(r, j, guides) for r, j in paired]
+    gap.plot(times, clearance, color=COLORS["odom"])
     gap.set(ylabel="Planar clearance (mm)", xlabel="Simulation time from laboratory undock authorization (s)")
+    if clearance:
+        i = min(range(len(clearance)), key=clearance.__getitem__)
+        gap.annotate(f"{clearance[i]:.1f} mm minimum", (times[i], clearance[i]), xytext=(35, 28),
+                     textcoords="offset points", color=COLORS["odom"], fontsize=9,
+                     arrowprops={"arrowstyle": "-", "color": COLORS["odom"]})
     for axis in axes:
         style_axis(axis)
-    markup(ax, trace, start, [(name, name.replace("_", " ")) for name in EVENTS["Q18"][1:]])
+    markup(ax, trace, start, [(name, name.replace("_", " "))
+                              for name in ("contact_released", "exit_stopped")])
+    cut = trace.when("charge_cut_confirmed")
+    reverse = trace.when("reverse_enabled")
+    if cut is not None and reverse is not None:
+        first_negative = next((r["time_s"] for r in trace.slice("guard_output", reverse, end)
+                               if r["v_mps"] < 0.), None)
+        for event_time in (cut, reverse):
+            ax.axvline(event_time-start, linewidth=.7, color=COLORS["event"])
+        sequence_label = f"Cut acknowledged at {cut-start:.3f} s"
+        if first_negative is not None:
+            sequence_label += f"\nGuarded reverse {1000*(first_negative-cut):.0f} ms later"
+        ax.annotate(sequence_label, (cut-start, -.005), xytext=(78, -22), textcoords="offset points",
+                    color=COLORS["vline"], fontsize=8,
+                    arrowprops={"arrowstyle": "-", "color": COLORS["vline"]})
+        recovery = caster_recovery((r["time_s"], j["caster_swivel_angle_rad"], j["caster_swivel_radps"], r["v_mps"])
+                                   for r, j in paired if r["time_s"] >= reverse)
+        if recovery is not None:
+            cas.axvline(recovery-start, linewidth=.8, color=COLORS["event"])
+            cas.text(recovery-start, .40, f"Settled {recovery-reverse:.3f} s after reverse enable",
+                     transform=cas.get_xaxis_transform(), ha="left", va="center",
+                     color=COLORS["vline"], fontsize=8)
     f.suptitle("Q18   Native backout, caster and station clearance", fontweight="bold", fontsize=15)
     f.savefig(output / "undock-evidence.png", dpi=165)
     plt.close(f)
@@ -126,8 +166,11 @@ def route_plot(paths, output):
         if trace.start is None:
             continue
         axis.plot(*xy(trace, "truth", "x_m", trace.start), color=COLORS["truth"], label="Independent Gazebo x")
-        markers = ([(name, name.replace("_", " ")) for name in EVENTS[case][1:]]
-                   if case in EVENTS else [("arrived", "{mission_id}")])
+        markers = (
+            [("transit_preempted", "transit preempted"), ("dock_started", "stopped · return dispatched"),
+             ("charge_confirmed", "charge confirmed")]
+            if case == "O07" else [("arrived", "{mission_id}")]
+        )
         markup(axis, trace, trace.start, markers)
         axis.set(ylabel="World x (m)", xlabel="Simulation time from case start (s)")
         axis.set_title(case, loc="left", fontweight="bold")

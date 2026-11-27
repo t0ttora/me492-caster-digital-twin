@@ -1,6 +1,6 @@
 # JANUS Gazebo mission evidence
 
-The harness runs Q15, Q16, Q18, O01, O06 and O07 on Ubuntu 24.04 arm64 with ROS 2 Jazzy and Gazebo Harmonic. It uses the baseline JANUS DiffDrive plant, ROS command guard and camera transport. The station, selectable cut authorization and battery readings are laboratory fixtures. The Linux teardown shuts down only the process group it started.
+The harness runs Q15, Q16, Q18, O01, O06 and O07 on Ubuntu 24.04 arm64 with ROS 2 Jazzy and Gazebo Harmonic. It uses the baseline JANUS DiffDrive plant, ROS command guard and camera transport. The station, cut authorization and battery readings are laboratory fixtures. The Linux teardown shuts down only the process group it started.
 
 ## Reproduce on the existing SSD-hosted Lima guest
 
@@ -14,7 +14,7 @@ colcon build --executor sequential --base-paths "$ROS_SOURCE" --cmake-args -DBUI
 bash "$MISSION_SRC/prepare_codecs.sh"
 mkdir -p "$JANUS_EVIDENCE"
 for case in Q15 Q16 Q18 O01 O06 O07; do
-  bash "$MISSION_SRC/run_guest.sh" "$case" "$JANUS_EVIDENCE/$case" "$PWD/install/setup.bash" 190
+  bash "$MISSION_SRC/run_guest.sh" "$case" "$JANUS_EVIDENCE/$case" "$PWD/install/setup.bash" 210
   python3 "$MISSION_SRC/verify_mission.py" "$case" "$JANUS_EVIDENCE/$case"
 done
 ```
