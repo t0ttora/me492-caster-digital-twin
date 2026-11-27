@@ -57,6 +57,12 @@ def next_row(series, now):
     return rows[i] if i < len(rows) else None
 
 
+def prior_row(series, now):
+    rows, stamps = series
+    i = bisect.bisect_right(stamps, now) - 1
+    return rows[i] if i >= 0 else None
+
+
 def cut_delay_ms(first, second):
     return round((second-first)*1000, 3) if first is not None and second is not None else None
 
@@ -217,6 +223,14 @@ def trial_metrics(trial, frames, requests, guard_time, guard_wall, telemetry, or
     lead_motion = window(telemetry, perturb-.45, perturb)
     lead_max_v = max((r["v_mps"] for r in lead_guards), default=0)
     lead_max_body_v = max((r["planar_speed_mps"] for r in lead_motion), default=0)
+    at_onset_body = prior_row(telemetry, perturb)
+    if at_onset_body is not None and perturb - at_onset_body["time_s"] > .061:
+        at_onset_body = None
+    at_onset_guard = prior_row(guard_time, perturb)
+    onset_speed = at_onset_body["planar_speed_mps"] if at_onset_body else None
+    onset_guard_v = at_onset_guard["v_mps"] if at_onset_guard else None
+    in_motion_at_onset = bool(onset_speed is not None and onset_speed > SPEED_LIMIT
+                              and onset_guard_v is not None and onset_guard_v > 0)
     first_invalid = next((r for r in observed if not r["valid"]), None)
     prior_stop = next((r for r in requests if r["reason"] == "expired_at_control"
                        and r["now_s"] >= perturb and r["now_s"] < recover and is_zero(r)), None)
@@ -224,7 +238,7 @@ def trial_metrics(trial, frames, requests, guard_time, guard_wall, telemetry, or
                           r["frame_sequence"] == first_invalid["frame_sequence"] and is_zero(r)), None)
     first_cut = prior_stop if (prior_stop is not None and
                               (first_request is None or prior_stop["wall_ns"] < first_request["wall_ns"])) else first_request
-    if first_cut and lead_max_v > 0:
+    if first_cut:
         zero_candidates = [r for r in window(guard_wall, first_cut["wall_ns"],
                           first_cut["wall_ns"] + 3_000_000_000) if is_zero(r)]
         first_zero = next(iter(zero_candidates), None)
@@ -232,7 +246,7 @@ def trial_metrics(trial, frames, requests, guard_time, guard_wall, telemetry, or
         first_zero = None
     stay_zero = (first_zero is not None and
                  all(is_zero(r) for r in window(guard_time, first_zero["clock_s"], recover)))
-    physical = measured_stop(telemetry, first_zero, perturb, recover) if lead_max_body_v > SPEED_LIMIT else None
+    physical = measured_stop(telemetry, first_zero, perturb, recover) if in_motion_at_onset else None
     mechanical_checks = {key: any(r[key] for r in shadow)
                          for key in ("aligned", "contact", "charge_confirmed", "success")}
     bad_forward_ids = [r["selected_id"] for r in requests if r["v_mps"] > 0 and r["selected_id"] != TARGET]
@@ -254,7 +268,9 @@ def trial_metrics(trial, frames, requests, guard_time, guard_wall, telemetry, or
     return {**trial, **phase,
             "phase_results_classification": "required rejection" if hard_loss else "quality characterization",
             "candidate_contract_pass": candidate_check,
-            "prior_target_motion": {"peak_guarded_v_mps": lead_max_v, "peak_body_speed_mps": lead_max_body_v},
+            "prior_target_motion": {"peak_guarded_v_mps": lead_max_v, "peak_body_speed_mps": lead_max_body_v,
+                                    "guard_v_at_onset_mps": onset_guard_v,
+                                    "body_speed_at_onset_mps": onset_speed, "in_motion_at_onset": in_motion_at_onset},
             "safety": {"positive_requests_for_wrong_identity": len(bad_forward_ids),
                        "invalid_frame_nonzero_request_count": invalid_requests,
                        "shadow_dock_false_events": mechanical_checks,
@@ -292,7 +308,9 @@ def evaluate(case, trials, offline):
         checks.update({"native_mixed_and_duplicate_identity": bool(trials) and all(t["candidate_contract_pass"] for t in trials),
                        "alternate_target_selected_offline": bool(offline["alternate_target"]) and all(
                            r["valid"] and r["id"] == OTHER for r in offline["alternate_target"]),
-                       "duplicate_stopped_a_moving_robot": stopped_after_loss})
+                       "duplicate_enforced_zero_forward": bool(rejected) and all(
+                           t["loss_and_stop"]["invalid_observation_same_callback_zero"] and
+                           t["loss_and_stop"]["guard_remained_zero_through_disturbance"] for t in rejected)})
     elif case == "Q10":
         checks.update({"loss_enforced_for_hotspot_reflection_and_whiteout": stopped_after_loss and len(rejected) == 3,
                        "all_stimulus_outputs_measured": bool(trials) and all(t["disturbance"]["observed_frames"] for t in trials)})

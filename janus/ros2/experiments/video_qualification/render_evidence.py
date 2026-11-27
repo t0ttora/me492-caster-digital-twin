@@ -159,7 +159,9 @@ def stop_chart(case, trials, trace, origin, frames, path):
             ax.axvline(meas["settled_sim_s"]-origin_trial, color=RED, lw=1, ls=":")
             title = f"{LABELS[trial['stimulus']]} · {int(loss['capture_to_guard_zero_sim_ms'])} ms to zero"
         else:
-            title = f"{LABELS[trial['stimulus']]} · stop unmeasured"
+            prior = trial["prior_target_motion"]
+            state = "already at rest at onset" if prior["body_speed_at_onset_mps"] is not None and prior["body_speed_at_onset_mps"] <= .02 else "stop unmeasured"
+            title = f"{LABELS[trial['stimulus']]} · {state}"
         if trial["injected_delay_s"]:
             title = f"Low light + stale delivery · {int(loss['capture_to_guard_zero_sim_ms'] or 0)} ms to zero"
         timing_rows = [f for f in frames if f["observed"] and f["trial"] == trial["trial"]
