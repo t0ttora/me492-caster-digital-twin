@@ -315,6 +315,11 @@ def summarize(fixture, run):
                           and metrics["dock_final_position_error_m"] <= Dock.POSITION_LIMIT_M
                           and metrics["dock_final_yaw_error_rad"] <= Dock.YAW_LIMIT_RAD))
         metrics["staged_s"] = staged_s
+        if fixture.trim_dock_yaw:
+            trim = col("reason") == "mounted_yaw_trim"
+            checks["yaw_trim_uses_fresh_observation_with_zero_forward"] = (bool(np.any(trim))
+                and bool(np.all(qr_valid[trim] & (col("requested_v_mps")[trim] == 0.)))
+                and np.max(np.abs(yaw_request[trim])) <= Dock.FINAL_YAW_TRIM_LIMIT_RADPS)
     if fixture.case in {"Q04","Q19","Q20"}:
         checks["docking_terminated_safely"] = run["completed_s"] is not None and stopped[-1]
     if fixture.case == "Q20":

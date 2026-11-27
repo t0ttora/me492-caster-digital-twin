@@ -78,6 +78,7 @@ class Dock:
     OUTER = .04
     STANDOFF_CAMERA_M = .22
     STANDOFF_AXLE_M = .39
+    FINAL_YAW_TRIM_LIMIT_RADPS = .08
     POSITION_LIMIT_M = .02
     YAW_LIMIT_RAD = math.radians(3.)
     MECHANICAL_DWELL_S = .25
@@ -148,7 +149,8 @@ class Dock:
         self.done = True
         return self.transition(time_s, "abort", reason)
 
-    def update(self, time_s, observation, stopped, mechanical, interlock=None, bms_time_s=None):
+    def update(self, time_s, observation, stopped, mechanical, interlock=None, bms_time_s=None,
+               final_yaw_error_rad=None):
         if interlock:
             return self.abort(time_s, interlock)
         if self.phase == "stop" or self.contact:
@@ -179,6 +181,9 @@ class Dock:
                 return self.transition(time_s, "wait_for_charge", "stopped_and_virtual_contact")
             if time_s-self.stop_started_s >= self.MECHANICAL_SETTLE_TIMEOUT_S-1e-10:
                 return self.abort(time_s, "mechanical_alignment_proxy_failed")
+            if observation.valid and final_yaw_error_rad is not None:
+                limit = self.FINAL_YAW_TRIM_LIMIT_RADPS
+                return 0., max(-limit, min(limit, final_yaw_error_rad)), "mounted_yaw_trim"
             return 0., 0., "braking"
         if self.acquire_s is None and time_s-self.search_started_s >= self.search_limit_s:
             return self.abort(time_s, "search_timeout:"+observation.reason)

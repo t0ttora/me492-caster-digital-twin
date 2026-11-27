@@ -75,6 +75,17 @@ def test_staging_pose_accounts_for_calibrated_camera_and_marker_mounts():
     assert np.allclose(route.origins[-1], [.45, 0., 0.], atol=1e-12)
 
 
+def test_mounted_yaw_trim_has_zero_linear_command_and_stops_on_stale_frame():
+    camera, marker = Camera(), Marker()
+    dock, gate = Dock(camera, marker.side_m), FrameGate(camera)
+    dock.phase, dock.stop_started_s = "stop", 0.
+    candidate = project((0., 0., 0.), camera, marker)
+    fresh = gate.update(0., [Frame(0., 0., (candidate,))])
+    assert dock.update(0., fresh, False, (.01, .12), final_yaw_error_rad=.12) == (0., .08, "mounted_yaw_trim")
+    stale = gate.update(.25, [])
+    assert dock.update(.25, stale, False, (.01, .12), final_yaw_error_rad=.12) == (0., 0., "braking")
+
+
 def test_bounded_search_reversal_and_interlock_at_sample_boundary():
     camera, marker = Camera(), Marker()
     gate = FrameGate(camera)

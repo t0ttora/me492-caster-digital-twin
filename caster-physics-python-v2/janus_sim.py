@@ -252,7 +252,12 @@ def simulate(fixture):
                     and t-dock.wait_s >= .30-1e-10):
                 last_bms_s = current_bms_s = t
                 transition_events.append(dict(time_s=t, event="virtual_bms_frame", reason="synthetic_charge_source"))
-            requested_v, requested_w, why = dock.update(t, observation, stopped, mechanical, bms_time_s=current_bms_s)
+            final_yaw_error = None
+            if fixture.trim_dock_yaw and observation.valid:
+                final_yaw_error = float(wrap(estimator_heading + camera.yaw_rad
+                                            - np.deg2rad(fixture.marker_mount_calibration_deg)))
+            requested_v, requested_w, why = dock.update(t, observation, stopped, mechanical,
+                bms_time_s=current_bms_s, final_yaw_error_rad=final_yaw_error)
             phase = dock.phase
         elif fixture.case == "M01":
             requested_v, requested_w, phase = 0., 0., "idle"
@@ -345,6 +350,8 @@ def simulate(fixture):
         config["marker_mount"] = {"actual_marker_from_dock_yaw_deg": fixture.marker_mount_yaw_deg,
                                   "configured_marker_from_dock_yaw_deg": fixture.marker_mount_calibration_deg,
                                   "target_center_u_px": camera.target_u_px,
+                                  "final_yaw_trim_limit_radps": Dock.FINAL_YAW_TRIM_LIMIT_RADPS
+                                  if fixture.trim_dock_yaw else None,
                                   "mechanical_dock_reference": asdict(dock_reference)}
     return {"rows": rows, "gates": gates, "events": events, "frames": camera_stream.frames,
             "route_origins": [pose.tolist() for pose in route.origins] if route else [],
