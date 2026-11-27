@@ -37,6 +37,7 @@ SQUARE_CW = (Segment(.5, 0., 2.5), Segment(0., -pi/2, 2.4))*4
 SQUARE_CCW = (Segment(.5, 0., 2.5), Segment(0., pi/2, 2.4))*4
 CORNER = Segment(.1*pi/2, pi/2, 1.7)
 ROUND_SQUARE = (Segment(.30, 0., 2.), CORNER)*4
+ROUND_SQUARE_NARROW = (Segment(.30, 0., 2.8), Segment(.06*pi/2, pi/2, 2.4))*4
 P0 = ("M01", "M02", "M04", "M05", "M08", "Q01", "Q02", "Q03", "Q06",
       "Q08", "Q13", "Q15", "Q16", "O04")
 STOP_INTERLOCKS = {"obstacle", "command_timeout", "operator_cancel",
@@ -97,6 +98,8 @@ FIXTURES = (
     Fixture("M07", "wider-envelope", 30., ROUND_SQUARE, hardware_scope="2D footprint/wall geometry proxy"),
     Fixture("M07", "rounded-smooth-tracking", 30., ROUND_SQUARE, profile="quintic",
             hardware_scope="same narrow walls and rounded geometry proxy, smoother schedule"),
+    Fixture("M07", "narrow-replanned", 30., ROUND_SQUARE_NARROW, y_m=-.0080, axle_x_m=.0484,
+            hardware_scope="2D conservative footprint in the original narrow wall envelope"),
     Fixture("M09", "caster-90", segments=(Segment(0., pi/2, 2.4),), caster_deg=90),
     Fixture("M09", "caster-180", segments=(Segment(0., pi/2, 2.4),), caster_deg=180),
     Fixture("M10", "unloaded", segments=MANEUVERS["arc_turn"], caster_deg=30),

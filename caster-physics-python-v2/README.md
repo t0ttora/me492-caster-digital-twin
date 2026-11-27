@@ -184,6 +184,16 @@ replay inputs with their initial state and provenance per run. Use a fresh repla
 directory for a repeat. Cases can end in an expected safe abort and pass a
 scenario check. A failed scenario check remains in the index and metrics.
 
+M07 `narrow-replanned` retains the fixed narrow walls and conservative robot
+footprint. Its four 0.30 m straights use 0.06 m tangent corner radii and 2.8 s /
+2.4 s straight and arc periods. The initial axle pose is offset by
+(+0.0484, −0.0080) m within the same wall frame. The `rounded` and
+`wider-envelope` variants retain their original reference.
+
+```sh
+python run_janus.py --case M07 --variant narrow-replanned --output-dir NEW_DIRECTORY
+```
+
 - `commands.csv` holds the requested body twist, `executed_velocity.csv` holds
   the limited twist sent to the wheel PI, and `applied_torque.csv` is the sampled
   axle torque held ZOH through the solver stages. Actual axle velocity/yaw,
