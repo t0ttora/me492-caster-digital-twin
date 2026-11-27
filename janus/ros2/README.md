@@ -120,6 +120,10 @@ The isolated QR fixtures use the `zbar` backend after `sudo apt install python3-
 
 Q13's `JANUS_Q13_MODE=duplicate` run interrupts its camera bridge and republishes a retained, expired render. `JANUS_Q13_MODE=regression` remaps the native camera through its test relay, delays no simulation clock and sends a distinct older, still-fresh captured image after the observer has accepted a newer frame. The `resume` variant additionally waits for measured motion after new valid observations. Each run writes its detector or guard reasons alongside measured state.
 
+For a Q13 `duplicate` run, `python3 experiments/validate-native.py /absolute/path/to/new-run-Q13 --camera-flow-stall` records the freshness watchdog, zero command and independent stop that occur before the retained frame is injected. It writes the supplemental `camera-flow-stall-acceptance.json`.
+
+O05 normally latches regressive odometry. `JANUS_O05_RECOVERY=1` opts this isolated fixture into recovery. It injects the previous simulated odometry packet with its timestamp rewound by 250 ms, checks the stopped hold while fresh odometry advances, and requires an operator authorization event followed by a separate new command before motion restarts. Use `python3 experiments/validate-native.py` with the O05 output to verify those steps.
+
 `JANUS_CAMERA_VARIANT=near_start` uses an explicitly recorded initial pose and a wall-rate target of 0.25 for smaller guest scheduling load. It preserves the 1 ms physics step, 20 Hz simulation-camera setting and acceptance gates. The optional `JANUS_CONTROL_DEPTH_M` sets a controller target inside the fixed optical acceptance band. The acceptance script recomputes optical depth from the independent Gazebo pose. Set `JANUS_CONTROL_DEPTH_M=.261` for the measured Q03 margin variant.
 
 ```sh

@@ -105,6 +105,35 @@ class TraceReviewTests(unittest.TestCase):
 
 
 class GuardReviewTests(unittest.TestCase):
+    def test_odometry_regression_recovery_requires_advancing_stamp_permission_and_new_request(self):
+        guard = CommandGuard(require_recovery_permission=True, allow_odom_regression_recovery=True)
+        guard.clock(1.0, 10.0)
+        guard.odometry(1.0)
+        guard.request(.10, 0., 10.0)
+        self.assertEqual(guard.output(10.0).v_mps, .10)
+        guard.odometry(.75)
+        self.assertEqual(guard.output(10.01).reason, 'odom_regression')
+        guard.odometry(1.0)
+        self.assertFalse(guard.authorize_recovery(10.01))
+        guard.clock(1.02, 10.02)
+        guard.odometry(1.02)
+        guard.request(.08, 0., 10.02)
+        self.assertEqual(guard.output(10.02).reason, 'recovery_permission_required')
+        self.assertTrue(guard.authorize_recovery(10.03))
+        self.assertEqual(guard.output(10.03).v_mps, 0.)
+        guard.request(.08, 0., 10.04)
+        self.assertEqual(guard.output(10.04).v_mps, .08)
+
+    def test_odometry_regression_latches_without_explicit_fixture_opt_in(self):
+        guard = CommandGuard(require_recovery_permission=True)
+        guard.clock(1.0, 10.0)
+        guard.odometry(1.0)
+        guard.odometry(.75)
+        guard.clock(1.02, 10.02)
+        guard.odometry(1.02)
+        self.assertFalse(guard.authorize_recovery(10.03))
+        self.assertEqual(guard.output(10.03).reason, 'odom_regression')
+
     def test_recovered_clock_permission_drops_fresh_unauthorized_request(self):
         guard = CommandGuard(require_recovery_permission=True)
         guard.clock(1.0, 10.0)

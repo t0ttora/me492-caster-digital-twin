@@ -36,6 +36,9 @@ esac
 if [[ $case_id == Q13 && ${JANUS_Q13_MODE:-resume} == regression ]]; then
   launch_options+=("camera_raw_topic:=/janus/camera/native_raw")
 fi
+if [[ $case_id == O05 && ${JANUS_O05_RECOVERY:-0} == 1 ]]; then
+  launch_options+=("require_recovery_permission:=true" "allow_odom_regression_recovery:=true")
+fi
 if [[ $case_id == Q* ]]; then
   # This runner owns its explicit simulator fixture. Multi-marker worlds keep the full detector.
   is_single=$(python3 - "$world" <<'PY'
@@ -102,6 +105,9 @@ if [[ -n ${JANUS_WALL_S:-} ]]; then
 fi
 if [[ -n ${JANUS_CONTROL_DEPTH_M:-} ]]; then
   controller_options+=(--control-depth-m "$JANUS_CONTROL_DEPTH_M")
+fi
+if [[ $case_id == O05 && ${JANUS_O05_RECOVERY:-0} == 1 ]]; then
+  controller_options+=(--o05-recovery)
 fi
 if [[ $case_id == Q13 ]]; then
   controller_options+=(--q13-mode "${JANUS_Q13_MODE:-resume}")

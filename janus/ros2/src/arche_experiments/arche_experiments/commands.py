@@ -54,7 +54,7 @@ class CommandGuard:
     """Pure guard shared by the ROS adapter and synthetic replay."""
 
     def __init__(self, command_timeout=0.25, odom_timeout=0.25, clock_timeout=0.50,
-                 require_recovery_permission=False):
+                 require_recovery_permission=False, allow_odom_regression_recovery=False):
         if not all(math.isfinite(t) and t > 0 for t in (command_timeout, odom_timeout, clock_timeout)):
             raise ValueError("guard timeouts must be finite and positive")
         self.command_timeout = command_timeout
@@ -64,6 +64,10 @@ class CommandGuard:
         self.fault = None
         self.requested = Command()
         self.require_recovery_permission = require_recovery_permission
+        if allow_odom_regression_recovery and not require_recovery_permission:
+            raise ValueError("odometry regression recovery requires explicit operator permission")
+        self.allow_odom_regression_recovery = allow_odom_regression_recovery
+        self.waiting_for_fresh_odom = False
         self.recovery_pending = False
         self.had_motion_request = False
 
@@ -89,8 +93,15 @@ class CommandGuard:
             self.fault = self.fault or "invalid_odom"
             return
         if self.odom_stamp is not None and stamp < self.odom_stamp:
-            self.fault = self.fault or "odom_regression"
-            return
+            if self.allow_odom_regression_recovery:
+                self.waiting_for_fresh_odom = True
+                self.recovery_pending = True
+                self._invalidate_for_watchdog()
+            else:
+                self.fault = self.fault or "odom_regression"
+            return "odom_regression"
+        if self.waiting_for_fresh_odom and stamp > self.odom_stamp:
+            self.waiting_for_fresh_odom = False
         self.odom_stamp = stamp
         if self.now is not None and self._odom_watchdog_reason():
             self._invalidate_for_watchdog()
@@ -121,6 +132,8 @@ class CommandGuard:
         self.fault = self.fault or "operator_abort"
 
     def _odom_watchdog_reason(self):
+        if self.waiting_for_fresh_odom:
+            return "odom_regression"
         if self.odom_stamp is None or self.now - self.odom_stamp > self.odom_timeout:
             return "odom_timeout"
         # Header stamps may lead the most recent clock sample due to DDS callback ordering.

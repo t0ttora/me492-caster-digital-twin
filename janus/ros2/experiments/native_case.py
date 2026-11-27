@@ -40,7 +40,7 @@ QR_CASES = ('Q01', 'Q02', 'Q03', 'Q04', 'Q05', 'Q06', 'Q07', 'Q08', 'Q13', 'Q17'
 
 class NativeRun(Node):
     def __init__(self, case_id, run_dir, trace, service_log, camera_bridge_pid, q13_mode,
-                 control_depth_m):
+                 control_depth_m, o05_recovery):
         super().__init__('janus_live_case')
         self.case_id = case_id
         self.run_dir = run_dir
@@ -49,6 +49,7 @@ class NativeRun(Node):
         self.camera_bridge_pid = camera_bridge_pid
         self.q13_mode = q13_mode
         self.control_depth_m = control_depth_m
+        self.o05_recovery = o05_recovery
         self.q13_camera_relay = case_id == 'Q13' and q13_mode == 'regression'
         self.bridge_paused = False
         self.replay_last_try = None
@@ -64,7 +65,7 @@ class NativeRun(Node):
         self.publish = self.create_publisher(Twist, '/janus/cmd_vel/request', 10)
         self.publish_abort = self.create_publisher(Bool, '/janus/abort', 10)
         self.publish_authorize = (self.create_publisher(Bool, '/janus/recovery/authorize', 10)
-                                  if case_id == 'O08' else None)
+                                  if case_id == 'O08' or o05_recovery else None)
         self.publish_fault_image = None
         if case_id == 'Q13':
             fault_qos = QoSProfile(depth=3, reliability=ReliabilityPolicy.RELIABLE)
@@ -195,6 +196,10 @@ class NativeRun(Node):
     def status(self, msg):
         self.guard = json.loads(msg.data)
         self.write('guard_status', self.guard)
+        if self.case_id == 'O05' and self.guard['reason'] == 'odom_regression' and 'odom_fault_observed' not in self.events:
+            self.event('odom_fault_observed', source_guard_time_s=self.guard['time_s'])
+        if self.o05_recovery and self.guard['reason'] == 'recovery_permission_required' and 'odom_stream_restored' not in self.events:
+            self.event('odom_stream_restored', source_guard_time_s=self.guard['time_s'])
         if self.guard['reason'] == 'recovery_authorized':
             self.event('recovery_ack_received', source_guard_time_s=self.guard['time_s'])
 
@@ -456,14 +461,35 @@ class NativeRun(Node):
                 packet = deepcopy(self.latest_odometry)
                 old_stamp_ns = round((stamp_s(packet.header.stamp)-.25)*1e9)
                 packet.header.stamp.sec, packet.header.stamp.nanosec = divmod(old_stamp_ns, 1_000_000_000)
-                self.event('regressive_odometry', injected_capture_s=stamp_s(packet.header.stamp))
+                self.event('regressive_odometry', injected_capture_s=stamp_s(packet.header.stamp),
+                           source_capture_s=stamp_s(self.latest_odometry.header.stamp))
                 self.publish_fault_odom.publish(packet)
-            if self.publish_fault_odom is not None and self.guard and self.guard['reason'] == 'odom_regression':
+            if self.publish_fault_odom is not None and 'odom_fault_observed' in self.events:
                 self.destroy_publisher(self.publish_fault_odom)
                 self.publish_fault_odom = None
+            if self.o05_recovery and 'regressive_odometry' in self.events:
+                return self.odom_recovery_step()
             self.send(.10, 0., 'request_through_odom_fault')
             return elapsed >= 2.7
         raise ValueError(f'Case implementation missing: {self.case_id}')
+
+    def odom_recovery_step(self):
+        if 'odom_stream_restored' not in self.events:
+            return False
+        elapsed = self.now-self.events['odom_stream_restored']
+        if .12 <= elapsed < .58:
+            if 'unauthorized_probe' not in self.events:
+                self.event('unauthorized_probe')
+            self.send(.08, 0., 'fresh_unauthorized_request')
+        elif elapsed >= .69 and 'authorization_signal_sent' not in self.events:
+            if self.publish_authorize.get_subscription_count() > 0:
+                self.publish_authorize.publish(Bool(data=True))
+                self.event('authorization_signal_sent', authority='isolated_simulation_test_operator')
+        if 'recovery_ack_received' in self.events and self.now-self.events['recovery_ack_received'] >= .30:
+            if 'authorized_restart_input' not in self.events:
+                self.event('authorized_restart_input')
+            self.send(.08, 0., 'fresh_post_authorization_request')
+        return 'authorized_restart_input' in self.events and self.now-self.events['authorized_restart_input'] >= .75
 
     def finish(self):
         if self.bridge_paused:
@@ -493,12 +519,15 @@ def parse():
     parser.add_argument('--camera-bridge-pid', type=int)
     parser.add_argument('--q13-mode', choices=['duplicate','regression','resume'], default='resume')
     parser.add_argument('--control-depth-m', type=float, default=STANDOFF_M)
+    parser.add_argument('--o05-recovery', action='store_true')
     args = parser.parse_args()
     if (args.case == 'Q13' and args.q13_mode!='regression' and
             (args.camera_bridge_pid is None or args.camera_bridge_pid <= 1)):
         parser.error('Q13 needs the camera bridge PID from the current isolated launch')
     if not .245 <= args.control_depth_m <= STANDOFF_M:
         parser.error('control depth goal must be within the fixed optical acceptance band')
+    if args.o05_recovery and args.case != 'O05':
+        parser.error('odometry regression recovery is only used in the O05 fixture')
     return args
 
 
@@ -510,7 +539,7 @@ def main():
         trace = close.enter_context((args.output/'telemetry.jsonl').open('w'))
         services = close.enter_context((args.output/'simulation-service.log').open('w'))
         node = NativeRun(args.case, args.output, trace, services, args.camera_bridge_pid, args.q13_mode,
-                         args.control_depth_m)
+                         args.control_depth_m, args.o05_recovery)
         try:
             next_tick = time.monotonic()
             deadline = next_tick + args.wall_s
@@ -536,6 +565,8 @@ def main():
                    'final_world_pose': node.world, 'scope': 'SSD-hosted Linux VM / ROS 2 Jazzy / Gazebo Harmonic'}
         if args.case == 'Q13':
             summary['q13_mode'] = args.q13_mode
+        if args.case == 'O05':
+            summary['o05_recovery'] = args.o05_recovery
         if args.case in QR_CASES:
             summary['controller_depth_goal_m'] = args.control_depth_m
         (args.output/'execution.json').write_text(json.dumps(summary, indent=2, allow_nan=False)+'\n')

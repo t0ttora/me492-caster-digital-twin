@@ -27,6 +27,7 @@ class GuardNode(Node):
             self.declare_parameter("odom_timeout_s", 0.25).value,
             self.declare_parameter("wall_clock_timeout_s", 0.50).value,
             require_recovery_permission=require_permission,
+            allow_odom_regression_recovery=self.declare_parameter("allow_odom_regression_recovery", False).value,
         )
         self.last_reason = None
         self.command = self.create_publisher(Twist, "/cmd_vel", 10)
@@ -49,7 +50,8 @@ class GuardNode(Node):
         except ValueError:
             self.guard.odometry(stamp_s(msg.header.stamp), valid=False)
         else:
-            self.guard.odometry(stamp_s(msg.header.stamp))
+            if self.guard.odometry(stamp_s(msg.header.stamp)) == "odom_regression":
+                self.send()
 
     def request(self, msg):
         self.guard.request(msg.linear.x, msg.angular.z, monotonic())

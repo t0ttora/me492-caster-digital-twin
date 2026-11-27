@@ -26,6 +26,7 @@ def generate_launch_description():
         DeclareLaunchArgument("known_single_marker_fixture", default_value="false"),
         DeclareLaunchArgument("camera_raw_topic", default_value="/janus/camera/image_raw"),
         DeclareLaunchArgument("require_recovery_permission", default_value="false"),
+        DeclareLaunchArgument("allow_odom_regression_recovery", default_value="false"),
         AppendEnvironmentVariable("GZ_SIM_RESOURCE_PATH", str(sim / "models")),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(str(gz_sim / "launch/gz_sim.launch.py")),
@@ -46,6 +47,8 @@ def generate_launch_description():
              arguments=["--frame-id", "map", "--child-frame-id", "odom"], parameters=[sim_time]),
         Node(package="arche_experiments", executable="command_guard", parameters=[sim_time, {
              "require_recovery_permission": ParameterValue(LaunchConfiguration("require_recovery_permission"),
+                                                              value_type=bool),
+             "allow_odom_regression_recovery": ParameterValue(LaunchConfiguration("allow_odom_regression_recovery"),
                                                               value_type=bool)}],
              output="screen"),
         Node(package="arche_experiments", executable="qr_observer",

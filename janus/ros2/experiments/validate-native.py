@@ -40,6 +40,80 @@ def percentile(values, fraction):
     return sorted_values[math.ceil(len(values)*fraction)-1]
 
 
+def odometry_recovery_gates(choices, events, body, first, confirm, gates, values):
+    restored = events.get('odom_stream_restored')
+    permission_sent = events.get('authorization_signal_sent')
+    permission_ack = events.get('recovery_ack_received')
+    restart = events.get('authorized_restart_input')
+    if not all((first, confirm, restored, permission_sent, permission_ack, restart)):
+        gates['odometry_recovery_sequence_recorded'] = False
+        return
+    restored_time = restored['read_time_s']
+    restart_time = restart['read_time_s']
+    source_stamp = events['regressive_odometry']['source_capture_s']
+    fresh_odom = [row for row in choices['odom'] if restored_time <= row['time_s'] < restart_time
+                  and row['time_s'] > source_stamp and row['read_time_s'] is not None
+                  and 0 <= row['read_time_s']-row['time_s'] <= .25]
+    unauthorized = [row for row in choices['request'] if row['state']=='fresh_unauthorized_request' and row['v_mps'] > 0]
+    active = [row for row in choices['guard_output'] if row['v_mps'] > 0 or row['yaw_rate_radps'] != 0]
+    stationary = [row for row in body if first['time_s'] <= row['time_s'] < restart_time]
+    no_motion_before_restart = not any(restored['read_wall_s']+.04 <= row['read_wall_s'] < restart['read_wall_s']
+                                       for row in active)
+    gates['advancing_fresh_odometry_during_measured_stationary_hold'] = (
+        len(fresh_odom) > 1 and fresh_odom[-1]['time_s']-fresh_odom[0]['time_s'] >= .25
+        and bool(stationary) and all(stopped(row) for row in stationary)
+        and confirm['time_s'] <= permission_sent['read_time_s'])
+    gates['fresh_unauthorized_requests_rejected'] = bool(unauthorized) and no_motion_before_restart
+    gates['separate_permission_ack_and_new_command'] = (
+        permission_ack['read_wall_s'] >= permission_sent['read_wall_s']
+        and restart_time-permission_ack['read_time_s'] >= .25 and no_motion_before_restart)
+    motion = next((row for row in body if row['time_s'] > restart_time and row['v_mps'] > .02), None)
+    gates['measured_restart_requires_new_authorized_twist'] = bool(motion) and any(
+        row['read_wall_s'] > restart['read_wall_s'] and row['v_mps']>0 for row in active)
+    values.update(restored_fresh_odometry_samples=len(fresh_odom), unauthorized_requests=len(unauthorized),
+                  first_stop_time_s=first['time_s'], confirmed_stop_time_s=confirm['time_s'],
+                  permission_sent_time_s=permission_sent['read_time_s'], permission_ack_time_s=permission_ack['read_time_s'],
+                  new_request_time_s=restart_time, resumed_motion_time_s=motion['time_s'] if motion else None)
+
+
+def camera_flow_stall_gates(folder, events, body, obs, requests, guarded, gates, values):
+    cut, replay, restore = (events.get(name) for name in ('camera_cut', 'replay_old_frame', 'camera_restore'))
+    if not all((cut, replay, restore)):
+        gates['camera_bridge_cut_and_restore_recorded'] = False
+        return
+    cut_s, replay_s, restore_s = (row['read_time_s'] for row in (cut, replay, restore))
+    last = next((row for row in reversed(obs) if row['read_wall_s'] < replay['read_wall_s']), None)
+    bridge_path = cut.get('camera_path')
+    if bridge_path is None:
+        # The original duplicate run predates the explicit camera-path event field.
+        invocation = (folder/'invocation.txt').read_text()
+        launch = (folder/'launch.log').read_text()
+        if 'camera_raw_topic:=' not in invocation and '/janus/gz/image (gz.msgs.Image) -> /janus/camera/image_raw' in launch:
+            bridge_path = 'native_bridge_process'
+    gates['camera_flow_absent_after_cut_until_replay'] = bool(last and last['valid']
+        and last['capture_time_s'] <= cut_s and bridge_path=='native_bridge_process'
+        and cut_s < replay_s < restore_s)
+    if not gates['camera_flow_absent_after_cut_until_replay']:
+        return
+    capture = last['capture_time_s']
+    zero = next((row for row in requests if cut_s <= row['time_s'] < replay_s
+                and row['state']=='qr_missing_invalid_or_expired' and row['capture_time_s']==capture
+                and row['v_mps']==0 and row['yaw_rate_radps']==0), None)
+    gates['camera_freshness_watchdog_zeroes_before_replayed_packet'] = bool(zero and zero['time_s']-capture > .20
+        and any(row['time_s'] < zero['time_s'] and row['v_mps'] > .035 for row in body))
+    if not zero:
+        return
+    first, confirm = stop_after(body, zero['time_s'])
+    gates['independent_plant_stop_begins_before_replay_and_holds'] = bool(first and confirm
+        and first['time_s'] < replay_s and confirm['time_s'] < restore_s
+        and all(stopped(row) for row in body if first['time_s'] <= row['time_s'] < restore_s)
+        and not any(first['time_s'] <= row['time_s'] < restore_s for row in guarded))
+    values.update(camera_flow_cut_s=cut_s, last_valid_capture_s=capture, watchdog_zero_request_s=zero['time_s'],
+                  last_capture_age_at_watchdog_s=zero['time_s']-capture, first_replayed_capture_delivery_s=replay_s,
+                  camera_flow_restored_s=restore_s, first_stop_time_s=first['time_s'] if first else None,
+                  confirmed_stop_time_s=confirm['time_s'] if confirm else None)
+
+
 def reacquisition_dwell(observations, requests, restored):
     timeline = sorted([*(('observation', row) for row in observations),
                        *(('control', row) for row in requests)], key=lambda item: item[1]['read_wall_s'])
@@ -69,7 +143,7 @@ def reacquisition_dwell(observations, requests, restored):
     return None
 
 
-def summarize(folder):
+def summarize(folder, camera_flow_stall=False):
     execution = json.loads((folder/'execution.json').read_text())
     choices = defaultdict(list)
     latest_observation = None
@@ -96,6 +170,8 @@ def summarize(folder):
     end = body[-1] if body else {}
     start = body[0] if body else {}
     case = execution['case_id']
+    if camera_flow_stall and (case != 'Q13' or execution.get('q13_mode') != 'duplicate'):
+        raise ValueError('camera flow stall verification requires the Q13 native bridge duplicate fixture')
     gates = {
         'fixture_reached_its_end': execution['ran_until_fixture_end'],
         'clock_odom_world_and_joint_topics_sampled': all(choices[key] for key in ('clock','odom','truth','joint')),
@@ -198,6 +274,8 @@ def summarize(folder):
                 gates['continued_only_after_new_valid_observation'] = (restored is not None
                     and any(row['time_s'] > restored+.35 for row in positive)
                     and any(row['time_s'] > restored+.45 and row['v_mps'] > .02 for row in body))
+            if camera_flow_stall:
+                camera_flow_stall_gates(folder, events, body, obs, requests, requested_at_plant, gates, values)
         elif case == 'Q17':
             abort_stamp = events.get('retry_budget_exhausted',{}).get('read_time_s')
             hidden_stamps = sorted(row['read_time_s'] for key,row in events.items()
@@ -317,9 +395,12 @@ def summarize(folder):
         gates['injected_old_pose_reaches_guard_and_latches'] = bool(injection and fault)
         if injection and fault:
             first, confirm = stop_after(body, fault['time_s'])
-            gates['measured_250ms_stopped_hold_after_fault'] = confirm is not None and stopped(end)
-            gates['positive_request_cannot_override_fault'] = (any(row['time_s']>fault['time_s']+.08 for row in positive)
-                and not any(row['read_wall_s']>fault['read_wall_s']+.06 for row in requested_at_plant))
+            if execution.get('o05_recovery'):
+                odometry_recovery_gates(choices, events, body, first, confirm, gates, values)
+            else:
+                gates['measured_250ms_stopped_hold_after_fault'] = confirm is not None and stopped(end)
+                gates['positive_request_cannot_override_fault'] = (any(row['time_s']>fault['time_s']+.08 for row in positive)
+                    and not any(row['read_wall_s']>fault['read_wall_s']+.06 for row in requested_at_plant))
             values['regressive_capture_s'] = injection['injected_capture_s']
             values['event_to_fault_s'] = fault['time_s']-injection['read_time_s']
             values['scope'] = 'one synthetic regressive odometry stamp injected into native ROS/Gazebo; encoder-only outage untested'
@@ -365,11 +446,13 @@ def summarize(folder):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('directory', type=Path)
+    parser.add_argument('--camera-flow-stall', action='store_true', help='also verify pre-replay camera silence for Q13')
     args = parser.parse_args()
-    gates, values = summarize(args.directory)
+    gates, values = summarize(args.directory, args.camera_flow_stall)
     result = {'status': 'passed' if all(gates.values()) else 'failed', 'gates': gates, 'measurements': values}
     text = json.dumps(result, indent=2, allow_nan=False)+'\n'
-    (args.directory/'acceptance.json').write_text(text)
+    report = 'camera-flow-stall-acceptance.json' if args.camera_flow_stall else 'acceptance.json'
+    (args.directory/report).write_text(text)
     print(text,end='')
     return 0 if result['status']=='passed' else 2
 

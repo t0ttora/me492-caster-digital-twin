@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 EVENTS = {
     'brake':'fren', 'cut':'yayın kesildi', 'abort_injected':'iptal isteği',
     'regressive_odometry':'eski odom', 'clock_cut':'saat durdurma', 'clock_restore_service_ack':'geri dönüş alındı',
+    'odom_stream_restored':'taze odom döndü',
     'unauthorized_probe':'yetkisiz komut', 'recovery_ack_received':'yetki alındı', 'authorized_restart_input':'yeni komut',
     'camera_cut':'kamera kesildi', 'old_frame_rejected':'eski kare reddi', 'camera_restore':'kamera geri geldi',
     'qr_acquired':'QR bulundu', 'hide':'işaret kaybı', 'restore':'işaret döndü',
