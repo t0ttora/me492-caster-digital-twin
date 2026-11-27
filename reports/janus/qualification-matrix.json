@@ -197,7 +197,7 @@
         },
         "Simscape": {
           "status": "passed",
-          "measurement_tr": "15 cm kalkıştan ayrı yerinde dönüş. 90° ve 180° caster için 250 ms duruş onayı 16,566 ve 17,686 s. Dönüşte tepe aks gezintisi 29,38 ve 32,03 mm, 0,25 Nm tork tepesi. Türetilen aktif caster yanal kayması 0,049 ve 0,060 mm/s RMS. Ayrı ileri komutsuz native r4’te 90° geçti. 180° başlangıç doğru yaw’a rağmen 27,07 mm ile 20 mm son poz sınırını aştı."
+          "measurement_tr": "15 cm kalkıştan ayrı yerinde dönüş. 90° ve 180° caster için 250 ms duruş onayı 16,566 ve 17,686 s. Dönüşte tepe aks gezintisi 29,38 ve 32,03 mm, 0,25 Nm tork tepesi. Türetilen aktif caster yanal kayması 0,049 ve 0,060 mm/s RMS. Doğrudan 90° başlangıç geçti. 180° başlangıçta üç hız profili ve −20° ön dönüş sonrası en iyi son poz hatası 26,78 mm, 20 mm sınırının üzerinde."
         }
       },
       "figure": "qualification/M09.png",

@@ -126,6 +126,13 @@ The revised clockwise terminal hold finished 11.12 mm from its
 target. The first clockwise candidate remains documented with one
 of eight gates.
 
+M09's native short launch, in-place yaw command and later position
+trim finished within the accepted pose band for both initial caster
+angles. In a separate sequence with zero forward request throughout,
+the 90° caster case reached the pose band. The best 180° result across
+three monotone profiles and an opposite-yaw prefix was 26.78 mm from the
+start, above the 20 mm bound. Both protocols appear in the case card.
+
 The first four V4 QR runs used the projected marker center. All four
 finished just beyond the 265 mm depth limit. Revised centered, left and
 right runs held the depth and 20 mm pose bounds together for 0.40 s.
