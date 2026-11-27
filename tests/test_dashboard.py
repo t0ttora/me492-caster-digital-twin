@@ -53,28 +53,22 @@ class DashboardTests(unittest.TestCase):
         url = build_site.GH + '/blob/main/reports/ME492_Timetable_EN.pdf'
         self.assertEqual(build_site.safe_link(url), 'report-ME492_Timetable_EN.html')
 
-    def test_progress_percentages_require_verification(self):
-        records = [
-            {'state':'closed', 'labels':['type:weekly', 'status:verified']},
-            {'state':'open', 'labels':['type:weekly', 'status:in-progress']},
-            {'state':'closed', 'labels':['type:gate']},
-        ]
-        summary = build_site.progress_summary(records)
-        self.assertEqual(summary.count('>50%<'), 2)
-        self.assertIn('>0%<', summary)
-        self.assertIn('1 of 2 records', summary)
-        self.assertIn('0 of 1 records', summary)
-        self.assertIn('Not available', build_site.progress_summary([]))
-        self.assertIn('0 of 1 records', build_site.progress_summary([{'state':'open','labels':['type:weekly','status:verified']}]))
+    def test_weekly_counts_do_not_appear_as_project_completion(self):
+        self.assertNotIn('PROJECT PROGRESS', self.pages['index'])
+        self.assertNotIn('data-summary=', self.html)
+        self.assertNotIn('class="metric-value"', self.pages['index'])
+        self.assertIn('class="metric-value"', self.pages['progress'].split('id="weekly-progress"')[1])
 
     def test_simulation_qualification_on_both_progress_views(self):
         matrix = json.loads((ROOT / 'reports/janus/qualification-matrix.json').read_text())
         passed = sum(case['status'] == 'passed' for case in matrix['cases'])
         for slug in ('index', 'progress'):
             page = self.pages[slug]
-            self.assertIn(f'Simulation cases passed</dt><dd>{passed} / {len(matrix["cases"])}</dd>', page)
-            self.assertIn(f'Physical runs in the public inventory</dt><dd>{self.data["published_runs"]}</dd>', page)
+            self.assertIn(f'<strong>{passed} / {len(matrix["cases"])}</strong> cases passed', page)
+            for track, result in [('Python V2.3', '29 / 29'), ('Native Simscape', '16 / 16'), ('ROS 2 / Gazebo', '27 / 27')]:
+                self.assertIn(f'<dt>{track}</dt><dd>{result}</dd>', page)
             self.assertIn('href="reports/janus/qualification-matrix.tsv"', page)
+        self.assertIn(f'Physical runs in the public inventory: <b>{self.data["published_runs"]}</b>', self.pages['progress'])
 
     def test_weekly_and_gate_views_share_task_status_and_evidence(self):
         fixture = json.loads((ROOT / 'site/issue-snapshot.json').read_text())['issues']

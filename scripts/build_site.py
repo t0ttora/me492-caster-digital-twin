@@ -177,29 +177,24 @@ def check():
     print('PASS: escaping, tables, checklists, evidence status and document links')
 
 
-def progress_summary(issues):
-    def labelled(issue, label):
-        return any((item if isinstance(item, str) else item['name']) == label for item in issue['labels'])
-    weekly = [issue for issue in issues if labelled(issue, 'type:weekly')]
-    gates = [issue for issue in issues if labelled(issue, 'type:gate')]
-    rows = []
-    for key, label, records, target in [('weekly-verified', 'Verified weekly tasks', weekly, 'verified'), ('weekly-active', 'Work in progress', weekly, 'in-progress'), ('gates-verified', 'Verified decision gates', gates, 'verified')]:
-        count = sum(state(issue) == target for issue in records)
-        percent = int(count / len(records) * 1000 + 0.5) / 10 if records else 0
-        value = f'{percent:g}%' if records else 'Not available'
-        rows.append(f'<div class="completion-row" data-summary="{key}"><div><span>{label}</span><b class="completion-value">{value}</b></div><progress value="{percent}" max="100" aria-label="{label}"></progress><p class="completion-count">{count} of {len(records)} records</p></div>')
-    return ''.join(rows)
-
-
-def qualification_summary(matrix, physical_runs):
+def qualification_summary(matrix):
     cases = matrix['cases']
     passed = sum(case['status'] == 'passed' for case in cases)
-    pilot = '<p class="muted small">The operator-assisted robot pilot is pending.</p>' if matrix['physical_pilot'] == 'pending' else ''
+    tracks = {
+        'Python V2.3': {'Python'},
+        'Native Simscape': {'Simscape'},
+        'ROS 2 / Gazebo': {'Gazebo Linux', 'Gazebo kamerası / video', 'ROS 2 Linux', 'ROS 2 + Gazebo Linux'},
+    }
+    rows = []
+    for label, environments in tracks.items():
+        checks = [component for case in cases for environment, component in case['components'].items() if environment in environments]
+        passed_checks = sum(check['status'] == 'passed' for check in checks)
+        rows.append(f'<div><dt>{label}</dt><dd>{passed_checks} / {len(checks)}</dd></div>')
     return f'''<article class="qualification-summary" aria-labelledby="janus-qualification">
-<h2 id="janus-qualification">JANUS qualification</h2>
-<dl><div><dt>Simulation cases passed</dt><dd>{passed} / {len(cases)}</dd></div>
-<div><dt>Physical runs in the public inventory</dt><dd>{physical_runs}</dd></div></dl>
-{pilot}
+<h2 id="janus-qualification">JANUS simulation qualification</h2>
+<p class="qualification-result"><strong>{passed} / {len(cases)}</strong> cases passed</p>
+<dl aria-label="Assigned checks passed by environment">{''.join(rows)}</dl>
+<p class="muted small">Each case runs in its required environments. ROS 2 / Gazebo includes live Linux runs and camera replay.</p>
 <p class="qualification-links"><a href="reports/janus/qualification-matrix.tsv">Case matrix ↗</a>
 <a href="report-Arche_JANUS_Vaka_Kartlari_TR.html">Illustrated case cards ↗</a>
 <a href="records/docs/progress/2026-11-27-janus-experiments.html">Experiment record ↗</a></p>
@@ -299,8 +294,8 @@ def build(issues, comments):
     with (ROOT / 'docs/research/run-inventory.csv').open() as source:
         run_count = len(list(csv.DictReader(source)))
     qualification = json.loads((ROOT / 'reports/janus/qualification-matrix.json').read_text())
-    tokens = {'COMPLETION': progress_summary(issues), 'RUN_COUNT': str(run_count), 'ACCESS_SNAPSHOT': escape((ROOT / access).read_text().split('\n\n')[1]), 'STATUS_TABLE': status_table, 'COMMITS': ''.join(commits), 'ACCESS': markdown((ROOT / access).read_text(), access, embedded=True), 'DECISIONS': markdown((ROOT / decisions).read_text(), decisions, embedded=True), 'FOCUS': focus, 'PROGRESS': ''.join(item[1] for item in journal), 'SYNC': f'GitHub and repository snapshot · Published: {short_date(built.isoformat())} (Istanbul).', 'TASKS': ''.join(tasks), 'ROADMAP': ''.join(roadmap), 'DOCUMENTS': ''.join(doc_links)}
-    tokens['JANUS_QUALIFICATION'] = qualification_summary(qualification, run_count)
+    tokens = {'RUN_COUNT': str(run_count), 'ACCESS_SNAPSHOT': escape((ROOT / access).read_text().split('\n\n')[1]), 'STATUS_TABLE': status_table, 'COMMITS': ''.join(commits), 'ACCESS': markdown((ROOT / access).read_text(), access, embedded=True), 'DECISIONS': markdown((ROOT / decisions).read_text(), decisions, embedded=True), 'FOCUS': focus, 'PROGRESS': ''.join(item[1] for item in journal), 'SYNC': f'GitHub and repository snapshot · Published: {short_date(built.isoformat())} (Istanbul).', 'TASKS': ''.join(tasks), 'ROADMAP': ''.join(roadmap), 'DOCUMENTS': ''.join(doc_links)}
+    tokens['JANUS_QUALIFICATION'] = qualification_summary(qualification)
     tokens['WEEKLY_PROGRESS'] = ''.join(weekly_progress)
     tokens['GATE_PROGRESS'] = ''.join(gate_progress)
     layout = (ROOT / 'site/layout.html').read_text()
