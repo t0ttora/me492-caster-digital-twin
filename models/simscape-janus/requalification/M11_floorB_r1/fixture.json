@@ -1,0 +1,13 @@
+{
+  "fixture": "low_friction",
+  "synthetic": true,
+  "static_friction": 0.25,
+  "dynamic_friction": 0.15,
+  "scope": "UNIFORM_SECOND_SURFACE_NO_BOUNDARY",
+  "contacts": {
+    "stiffness_Npm": 100000,
+    "damping_Nspm": 500,
+    "transition_m": 0.0001,
+    "critical_velocity_mps": 0.01
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "fixture": "boundary",
+  "synthetic": true,
+  "boundary_x_m": 0.2,
+  "floor_A_x_m": [
+    -2.2,
+    0.2
+  ],
+  "floor_B_x_m": [
+    0.2,
+    2.2
+  ],
+  "y_domain_m": [
+    -1,
+    1
+  ],
+  "top_z_m": [
+    0,
+    0
+  ],
+  "static_friction": [
+    0.5,
+    0.25
+  ],
+  "dynamic_friction": [
+    0.3,
+    0.15
+  ],
+  "geometry_proxy": "Convex exported solid wheel hull against world-fixed brick solid hull; no time-based material switching",
+  "contact_normal_frame": "Each pair contact frame; signed component3 is pair normal magnitude, not common world-Z near edges",
+  "contacts": {
+    "stiffness_Npm": 100000,
+    "damping_Nspm": 500,
+    "transition_m": 0.0001,
+    "critical_velocity_mps": 0.01
+  }
+}

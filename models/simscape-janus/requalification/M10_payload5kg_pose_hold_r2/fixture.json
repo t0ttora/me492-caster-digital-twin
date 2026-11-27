@@ -1,0 +1,27 @@
+{
+  "fixture": "payload5kg",
+  "synthetic": true,
+  "added_mass_kg": 5,
+  "payload_com_axle_m": [
+    -0.04,
+    0,
+    0.155
+  ],
+  "payload_dimensions_m": [
+    0.2,
+    0.2,
+    0.15
+  ],
+  "base_chassis_mass_kg": 15.2,
+  "base_chassis_dimensions_m": [
+    0.5,
+    0.32,
+    0.08
+  ],
+  "contacts": {
+    "stiffness_Npm": 100000,
+    "damping_Nspm": 500,
+    "transition_m": 0.0001,
+    "critical_velocity_mps": 0.01
+  }
+}

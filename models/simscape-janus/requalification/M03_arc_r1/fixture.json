@@ -1,0 +1,10 @@
+{
+  "fixture": "nominal",
+  "synthetic": true,
+  "contacts": {
+    "stiffness_Npm": 100000,
+    "damping_Nspm": 500,
+    "transition_m": 0.0001,
+    "critical_velocity_mps": 0.01
+  }
+}

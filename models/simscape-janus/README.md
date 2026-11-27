@@ -90,6 +90,22 @@ wheel gains. The `q06prime_persistent_abort` fixture uses a 1.0 s
 continuous loss timeout and holds the abort through run end.
 [Supplemental QR results](../../reports/janus/native-qr-supplements.json)
 
+## Requalification candidates
+
+The `requalification/<scenario>/` folders contain models run on Elo
+after the first experiment package. Each saved SLX is accompanied by
+its exact controller. The model index records both hashes, the solver
+step, the run duration and the candidate's measured controller gate.
+For terrain and payload cases, `fixture.json` records the added solid
+geometry or load. The project report gives the case-level acceptance
+scope and links the selected measurements.
+
+For a reproduction, copy one candidate directory to a writable local
+directory, make it the MATLAB current folder and open the stored model.
+Use MATLAB R2026b with Simulink, Simscape and Simscape Multibody. Keep
+trajectory runs, caster/terrain diagnostics and open-loop effort
+replays under distinct run IDs.
+
 ## Terrain feasibility
 
 The 3° infinite-plane run contains a tilted plane, axle height and
