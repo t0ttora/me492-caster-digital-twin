@@ -179,3 +179,12 @@ html[data-embed] .seekline { margin: 0; }
 @media (prefers-reduced-motion: reduce) {
   #viewport canvas { transition: none !important; }
 }
+@media (max-width: 365px) {
+  html:not([data-embed]) .transport-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: 5px;
+  }
+  html:not([data-embed]) .play-tools { grid-column: 1 / -1; }
+  html:not([data-embed]) #time { justify-self: start; margin: 0; }
+}
