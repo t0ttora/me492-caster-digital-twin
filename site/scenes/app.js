@@ -65,6 +65,7 @@ const caseTitle=c=>c.titleEn || c.title;
 const video=$('camera-video');
 const cameraInput=$('camera-input');
 const sensorButton=views.find(button => button.dataset.view === 'sensor');
+const casterReadout=$('caster-readout');
 
 function button(text, classes) {
   const node=document.createElement('button');
@@ -199,6 +200,7 @@ function showRenderError(error, retry=false) {
   $('fallback-message').textContent=retry?'This case could not load.':'3D is unavailable on this device.';
   $('viewer-fallback').hidden=false;
   $('retry-case').hidden=!retry;
+  casterReadout.hidden=true;
   $('tracking-status').textContent='';
   $('record').disabled=true;
   setCameraTools();
@@ -227,7 +229,9 @@ function installTrack() {
   $('clip-link').href = clip;
   $('clip-link').textContent = track.media ? 'Camera input MP4 ↗' : 'MP4 ↗';
   $('fallback-clip').href = clip;
-  sensorButton.textContent = track.media ? 'Camera input' : 'Camera';
+  sensorButton.textContent = track.media ? 'Input' : 'Camera';
+  sensorButton.setAttribute('aria-label', track.media ? 'Camera input' : 'Camera');
+  $('caster-legend').hidden=!track.jointSignals.includes('caster');
   $('seek').max=track.end;
   $('event-count').textContent=track.events.length || '';
   $('show-section').hidden=!track.setup.boxes.some(b=>b.style==='guard');
@@ -278,7 +282,10 @@ function seek(t) {
   if (p) {
     $('axis').textContent=fmt.format(p[1])+' / '+fmt.format(p[2])+' m';
     const angle=theta=>short.format(Math.atan2(Math.sin(theta),Math.cos(theta))*180/Math.PI)+'°';
-    $('angle').textContent=angle(p[4])+' / '+(track.jointSignals.includes('caster')?angle(p[5]):'—');
+    const swivel = track.jointSignals.includes('caster') ? angle(p[5]) : null;
+    $('angle').textContent=angle(p[4])+' / '+(swivel ?? '—');
+    $('caster-measurement').textContent=swivel === null ?
+      'Swivel angle unavailable for this run' : 'Logged swivel · '+swivel;
     $('velocity').textContent=fmt.format(p[9])+' m/s';
   }
   const e=latestAt(track.events,time);
@@ -330,7 +337,7 @@ function pause() {
   $('reverse').setAttribute('aria-pressed','false');
 }
 
-function setView(next) {
+function setView(next, update=false) {
   view=next;
   const cameraReplay = view === 'sensor' && Boolean(track?.media);
   cameraInput.hidden = !cameraReplay;
@@ -341,6 +348,9 @@ function setView(next) {
     video.pause();
   }
   document.getElementById('scene').classList.toggle('camera-input-view',cameraReplay);
+  casterReadout.hidden=embedded || view!=='caster' || Boolean(renderError);
+  viewport.classList.toggle('caster-view',view==='caster');
+  $('show-trace').disabled=view==='caster';
   playbackTools.forEach(control => {control.disabled = cameraReplay || Boolean(renderError);});
   viewer?.setView(view);
   for (const b of views) b.setAttribute('aria-pressed',String(b.dataset.view===view));
@@ -349,6 +359,11 @@ function setView(next) {
   $('gesture-help').textContent=view==='sensor'?'View from the simulated robot camera':
     view==='top'?'Drag to pan · scroll to zoom':'Drag to orbit · pinch or scroll to zoom';
   setCameraTools();
+  if (update && !embedded) {
+    const url = new URL(location.href);
+    url.searchParams.set('view',view);
+    history.replaceState(null,'',url);
+  }
   $('pan-mode').disabled=view!=='overview' || Boolean(renderError);
 }
 
@@ -423,7 +438,7 @@ for (const b of filters) b.addEventListener('click',()=>{
   $('case-list').scrollTop=0;
 });
 $('search').addEventListener('input',renderCatalog);
-for(const b of views) b.addEventListener('click',()=>setView(b.dataset.view));
+for(const b of views) b.addEventListener('click',()=>setView(b.dataset.view,true));
 for(const [name,action] of [['show-trace','setTrace'],['show-props','setProps'],['show-section','setSection']]) {
   $(name).addEventListener('click',e=>{
     const show=e.currentTarget.getAttribute('aria-pressed')!=='true';
@@ -472,7 +487,7 @@ viewport.addEventListener('keydown',e=>{
   if (e.target!==viewport) return;
   if (e.code==='Space') { e.preventDefault(); play(); return; }
   if (!viewer || renderError || view==='sensor') return;
-  if (view !== 'robot' && panKeys[e.key]) viewer.pan(...panKeys[e.key]);
+  if (view !== 'robot' && view !== 'caster' && panKeys[e.key]) viewer.pan(...panKeys[e.key]);
   else if (['+', '=','-'].includes(e.key)) viewer.zoom(e.key==='-'?-1:1);
   else if (e.key==='0') setView(view);
   else return;
@@ -485,7 +500,15 @@ function fromAddress() {
   const run=Number(params.get('kosu'));
   return [list.some(c=>c.id===id)?id:'Q04',Number.isSafeInteger(run)?Math.max(0,run-1):0];
 }
-window.addEventListener('popstate',()=>{if(list.length) selectCase(...fromAddress());});
+function viewFromAddress() {
+  const requested = new URLSearchParams(location.search).get('view');
+  if (!embedded && views.some(button => button.dataset.view === requested)) return requested;
+  return !embedded && compactLayout.matches ? 'robot' : 'overview';
+}
+window.addEventListener('popstate',()=>{
+  view=viewFromAddress();
+  if(list.length) selectCase(...fromAddress());
+});
 playbackTools.forEach(control=>{control.disabled=true;});
 views.forEach(control=>{control.disabled=true;});
 setCameraTools();
@@ -495,7 +518,7 @@ try {
   list=index.cases;
   try {
     viewer=new JanusViewer(viewport);
-    if (!embedded && compactLayout.matches) view = 'robot';
+    view = viewFromAddress();
     viewer.controls.enableZoom=!embedded;
     await viewer.load();
   } catch(error) {

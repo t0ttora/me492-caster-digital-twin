@@ -10,7 +10,7 @@ const FORWARD = new Vector3(1, 0, 0);
 const color = {
   fixture: 0x919d9d, guard: 0x8b9e9e, terrain: 0x8f9e9d, dock: 0x9ba7a4,
   surface: 0x515d5d, axle: 0x899494, actor: 0xb76d36, mast: 0x99a9aa, trim: 0xeeeade, edge: 0x6d7774,
-  path: 0x1b8c77, pad: 0x5b7872, amber: 0xe2a54d,
+  path: 0x1b8c77, pad: 0x5b7872, amber: 0xe2a54d, casterFloor: 0x262626,
 };
 const ZERO = new Vector3();
 
@@ -74,7 +74,7 @@ export class JanusViewer {
     this.renderer.domElement.setAttribute('aria-label','Simulation robot and test fixture');
     host.prepend(this.renderer.domElement);
     this.scene = new THREE.Scene();
-    this.sensorBackground = new THREE.Color(0x202320);
+    this.sensorBackground = new THREE.Color(0x111111);
     const environment = new RoomEnvironment();
     const pmrem = new THREE.PMREMGenerator(this.renderer);
     this.scene.environment = pmrem.fromScene(environment, .055).texture;
@@ -152,10 +152,16 @@ export class JanusViewer {
     const controlsMargin = this.host.clientWidth < 450 && !document.documentElement.dataset.embed ? 1.12 : 1;
     const span = this.view === 'top' ? Math.max(d.h+0.14,(d.w+0.12)/aspect) :
       Math.max(d.h*.58 + d.w*.37 + .46, (d.w*.84+d.h*.54+.25)/aspect)*1.06;
-    const halfSpan = this.view === 'robot' ? Math.max(.65, .73 / aspect) / 2 : span * controlsMargin / 2;
+    const closeSpan = {robot: [.65, .73], caster: [.28, .32]}[this.view];
+    const halfSpan = closeSpan ? Math.max(closeSpan[0], closeSpan[1] / aspect) / 2 : span * controlsMargin / 2;
     this.camera.top = halfSpan; this.camera.bottom = -halfSpan;
     this.camera.left = -halfSpan*aspect; this.camera.right = halfSpan*aspect;
-    this.camera.updateProjectionMatrix();
+    const {clientWidth: width, clientHeight: height} = this.host;
+    if (this.view === 'caster' && width > 0 && height > 0 && height < 385) {
+      this.camera.setViewOffset(width, height, 0, Math.min(32, (385 - height) * .85), width, height);
+    } else {
+      this.camera.clearViewOffset();
+    }
     this.updateRuler();
   }
 
@@ -169,8 +175,16 @@ export class JanusViewer {
   setView(view) {
     this.view = view;
     this.controls.enabled = view !== 'sensor';
-    this.controls.enablePan = view !== 'robot';
+    this.controls.enablePan = view !== 'robot' && view !== 'caster';
+    this.controls.maxPolarAngle = Math.PI/2 - (view === 'caster' ? .02 : .075);
     this.scene.background = view === 'sensor' ? this.sensorBackground : null;
+    if (this.casterGuide) {
+      this.floor.material = view === 'caster' ? this.material('casterFloor') : this.floorMaterials;
+      this.path.visible = this.traceVisible && view !== 'caster';
+      this.casterGuide.visible = view === 'caster';
+      this.casterCutaway.visible = view === 'caster';
+      for (const part of this.casterOccluders) part.visible = view !== 'caster';
+    }
     this.applySection();
     for (const { print, originalMaterial } of this.markers || []) {
       if (print) print.material = view === 'sensor' ? originalMaterial : this.decalMaterial;
@@ -179,7 +193,13 @@ export class JanusViewer {
     if (!this.bounds) return;
     const {cx,cy,w,h} = this.bounds;
     this.controls.target.copy(xyz(cx, cy, .10));
-    if (view === 'robot') {
+    if (view === 'caster') {
+      const yaw = this.robot.getWorldQuaternion(new Quaternion());
+      this.joints[0].getWorldPosition(this.controls.target).addScaledVector(UP,-.023);
+      const offset = xyz(-.30,-.235,.185).applyQuaternion(yaw);
+      this.camera.position.copy(this.controls.target).add(offset);
+      this.controls.enableRotate = true;
+    } else if (view === 'robot') {
       this.controls.target.copy(this.robot.position).addScaledVector(UP,.075);
       this.camera.position.copy(this.controls.target).add(xyz(-.59,-.72,.44));
       this.controls.enableRotate = true;
@@ -310,7 +330,8 @@ export class JanusViewer {
     Object.assign(this.key.shadow.camera,{left:-shadowSpan,right:shadowSpan,bottom:-shadowSpan,top:shadowSpan});
     this.key.shadow.camera.updateProjectionMatrix();
 
-    this.box('Concrete slab',[w,h,.078],[cx,cy,-.04],'concrete');
+    this.floor = this.box('Concrete slab',[w,h,.078],[cx,cy,-.04],'concrete');
+    this.floorMaterials = this.floor.material;
     this.box('Slab lower band',[w+.024,h+.024,.016],[cx,cy,-.085],'edge');
     for (const side of [-1,1]) {
       this.box('Floor trim',[w*.87,.011,.001],[cx,cy+side*(h/2-.051),.001],'trim');
@@ -401,12 +422,14 @@ export class JanusViewer {
     const [cameraX,cameraY,cameraZ] = setup.camera;
     this.joints = ['CASTER_SWIVEL','WHEEL_L','WHEEL_R','CASTER_ROLL'].map(name => this.robot.getObjectByName(name));
     const [swivel] = this.joints;
+    const flange = swivel.getObjectByName('Caster_bearing_flange');
+    this.robot.attach(flange);
     for (const side of [-1,1]) {
       this.box('Drive mount gusset',[.071,.045,.036],[0,side*.151,.024],'edge',this.robot);
       this.shaft('Drive hub spacer',.021,.035,[0,side*.169,0],this.robot,true);
       this.shaft('Drive axle',.011,.054,[0,side*.166,0],this.robot,true);
     }
-    this.box('Caster chassis mount',[.082,.080,.015],[-.180,0,.020],'edge',this.robot);
+    const mount = this.box('Caster chassis mount',[.082,.080,.015],[-.180,0,.020],'edge',this.robot);
     this.shaft('Caster swivel spindle',.015,.042,[0,0,-.008],swivel);
     this.shaft('Caster fork axle',.006,.041,[-.05,0,-.060],swivel,true);
 
@@ -431,6 +454,7 @@ export class JanusViewer {
       p.position.copy(xyz(-.01,0,.124));
     }
 
+    this.setupCasterView(flange, mount);
     const raw=track.samples;
     const route=[xyz(raw[0][1],raw[0][2],Math.max(.006,raw[0][3]-.069))];
     for (const [,x,y,z] of raw) {
@@ -448,8 +472,53 @@ export class JanusViewer {
     }
     this.ring(raw[0][1],raw[0][2],.055,'path',this.path);
     this.ring(raw.at(-1)[1],raw.at(-1)[2],.072,'path',this.path);
-    this.setView(this.view);
     this.setTime(0);
+    this.setView(this.view);
+  }
+
+  setupCasterView(flange, mount) {
+    const [swivel, leftWheel, rightWheel, roll] = this.joints;
+    const exposedParts = [swivel, leftWheel, rightWheel, flange, mount];
+    this.casterOccluders = this.robot.children.filter(part => !exposedParts.includes(part));
+    // The shell outline shows the caster in its installed position without occluding the fork.
+    const shell = this.robot.getObjectByName('Powder_coated_chassis');
+    this.casterCutaway = new THREE.LineSegments(
+      new THREE.EdgesGeometry(shell.geometry, 28),
+      new THREE.LineBasicMaterial({color: 0x9a9a9a, transparent: true, opacity: .45})
+    );
+    this.casterCutaway.position.copy(shell.position);
+    this.casterCutaway.quaternion.copy(shell.quaternion);
+    this.casterCutaway.scale.copy(shell.scale);
+    this.casterCutaway.userData.localMesh = true;
+    this.casterCutaway.userData.localMaterial = true;
+    this.casterCutaway.visible = false;
+    this.robot.add(this.casterCutaway);
+
+    const guide = this.casterGuide = new THREE.Group();
+    guide.name = 'Caster angle reference';
+    guide.visible = false;
+    guide.position.copy(swivel.position).addScaledVector(UP,.014);
+    this.robot.add(guide);
+    const trail = -roll.position.x;
+    const radius = trail + .012;
+    const line = (name, points, tint, loop = false) => {
+      const geometry = new THREE.BufferGeometry().setFromPoints(points);
+      const material = new THREE.LineBasicMaterial({color: tint, toneMapped: false});
+      const object = loop ? new THREE.LineLoop(geometry, material) : new THREE.Line(geometry, material);
+      object.name = name;
+      object.userData.localMesh = true;
+      object.userData.localMaterial = true;
+      guide.add(object);
+      return object;
+    };
+    const ring = Array.from({length: 64}, (_, i) => {
+      const angle = i * Math.PI / 32;
+      return xyz(radius * Math.cos(angle), radius * Math.sin(angle), 0);
+    });
+    line('Fixed swivel scale', ring, 0x777777, true);
+    line('Chassis forward reference', [xyz(radius-.008,0,0),xyz(radius+.010,0,0)], 0x9edaff);
+    this.casterTrail = line('Rotating trail direction', [ZERO, xyz(-trail,0,0)], 0xf1ad67);
+    this.casterTrail.visible = this.track.jointSignals.includes('caster');
   }
 
   setSection(show) {
@@ -480,7 +549,7 @@ export class JanusViewer {
 
   setTrace(show) {
     this.traceVisible=show;
-    if (this.path) this.path.visible=show;
+    if (this.path) this.path.visible=show && this.view !== 'caster';
     this.render();
   }
 
@@ -495,6 +564,8 @@ export class JanusViewer {
     const p=sampleAt(this.track.samples,t);
     const [,x,y,z,yaw,steer,l,r,c,,pitch,roll] = p;
     const position = xyz(x,y,z);
+    const followsCaster = this.view === 'caster' && this.casterGuide?.visible;
+    const previousPivot = followsCaster ? this.joints[0].getWorldPosition(new Vector3()) : null;
     if (this.view === 'robot') {
       const delta = position.clone().sub(this.robot.position);
       this.controls.target.add(delta);
@@ -506,6 +577,7 @@ export class JanusViewer {
       .multiply(new Quaternion().setFromAxisAngle(FORWARD,roll));
     this.joints[0].rotation.y=steer;
     this.joints[1].rotation.z=-l;this.joints[2].rotation.z=-r;this.joints[3].rotation.z=-c;
+    this.casterTrail.rotation.y=steer;
     if (this.actor) {
       const q=sampleAt(this.track.setup.actor,t);
       if (q) this.actor.position.copy(xyz(q[1],q[2],q[3]));
@@ -519,6 +591,11 @@ export class JanusViewer {
       }
     }
     this.robot.updateMatrixWorld(true);
+    if (previousPivot) {
+      const delta = this.joints[0].getWorldPosition(new Vector3()).sub(previousPivot);
+      this.controls.target.add(delta);
+      this.camera.position.add(delta);
+    }
     this.sensor.position.copy(this.head.getWorldPosition(ZERO.clone()));
     const direction=this.head.getWorldQuaternion(new Quaternion());
     this.sensor.up.copy(UP).applyQuaternion(direction);

@@ -1,8 +1,8 @@
 :root {
   --accent: #9ed6ff;
-  --surface: #171a19;
-  --surface-raised: #202420;
-  --line: #3c413b;
+  --surface: #171717;
+  --surface-raised: #232323;
+  --line: #3e3e3e;
   --muted: #a9afa7;
   --paper: #f3f4ec;
   --space: 48px;
@@ -241,7 +241,7 @@ html:has(.research-frame) { scroll-padding-top: calc(var(--ruler) + 72px); }
 .log-figure-grid figure,.log-wide-figure { display: flex; flex-direction: column; margin: 0; }
 .log-figure-grid :is(img,canvas),.log-wide-figure img {
   display: block; width: 100%; height: auto; max-width: 100%;
-  background: #171918; border: 1px solid var(--line);
+  background: var(--surface); border: 1px solid var(--line);
 }
 .log-figure-grid img { aspect-ratio: 3 / 2; object-fit: contain; }
 .log-figure-grid a:hover img,.log-wide-figure a:hover img { border-color: var(--accent); }
@@ -257,7 +257,7 @@ html:has(.research-frame) { scroll-padding-top: calc(var(--ruler) + 72px); }
 .example-grid p { margin-top: 6px; color: var(--muted); font-size: .875rem; }
 .example-grid pre {
   flex: 1; width: 100%; margin: 10px 0; padding: 11px;
-  overflow: auto; border: 1px solid var(--line); background: #171918;
+  overflow: auto; border: 1px solid var(--line); background: var(--surface);
   color: #d7e9ee; font: .75rem/1.55 ui-monospace,monospace;
 }
 .example-area button {
@@ -320,7 +320,7 @@ html:has(.figure-viewer[open]) { overflow: hidden; }
   overflow: hidden;
 }
 .figure-viewer[open] { display: grid; grid-template-rows: auto minmax(0,1fr) auto; }
-.figure-viewer::backdrop { background: #080a09d9; }
+.figure-viewer::backdrop { background: #080808d9; }
 .figure-viewer-bar {
   display: flex; align-items: center; justify-content: space-between;
   gap: 8px 16px; padding: 8px 12px; border-bottom: 1px solid var(--line);
@@ -337,7 +337,7 @@ html:has(.figure-viewer[open]) { overflow: hidden; }
 .figure-viewer :is(a,button,[tabindex]):focus-visible { outline-offset: 2px; }
 .figure-stage {
   display: grid; place-items: center; min-width: 0; min-height: 0;
-  overflow: auto; overscroll-behavior: contain; padding: 8px; background: #101411;
+  overflow: auto; overscroll-behavior: contain; padding: 8px; background: var(--ink);
 }
 .figure-stage img { display: block; width: 100%; height: 100%; min-height: 0; object-fit: contain; }
 .figure-stage img[hidden] { display: none; }

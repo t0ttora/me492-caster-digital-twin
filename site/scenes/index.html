@@ -44,6 +44,7 @@
             <button type="button" data-view="overview" aria-pressed="true">Scene</button>
             <button type="button" data-view="top" aria-pressed="false">Top</button>
             <button type="button" data-view="robot" aria-pressed="false">Robot</button>
+            <button type="button" data-view="caster" aria-pressed="false">Caster</button>
             <button type="button" data-view="sensor" aria-pressed="false">Camera</button>
           </div>
         </div>
@@ -57,6 +58,17 @@
         <div class="view-footer">
           <span id="gesture-help">Drag to orbit · scroll to zoom · right-drag to pan</span>
           <span class="mono" id="tracking-status" lang="en">Loading the scene…</span>
+        </div>
+        <div class="caster-readout" id="caster-readout" hidden>
+          <p id="caster-measurement"></p>
+          <p id="caster-legend" class="caster-legend">
+            <span>Chassis forward</span><span>Pivot to wheel axle</span>
+          </p>
+          <nav aria-label="Caster replay examples">
+            <a href="?vaka=M08&amp;view=caster">M08 reversal</a>
+            <a href="?vaka=M09&amp;view=caster">M09 pivot</a>
+            <a href="?vaka=Q04&amp;kosu=2&amp;view=caster">Q04 joint log</a>
+          </nav>
         </div>
         <div id="camera-input" class="camera-input" hidden>
           <video id="camera-video" controls preload="metadata" playsinline aria-label="Recorded Gazebo camera stimulus"></video>
@@ -97,6 +109,13 @@
         <p class="fixture-note" id="fixture-note" hidden></p>
         <div class="scene-links"><a id="result-link" href="../results.html#case-Q04">Case evidence ↗</a><a id="clip-link" href="clips/Q04.mp4">MP4 ↗</a><a href="credits.html">Model credits ↗</a></div>
       </section>
+      <details class="inspector-block detail-block">
+        <summary>Caster interpretation</summary>
+        <p>The wheel axle trails the vertical swivel axis by 50 mm in the replay model. The Caster view shows swivel relative to the chassis, with wheel roll on a separate axle.</p>
+        <p>M08 compares mirrored starting angles during a stop and reversal. M09 tests pivoting from 90° and 180° initial caster angles. The native 180° run with zero forward request finished 26.78 mm from its starting position against a 20 mm limit.</p>
+        <p>Use these replays to inspect recorded motion. The browser plays the saved poses and joint samples.</p>
+        <p class="scene-links"><a href="../results.html#case-M08">M08 evidence ↗</a><a href="../results.html#case-M09">M09 evidence ↗</a></p>
+      </details>
       <details class="inspector-block detail-block" open>
         <summary>Events <span class="mono" id="event-count"></span></summary>
         <div class="event-list" id="events"></div>
