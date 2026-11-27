@@ -1,6 +1,7 @@
 from ament_index_python.packages import get_package_share_path
 from launch import LaunchDescription
 from launch.actions import AppendEnvironmentVariable, DeclareLaunchArgument, IncludeLaunchDescription
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
@@ -16,11 +17,14 @@ def generate_launch_description():
     sim_time = {"use_sim_time": True}
     return LaunchDescription([
         DeclareLaunchArgument("gz_flags", default_value="-r -s --headless-rendering -v 3"),
+        DeclareLaunchArgument("world_sdf", default_value=str(sim / "worlds/janus.sdf")),
+        DeclareLaunchArgument("target_id", default_value="JANUS-DOCK-01"),
+        DeclareLaunchArgument("run_qr_observer", default_value="true"),
         AppendEnvironmentVariable("GZ_SIM_RESOURCE_PATH", str(sim / "models")),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(str(gz_sim / "launch/gz_sim.launch.py")),
             launch_arguments={
-                "gz_args": [LaunchConfiguration("gz_flags"), " ", str(sim / "worlds/janus.sdf")],
+                "gz_args": [LaunchConfiguration("gz_flags"), " ", LaunchConfiguration("world_sdf")],
                 "on_exit_shutdown": "true",
             }.items(),
         ),
@@ -36,6 +40,7 @@ def generate_launch_description():
         Node(package="arche_experiments", executable="command_guard", parameters=[sim_time],
              output="screen"),
         Node(package="arche_experiments", executable="qr_observer",
-             parameters=[sim_time, {"target_u_px": 320.0, "target_id": "JANUS-DOCK-01"}],
+             condition=IfCondition(LaunchConfiguration("run_qr_observer")),
+             parameters=[sim_time, {"target_u_px": 320.0, "target_id": LaunchConfiguration("target_id")}],
              output="screen"),
     ])

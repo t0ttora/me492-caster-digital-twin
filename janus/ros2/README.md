@@ -1,6 +1,6 @@
 # Arche JANUS ROS 2 and Gazebo
 
-This workspace targets Ubuntu 24.04, ROS 2 Jazzy and Gazebo Harmonic. It includes the nominal robot, a world with one camera-facing QR marker, a bridge, a simulation-only command guard, camera observations and bag utilities. The Mac suite expands Xacro, parses XML/YAML and exercises the same Python helpers used by the ROS nodes. Linux build, spawn, Gazebo rendering, ROS transport, bag recording and closed-loop case performance require a native run.
+This workspace targets Ubuntu 24.04, ROS 2 Jazzy and Gazebo Harmonic. It includes the nominal robot, a world with one camera-facing QR marker, a bridge, a simulation-only command guard, camera observations and bag utilities. The Mac suite expands Xacro, parses XML/YAML and exercises the same Python helpers used by the ROS nodes. The Linux runner below records independent simulation state and rendered camera data for bounded native scenarios.
 
 ## Interfaces
 
@@ -69,7 +69,7 @@ Configure the official Jazzy ROS apt repository and install Jazzy before using t
 
 ```sh
 sudo apt update
-sudo apt install ros-jazzy-ros-base ros-jazzy-ros-gz ros-dev-tools \
+sudo apt install build-essential ros-jazzy-ros-base ros-jazzy-ros-gz ros-jazzy-xacro ros-dev-tools \
   ros-jazzy-rosbag2-storage-mcap python3-qrcode python3-pil \
   python3-opencv python3-numpy python3-yaml
 source /opt/ros/jazzy/setup.bash
@@ -102,6 +102,17 @@ ros2 run tf2_ros tf2_echo map base_link --ros-args -p use_sim_time:=true
 ```
 
 Confirm one ROS publisher on `/clock` and on `/cmd_vel`, monotonic time, one `odom` → `base_link` TF authority, all four joint names, matching camera frames and the decoded station ID. Validate M01 idle first. Then use distinct run IDs for forward, reverse and positive yaw. Check wheel signs and motion against the independent world topic. In the native camera smoke, inspect the recorded image and verify the orientation of the rendered texture. Confirm the expected clock and frame stream before starting a bag.
+
+### Isolated case runner
+
+In a sourced Linux overlay, run one case per new output directory. The shell runner assigns a DDS domain and a Gazebo partition per invocation, and shuts down its dedicated process group. Keep any unrelated local ROS applications on a different domain. Set `JANUS_ROS_DOMAIN_ID` to a known unused ID when rerunning in a shared environment. The default launch starts the QR observer. The mechanical and command-fault fixtures disable that observer without changing the production default.
+
+```sh
+bash experiments/run-native-case.sh M02 /absolute/path/to/new-run-M02
+python3 experiments/validate-native.py /absolute/path/to/new-run-M02
+```
+
+The runner records measured Gazebo world pose, simulated odometry, measured wheel/caster joints, command-guard output and raw experiment events. QR case outputs also retain rendered camera frames and decoded observations. Q13 interrupts the camera bridge and reinjects a captured frame with its original timestamp. O08 pauses and resumes the live Gazebo clock and separately issues an explicit new request. These faults exercise the isolated simulator and ROS topics. The simulator supplies wheel-velocity actuation and these runs make no claim about applied axle effort or physical robot stopping distance.
 
 ## Native bag, replay and benchmark
 
